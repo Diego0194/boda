@@ -15,28 +15,26 @@
 <body>
 
 <header>
-  <div class="container">
+  <div class="container header-flex">
     <div class="brand">
-      <div>
-        <h1>F&D</h1>
-        <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
-      </div>
-
-      <!-- Botón menú móvil -->
-      <button class="menu-toggle" aria-label="Abrir menú">☰</button>
+      <h1>F&D</h1>
+      <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
     </div>
 
-    <nav class="nav-links">
-      <a href="index.html" class="active">Bienvenidos</a>
-      <a href="nosotros.html">Nosotros</a>
-      <a href="programa.html">Programa</a>
-      <a href="asistencia.html">Confirma asistencia</a>
-      <a href="direccion.html">Dirección</a>
-      <a href="informacion.html">Información útil</a>
-      <a href="regalos.html">Lista de regalos</a>
-      <a href="fotos.html">Fotos de la boda</a>
-    </nav>
+    <!-- Botón menú móvil -->
+    <button class="menu-toggle" aria-label="Abrir menú">☰</button>
   </div>
+
+  <nav class="nav-links">
+    <a href="index.html" class="active">Bienvenidos</a>
+    <a href="nosotros.html">Nosotros</a>
+    <a href="programa.html">Programa</a>
+    <a href="asistencia.html">Confirma asistencia</a>
+    <a href="direccion.html">Dirección</a>
+    <a href="informacion.html">Información útil</a>
+    <a href="regalos.html">Lista de regalos</a>
+    <a href="fotos.html">Fotos de la boda</a>
+  </nav>
 </header>
 
 <main class="page-wrapper">
@@ -91,6 +89,7 @@
   // Menú hamburguesa
   const toggle = document.querySelector('.menu-toggle');
   const nav = document.querySelector('.nav-links');
+
   toggle.addEventListener('click', () => {
     nav.classList.toggle('open');
     toggle.classList.toggle('active');

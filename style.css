@@ -1,14 +1,23 @@
 /* --- NAV BAR ESTILO BODAS.NET --- */
 header {
-  text-align: center;
-  padding: 40px 0 20px 0;
   background: #fff;
+  padding: 30px 20px 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+/* --- Estructura header flexible --- */
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .brand {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1;
 }
 
 h1 {
@@ -24,12 +33,33 @@ h1 {
   color: #666;
   font-size: 14px;
   margin-top: 4px;
+  text-align: center;
 }
 
-nav {
-  margin-top: 25px;
+/* --- Botón menú móvil --- */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #111;
+  transition: transform 0.3s ease;
+}
+
+.menu-toggle.active {
+  transform: rotate(90deg);
+}
+
+/* --- Navegación --- */
+nav.nav-links {
+  margin-top: 20px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
 }
 
 nav a {
@@ -37,7 +67,6 @@ nav a {
   color: #111;
   font-family: "Inter", sans-serif;
   font-size: 15px;
-  margin: 0 14px;
   padding-bottom: 4px;
   border-bottom: 1px solid transparent;
   transition: all 0.3s ease;
@@ -90,25 +119,24 @@ main.container {
 /* --- GALERÍA POLAROID --- */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* mínimo 220px, máximo 1fr */
-  gap: 20px; /* separación más pequeña */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
   justify-items: center;
   margin-top: 40px;
-  max-width: 900px; /* límite de ancho de la galería */
+  max-width: 900px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Adaptable para pantallas pequeñas */
 @media (max-width: 900px) {
   .gallery {
-    grid-template-columns: repeat(2, 1fr); /* 2 por fila */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 600px) {
   .gallery {
-    grid-template-columns: 1fr; /* 1 por fila */
+    grid-template-columns: 1fr;
   }
 }
 
@@ -238,33 +266,19 @@ main.container {
   max-width: 900px;
   margin: 0 auto;
   padding: 40px 20px;
-  opacity: 0;           /* inicio invisible */
+  opacity: 0;
   transition: opacity 0.5s ease;
 }
 
 .program-container.page-enter {
-  opacity: 1;            /* fade-in */
+  opacity: 1;
 }
 
 .program-container.page-leave {
-  opacity: 0;            /* fade-out */
+  opacity: 0;
 }
 
-/* --- MENÚ RESPONSIVE (móviles y tablets) --- */
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 26px;
-  cursor: pointer;
-  color: #111;
-  transition: transform 0.3s ease;
-}
-
-.menu-toggle.active {
-  transform: rotate(90deg);
-}
-
+/* --- MENÚ RESPONSIVE --- */
 @media (max-width: 850px) {
   nav.nav-links {
     display: none;
@@ -273,6 +287,7 @@ main.container {
     border-top: 1px solid #eee;
     margin-top: 10px;
     padding: 15px 0;
+    animation: fadeDown 0.3s ease;
   }
 
   nav.nav-links.open {
@@ -287,4 +302,10 @@ main.container {
   .menu-toggle {
     display: block;
   }
+}
+
+/* --- Animación suave del menú móvil --- */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

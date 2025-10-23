@@ -217,6 +217,20 @@ main.container {
   box-sizing: border-box;
 }
 
+/* --- TAB PROGRAMA --- */
+.program-container {
+  opacity: 0; /* inicial invisible */
+  transition: opacity 0.5s ease;
+}
+
+.program-container.page-enter {
+  opacity: 1;
+}
+
+.program-container.page-leave {
+  opacity: 0;
+}
+
 /* --- HEADER MEDIA --- */
 .header-media {
   position: relative;
@@ -237,7 +251,7 @@ main.container {
   text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
 }
 
-/* --- TRANSICIÓN SUAVE DE PÁGINA (FADE) --- */
+/* --- EFECTO FADE ENTRE PÁGINAS --- */
 .page-wrapper {
   width: 100%;
   overflow: hidden;
@@ -247,36 +261,18 @@ main.container {
 .page-content {
   width: 100%;
   position: relative;
-  opacity: 0;
+  opacity: 0;               /* Comienza invisible */
   transition: opacity 0.5s ease;
 }
 
 .page-content.page-enter {
-  opacity: 1;
+  opacity: 1;               /* Al cargar, se vuelve visible */
 }
 
 .page-content.page-leave {
-  opacity: 0;
+  opacity: 0;               /* Al salir, se desvanece */
 }
 
-.program-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.program-container.page-enter {
-  opacity: 1;
-}
-
-.program-container.page-leave {
-  opacity: 0;
-}
 
 /* --- MENÚ RESPONSIVE --- */
 @media (max-width: 850px) {

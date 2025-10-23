@@ -66,6 +66,7 @@
 </footer>
 
 <script>
+  // Animaciones de transición
 const navLinks = document.querySelectorAll('nav a');
 const mainContent = document.querySelector('.page-content');
 
@@ -74,16 +75,20 @@ window.addEventListener('DOMContentLoaded', () => {
   mainContent.classList.add('page-enter');
 });
 
+// Fade-out al hacer clic en un enlace
 navLinks.forEach(link => {
   link.addEventListener('click', function(e) {
     e.preventDefault();
     const targetPage = this.getAttribute('href');
 
-    if(window.location.pathname.split('/').pop() === targetPage) return;
+    // Si es la misma página, no hace nada
+    if (window.location.pathname.split('/').pop() === targetPage) return;
 
-    // Fade-out antes de cambiar de página
+    // Aplicar clase de salida
+    mainContent.classList.remove('page-enter');
     mainContent.classList.add('page-leave');
 
+    // Esperar a que termine la transición
     mainContent.addEventListener('transitionend', () => {
       window.location.href = targetPage;
     }, { once: true });

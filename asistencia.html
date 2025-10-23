@@ -34,8 +34,6 @@
       <h1>F&D</h1>
       <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
     </div>
-
-    <!-- Botón menú móvil -->
     <button class="menu-toggle" aria-label="Abrir menú">☰</button>
   </div>
 
@@ -60,9 +58,9 @@
     <button id="buscar">Buscar</button>
 
     <div id="resultado" class="hidden">
-      <form id="alergenosForm" onsubmit="event.preventDefault(); alert('¡Datos enviados! (simulado)');">
+      <form id="alergenosForm">
         <label>Alérgenos o necesidades especiales:<br>
-          <input type="text" placeholder="Ej: gluten, frutos secos, etc.">
+          <input type="text" id="alergenos" placeholder="Ej: gluten, frutos secos, etc.">
         </label><br>
         <button type="submit">Enviar</button>
       </form>
@@ -79,27 +77,83 @@
 </footer>
 
 <script>
-const invitados = [
-  "Fátima Fernández-Rivera",
-  "Diego López",
-  "Borja Díez",
-  "Mar González"
-  // aquí puedes poner todos los nombres de tu Excel
-];
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwWO8-CgZHbw6h94HJfSL9zKyXX-Jrlt1mUVRsrRC-O7tlZfTsVbiT5XvBZZ_fBmtfm0Q/exec";
 
-document.getElementById('buscar').addEventListener('click', () => {
+document.getElementById('buscar').addEventListener('click', async () => {
   const nombre = document.getElementById('nombre').value.trim();
   const resultado = document.getElementById('resultado');
   const mensajeError = document.getElementById('mensajeError');
 
-  if(invitados.includes(nombre)) {
-    resultado.classList.remove('hidden');
-    mensajeError.classList.add('hidden');
-  } else {
+  if (!nombre) return;
+
+  try {
+    const res = await fetch(`${WEB_APP_URL}?nombre=${encodeURIComponent(nombre)}`);
+    const data = await res.json();
+
+    if (data.ok) {
+      resultado.classList.remove('hidden');
+      mensajeError.classList.add('hidden');
+    } else {
+      resultado.classList.add('hidden');
+      mensajeError.textContent = "Lo sentimos, no hemos encontrado tu nombre en la lista. Si crees que hay algún error, contacta con Fátima o Diego.";
+      mensajeError.classList.remove('hidden');
+    }
+  } catch (err) {
     resultado.classList.add('hidden');
-    mensajeError.textContent = `Lo sentimos, no hemos encontrado tu nombre en la lista. Si crees que hay algún error, por favor contacta con Fátima o Diego por teléfono.`;
+    mensajeError.textContent = "Error al consultar la lista. Intenta de nuevo más tarde.";
     mensajeError.classList.remove('hidden');
   }
+});
+
+document.getElementById('alergenosForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById('nombre').value.trim();
+  const alergenos = document.getElementById('alergenos').value.trim();
+
+  if (!nombre) return;
+
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre, alergenos })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      alert("¡Confirmación enviada con éxito!");
+      document.getElementById('resultado').classList.add('hidden');
+      document.getElementById('nombre').value = "";
+      document.getElementById('alergenos').value = "";
+    } else {
+      alert("Error al enviar la confirmación. Contacta con Fátima o Diego.");
+    }
+  } catch (err) {
+    alert("Error de conexión. Intenta de nuevo más tarde.");
+  }
+});
+
+// Animaciones de transición
+const navLinks = document.querySelectorAll('nav a');
+const mainContent = document.querySelector('.page-content');
+
+window.addEventListener('DOMContentLoaded', () => {
+  mainContent.classList.add('page-enter');
+});
+
+navLinks.forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetPage = this.getAttribute('href');
+    if (window.location.pathname.split('/').pop() === targetPage) return;
+
+    mainContent.classList.remove('page-enter');
+    mainContent.classList.add('page-leave');
+
+    mainContent.addEventListener('transitionend', () => {
+      window.location.href = targetPage;
+    }, { once: true });
+  });
 });
 </script>
 

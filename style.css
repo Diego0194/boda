@@ -249,3 +249,42 @@ main.container {
 .program-container.page-leave {
   opacity: 0;            /* fade-out */
 }
+
+/* --- MENÚ RESPONSIVE (móviles y tablets) --- */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  color: #111;
+  transition: transform 0.3s ease;
+}
+
+.menu-toggle.active {
+  transform: rotate(90deg);
+}
+
+@media (max-width: 850px) {
+  nav.nav-links {
+    display: none;
+    flex-direction: column;
+    background: #fff;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+    padding: 15px 0;
+  }
+
+  nav.nav-links.open {
+    display: flex;
+  }
+
+  nav a {
+    margin: 10px 0;
+    font-size: 16px;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+}

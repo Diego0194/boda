@@ -1,0 +1,251 @@
+/* --- NAV BAR ESTILO BODAS.NET --- */
+header {
+  text-align: center;
+  padding: 40px 0 20px 0;
+  background: #fff;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-family: "Playfair Display", serif;
+  font-size: 36px;
+  font-weight: 400;
+  margin: 0;
+  color: #111;
+}
+
+.lead {
+  font-family: "Inter", sans-serif;
+  color: #666;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+nav {
+  margin-top: 25px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #111;
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  margin: 0 14px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  border-color: #111;
+}
+
+nav a.active {
+  border-color: #111;
+  font-weight: 500;
+}
+
+/* --- FOOTER LIMPIO --- */
+footer {
+  text-align: center;
+  padding: 30px 0;
+  color: #777;
+  font-size: 14px;
+  background: #fafafa;
+  margin-top: 60px;
+  border-top: 1px solid #eee;
+}
+
+/* --- CONTENIDO GENERAL --- */
+body {
+  margin: 0;
+  font-family: "Playfair Display", serif;
+  color: #222;
+  background: #fffdfc;
+  line-height: 1.6;
+}
+
+main.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* --- SECCIÓN NOSOTROS --- */
+.intro {
+  text-align: center;
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  margin-bottom: 60px;
+  color: #333;
+}
+
+/* --- GALERÍA POLAROID --- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* mínimo 220px, máximo 1fr */
+  gap: 20px; /* separación más pequeña */
+  justify-items: center;
+  margin-top: 40px;
+  max-width: 900px; /* límite de ancho de la galería */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Adaptable para pantallas pequeñas */
+@media (max-width: 900px) {
+  .gallery {
+    grid-template-columns: repeat(2, 1fr); /* 2 por fila */
+  }
+}
+
+@media (max-width: 600px) {
+  .gallery {
+    grid-template-columns: 1fr; /* 1 por fila */
+  }
+}
+
+.polaroid {
+  width: 260px;
+  height: 300px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.polaroid-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s ease;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+}
+
+.polaroid.flipped .polaroid-inner {
+  transform: rotateY(180deg);
+}
+
+.polaroid-front,
+.polaroid-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.polaroid-front img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.caption {
+  font-family: "Playfair Display", serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  margin: 0;
+  line-height: 1;
+}
+
+.polaroid-back {
+  transform: rotateY(180deg);
+  background: #fafafa;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  color: #444;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* --- HEADER MEDIA --- */
+.header-media {
+  position: relative;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.header-media .initials {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Roboto', sans-serif;
+  font-size: 60px;
+  letter-spacing: 2px;
+  font-weight: 100;
+  color: white;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+}
+
+/* --- TRANSICIÓN SUAVE DE PÁGINA (FADE) --- */
+.page-wrapper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.page-content {
+  width: 100%;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.page-content.page-enter {
+  opacity: 1;
+}
+
+.page-content.page-leave {
+  opacity: 0;
+}
+
+.program-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  opacity: 0;           /* inicio invisible */
+  transition: opacity 0.5s ease;
+}
+
+.program-container.page-enter {
+  opacity: 1;            /* fade-in */
+}
+
+.program-container.page-leave {
+  opacity: 0;            /* fade-out */
+}

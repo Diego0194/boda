@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lista de regalos — F&D</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Animación fade-in/fade-out */
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .page-enter {
+      opacity: 1;
+    }
+    .page-leave {
+      opacity: 0;
+    }
+    /* Decoración de la lista de regalos */
+    .gift-list {
+      line-height: 1.8;
+      background: #fdf6f2;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 500px;
+      margin: 20px auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .gift-list li {
+      margin-bottom: 8px;
+    }
+    .gift-note {
+      font-style: italic;
+      color: #555;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="brand">
+      <div>
+        <h1>F&D</h1>
+        <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html">Bienvenidos</a>
+      <a href="nosotros.html">Nosotros</a>
+      <a href="programa.html">Programa</a>
+      <a href="asistencia.html">Confirma asistencia</a>
+      <a href="direccion.html">Dirección</a>
+      <a href="informacion.html">Información útil</a>
+      <a href="regalos.html" class="active">Lista de regalos</a>
+	  <a href="fotos.html">Fotos de la boda</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container" style="padding:40px 0">
+  <div class="page-content">
+    <h2 style="text-align:center; margin-bottom:20px;">Nuestra lista de regalos</h2>
+    
+    <p class="gift-note">
+      Vuestra presencia es el mejor regalo que podríamos recibir.  
+      Pero si queréis acompañarnos con un detalle, os compartimos una forma de contribuir a nuestra Luna de Miel.  
+      Cada pequeño gesto nos hará sonreír y será recordado para siempre.
+    </p>
+
+    <ul class="gift-list">
+      <li><strong>Titular 1:</strong> Fátima Fernández-Rivera Vivanco</li>
+      <li><strong>Titular 2:</strong> Diego López González</li>
+      <li><strong>IBAN:</strong> ES68 0182 5322 2502 0105 4455</li>
+      <li><strong>Banco:</strong> BBVA</li>
+    </ul>
+
+    <p style="text-align:center; margin-top:20px; color:#666; font-size:0.95rem;">
+      Gracias por formar parte de este día tan especial. Vuestra compañía y cariño es lo que hará que nuestra boda sea inolvidable.
+    </p>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026</p>
+  </div>
+</footer>
+
+<script>
+const navLinks = document.querySelectorAll('nav a');
+const mainContent = document.querySelector('.page-content');
+
+// Fade-in al cargar la página
+window.addEventListener('DOMContentLoaded', () => {
+  mainContent.classList.add('page-enter');
+});
+
+navLinks.forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetPage = this.getAttribute('href');
+
+    if(window.location.pathname.split('/').pop() === targetPage) return;
+
+    mainContent.classList.add('page-leave');
+
+    mainContent.addEventListener('transitionend', () => {
+      window.location.href = targetPage;
+    }, { once: true });
+  });
+});
+</script>
+
+</body>
+</html>

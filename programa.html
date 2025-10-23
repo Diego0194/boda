@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Programa — F&D</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Contenedor principal centrado */
+    .program-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Programa: tarjetas con iconos */
+    .program-card {
+      display: flex;
+      align-items: center;
+      background: #fdf6f2;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .program-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .program-card img {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-right: 20px;
+    }
+
+    .program-card .program-info h3 {
+      margin: 0 0 5px 0;
+      font-size: 1.2rem;
+      color: #b74d4d;
+    }
+
+    .program-card .program-info p {
+      margin: 0;
+      color: #555;
+      line-height:1.5;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="brand">
+        <h1>F&D</h1>
+        <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+      </div>
+      <nav>
+        <a href="index.html">Bienvenidos</a>
+        <a href="nosotros.html">Nosotros</a>
+        <a href="programa.html" class="active">Programa</a>
+        <a href="asistencia.html">Confirma asistencia</a>
+        <a href="direccion.html">Dirección</a>
+        <a href="informacion.html">Información útil</a>
+        <a href="regalos.html">Lista de regalos</a>
+		<a href="fotos.html">Fotos de la boda</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+    <div class="program-container">
+      <h2>Programa del día</h2>
+
+      <div class="program-card">
+        <img src="media/recepcion.png" alt="Recepción">
+        <div class="program-info">
+          <h3>13:00 — Recepción en el Palacio</h3>
+          <p>Bienvenida a todos los invitados y cóctel de recepción para empezar la celebración con alegría.</p>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img src="media/ceremonia.jpg" alt="Ceremonia">
+        <div class="program-info">
+          <h3>13:30 — Ceremonia</h3>
+          <p>Momento más esperado: la ceremonia donde sellaremos nuestro amor frente a familia y amigos.</p>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img src="media/comida.jpg" alt="Cóctel y comida">
+        <div class="program-info">
+          <h3>14:30 — Cóctel y comida</h3>
+          <p>Disfrutaremos de un delicioso banquete y momentos de charlas y risas con todos vosotros.</p>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img src="media/fiesta.jpg" alt="Fiesta y baile">
+        <div class="program-info">
+          <h3>18:00-01:00 — Fiesta y baile</h3>
+          <p>La noche se llenará de música, baile y diversión para celebrar nuestro gran día.</p>
+        </div>
+      </div>
+	
+	<div class="program-card">
+        <img src="media/verbena.jpg" alt="Para los valientes...">
+        <div class="program-info">
+          <h3>Desde la 01:00 — Verbena</h3>
+          <p>Si alguien sigue con ganas de fiesta después de 12h de celebración... ¡Son fiestas en Espinosa!</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026</p>
+    </div>
+  </footer>
+
+<script>
+const navLinks = document.querySelectorAll('nav a');
+const mainContent = document.querySelector('.program-container');
+
+// Fade-in al cargar la página
+window.addEventListener('DOMContentLoaded', () => {
+  mainContent.classList.add('page-enter');
+});
+
+navLinks.forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetPage = this.getAttribute('href');
+
+    if(window.location.pathname.split('/').pop() === targetPage) return;
+
+    // Fade-out antes de cambiar de página
+    mainContent.classList.add('page-leave');
+
+    mainContent.addEventListener('transitionend', () => {
+      window.location.href = targetPage;
+    }, { once: true });
+  });
+});
+</script>
+
+</body>
+</html>

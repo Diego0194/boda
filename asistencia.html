@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Confirma asistencia — F&D</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 40px 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .page-enter { opacity: 1; }
+    .page-leave { opacity: 0; }
+    h2 { color:#b74d4d; margin-bottom:20px; }
+    p { color:#555; line-height:1.6; margin-bottom:20px; }
+    input, select { width: 100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ddd; }
+    button { background:#b74d4d; color:white; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; transition: background 0.3s; }
+    button:hover { background:#9c3f3f; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="brand">
+      <div>
+        <h1>F&D</h1>
+        <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html">Bienvenidos</a>
+      <a href="nosotros.html">Nosotros</a>
+      <a href="programa.html">Programa</a>
+      <a href="asistencia.html" class="active">Confirma asistencia</a>
+      <a href="direccion.html">Dirección</a>
+      <a href="informacion.html">Información útil</a>
+      <a href="regalos.html">Lista de regalos</a>
+      <a href="fotos.html">Fotos de la boda</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-wrapper">
+  <div class="page-content page-enter">
+    <h2>Confirma tu asistencia</h2>
+    <p>Introduce tu nombre completo para confirmar tu asistencia y añadir información de alérgenos si corresponde.</p>
+
+    <input type="text" id="nombre" placeholder="Nombre y apellidos">
+    <button id="buscar">Buscar</button>
+
+    <div id="resultado" class="hidden">
+      <form id="alergenosForm" onsubmit="event.preventDefault(); alert('¡Datos enviados! (simulado)');">
+        <label>Alérgenos o necesidades especiales:<br>
+          <input type="text" placeholder="Ej: gluten, frutos secos, etc.">
+        </label><br>
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+
+    <p id="mensajeError" class="hidden" style="color:#b74d4d;"></p>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026</p>
+  </div>
+</footer>
+
+<script>
+const invitados = [
+  "Fátima Fernández-Rivera",
+  "Diego López",
+  "Borja Díez",
+  "Mar González"
+  // aquí puedes poner todos los nombres de tu Excel
+];
+
+document.getElementById('buscar').addEventListener('click', () => {
+  const nombre = document.getElementById('nombre').value.trim();
+  const resultado = document.getElementById('resultado');
+  const mensajeError = document.getElementById('mensajeError');
+
+  if(invitados.includes(nombre)) {
+    resultado.classList.remove('hidden');
+    mensajeError.classList.add('hidden');
+  } else {
+    resultado.classList.add('hidden');
+    mensajeError.textContent = `Lo sentimos, no hemos encontrado tu nombre en la lista. Si crees que hay algún error, por favor contacta con Fátima o Diego por teléfono.`;
+    mensajeError.classList.remove('hidden');
+  }
+});
+</script>
+
+</body>
+</html>

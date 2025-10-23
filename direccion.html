@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dirección — F&D</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Animación fade-in/fade-out */
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .page-enter {
+      opacity: 1;
+    }
+    .page-leave {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="brand">
+      <div>
+        <h1>F&D</h1>
+        <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html">Bienvenidos</a>
+      <a href="nosotros.html">Nosotros</a>
+      <a href="programa.html">Programa</a>
+      <a href="asistencia.html">Confirma asistencia</a>
+      <a href="direccion.html" class="active">Dirección</a>
+      <a href="informacion.html">Información útil</a>
+      <a href="regalos.html">Lista de regalos</a>
+	  <a href="fotos.html">Fotos de la boda</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container" style="padding:40px 0">
+  <div class="page-content">
+    <h2 style="text-align:center; margin-bottom:10px;">Cómo llegar a nuestra boda</h2>
+    <p style="text-align:center; font-style:italic; color:#555; margin-bottom:30px;">
+      Nos hará mucha ilusión veros en el Palacio de los Fernández-Villa. Aquí tenéis toda la información para llegar cómodamente.
+    </p>
+
+    <!-- Tarjeta de dirección -->
+    <div style="max-width:500px; margin:0 auto 30px auto; padding:20px; background:#fdf6f2; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); text-align:center;">
+      <strong>Palacio de los Fernández-Villa</strong><br>
+      C. Progreso, 29. Espinosa de los Monteros, Burgos
+    </div>
+
+    <!-- Mapa responsive -->
+    <div style="position:relative; width:100%; padding-bottom:56.25%; margin-bottom:30px;">
+      <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2914.3766025255454!2d-3.5528115684824595!3d43.07557719648275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd4f265170f2f97b%3A0xd7f3fd0aae5f78be!2sPalacio%20de%20los%20Fern%C3%A1ndez-Villa!5e0!3m2!1ses!2ses!4v1760984955975!5m2!1ses!2ses" 
+        style="border:0; position:absolute; top:0; left:0; width:100%; height:100%;" 
+        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+
+    <!-- Imagen del Palacio -->
+    <div style="text-align:center; margin-bottom:40px;">
+      <img src="media/palacio.jpg" alt="Palacio de los Fernández-Villa" 
+           style="max-width:100%; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+      <p style="font-size:0.9rem; color:#555; margin-top:8px;">Nuestro precioso Palacio donde celebraremos la boda</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026</p>
+  </div>
+</footer>
+
+<script>
+const navLinks = document.querySelectorAll('nav a');
+const mainContent = document.querySelector('.page-content');
+
+// Fade-in al cargar la página
+window.addEventListener('DOMContentLoaded', () => {
+  mainContent.classList.add('page-enter');
+});
+
+navLinks.forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetPage = this.getAttribute('href');
+
+    if(window.location.pathname.split('/').pop() === targetPage) return;
+
+    // Fade-out antes de cambiar de página
+    mainContent.classList.add('page-leave');
+
+    mainContent.addEventListener('transitionend', () => {
+      window.location.href = targetPage;
+    }, { once: true });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Información — F&D</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Animación fade-in/fade-out */
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .page-enter {
+      opacity: 1;
+    }
+    .page-leave {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="brand">
+      <div>
+        <h1>F&D</h1>
+        <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html">Bienvenidos</a>
+      <a href="nosotros.html">Nosotros</a>
+      <a href="programa.html">Programa</a>
+      <a href="asistencia.html">Confirma asistencia</a>
+      <a href="direccion.html">Dirección</a>
+      <a href="informacion.html" class="active">Información útil</a>
+      <a href="regalos.html">Lista de regalos</a>
+	  <a href="fotos.html">Fotos de la boda</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container" style="padding:40px 0">
+  <div class="page-content">
+    <h2>Consejos para los invitados</h2>
+    <ul style="line-height:1.8">
+      <li>Recuerda traer ropa elegante, cómoda y adecuada para la ceremonia y la comida.</li>
+      <li>La noche puede ser fría, especialmente en Espinosa de los Monteros. ¡Lleva un abrigo o chal ligero para estar cómodo durante la fiesta!</li>
+      <li>Zapatos cómodos: habrá baile y movimiento, así que asegúrate de poder disfrutar sin dolor.</li>
+      <li>Si tienes coche propio, revisa la dirección y aparcamiento disponibles. Es recomendable compartir coche con otros invitados.</li>
+      <li>Confirma tu asistencia a tiempo y, si tienes alguna alergia o necesidad especial, indícalo en el formulario.</li>
+      <li>Disfruta, sonríe y comparte este día tan especial con nosotros. ¡Queremos que lo pases genial!</li>
+    </ul>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026</p>
+  </div>
+</footer>
+
+<script>
+const navLinks = document.querySelectorAll('nav a');
+const mainContent = document.querySelector('.page-content');
+
+// Fade-in al cargar la página
+window.addEventListener('DOMContentLoaded', () => {
+  mainContent.classList.add('page-enter');
+});
+
+navLinks.forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetPage = this.getAttribute('href');
+
+    if(window.location.pathname.split('/').pop() === targetPage) return;
+
+    // Fade-out antes de cambiar de página
+    mainContent.classList.add('page-leave');
+
+    mainContent.addEventListener('transitionend', () => {
+      window.location.href = targetPage;
+    }, { once: true });
+  });
+});
+</script>
+
+</body>
+</html>

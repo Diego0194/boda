@@ -102,6 +102,7 @@ document.getElementById('buscar').addEventListener('click', async () => {
     resultado.classList.add('hidden');
     mensajeError.textContent = "Error al consultar la lista. Intenta de nuevo más tarde.";
     mensajeError.classList.remove('hidden');
+    console.error(err);
   }
 });
 
@@ -130,6 +131,7 @@ document.getElementById('alergenosForm').addEventListener('submit', async (e) =>
     }
   } catch (err) {
     alert("Error de conexión. Intenta de nuevo más tarde.");
+    console.error(err);
   }
 });
 

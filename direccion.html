@@ -48,8 +48,13 @@
 <main class="container" style="padding:40px 0">
   <div class="page-content">
     <h2 style="text-align:center; margin-bottom:10px;">Cómo llegar a nuestra boda</h2>
-    <p style="text-align:center; font-style:italic; color:#555; margin-bottom:30px;">
+    <p style="text-align:center; font-style:italic; color:#555; margin-bottom:10px;">
       Nos hará mucha ilusión veros en el Palacio de los Fernández-Villa. Aquí tenéis toda la información para llegar cómodamente.
+    </p>
+
+    <!-- Distancia desde la ubicación del usuario -->
+    <p id="distancia" style="text-align:center; font-weight:bold; color:#b74d4d; margin-bottom:30px;">
+      Calculando distancia...
     </p>
 
     <!-- Tarjeta de dirección -->
@@ -82,35 +87,48 @@
   </div>
 </footer>
 
+<!-- JS principal -->
+<script src="main.js"></script>
+
+<!-- JS para calcular distancia -->
 <script>
-  // Animaciones de transición
-const navLinks = document.querySelectorAll('nav a');
-const mainContent = document.querySelector('.page-content');
+  // Coordenadas del Palacio de los Fernández-Villa
+  const bodaLat = 43.075577; 
+  const bodaLng = -3.552812;
 
-// Fade-in al cargar la página
-window.addEventListener('DOMContentLoaded', () => {
-  mainContent.classList.add('page-enter');
-});
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
 
-// Fade-out al hacer clic en un enlace
-navLinks.forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
-    const targetPage = this.getAttribute('href');
+        const distancia = calcularDistancia(userLat, userLng, bodaLat, bodaLng);
+        document.getElementById('distancia').innerText = `🗺️ Ahora mismo estás a ${distancia.toFixed(1)} km del Palacio.`;
+      },
+      (error) => {
+        console.error('Error obteniendo ubicación', error);
+        document.getElementById('distancia').innerText = 'No se pudo obtener tu ubicación';
+      }
+    );
+  } else {
+    document.getElementById('distancia').innerText = 'Tu navegador no soporta geolocalización';
+  }
 
-    // Si es la misma página, no hace nada
-    if (window.location.pathname.split('/').pop() === targetPage) return;
+  function calcularDistancia(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Radio de la Tierra en km
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
 
-    // Aplicar clase de salida
-    mainContent.classList.remove('page-enter');
-    mainContent.classList.add('page-leave');
-
-    // Esperar a que termine la transición
-    mainContent.addEventListener('transitionend', () => {
-      window.location.href = targetPage;
-    }, { once: true });
-  });
-});
+  function toRad(deg) {
+    return deg * Math.PI / 180;
+  }
 </script>
 
 </body>

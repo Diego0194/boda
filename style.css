@@ -345,13 +345,13 @@ main.container {
 }
 
 .countdown-box span {
-  font-size: 1.8rem;
+  font-size: 3rem;
   font-weight: 600;
   display: block;
 }
 
 .countdown-box small {
-  font-size: 0.8rem;
+  font-size: 1.5rem;
   opacity: 0.9;
 }
 

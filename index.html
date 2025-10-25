@@ -67,78 +67,7 @@
   </div>
 </footer>
 
-<script>
-  // Animaciones de transición
-  const navLinks = document.querySelectorAll('nav a');
-  const mainContent = document.querySelector('.page-content');
-
-  // Fade-in al cargar la página
-  window.addEventListener('DOMContentLoaded', () => {
-    mainContent.classList.add('page-enter');
-  });
-
-  // Fade-out al hacer clic en un enlace
-  navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetPage = this.getAttribute('href');
-
-      // Si es la misma página, no hace nada
-      if (window.location.pathname.split('/').pop() === targetPage) return;
-
-      // Aplicar clase de salida
-      mainContent.classList.remove('page-enter');
-      mainContent.classList.add('page-leave');
-
-      // Esperar a que termine la transición
-      mainContent.addEventListener('transitionend', () => {
-        window.location.href = targetPage;
-      }, { once: true });
-    });
-  });
-
-  // Menú hamburguesa
-  const toggle = document.querySelector('.menu-toggle');
-  const nav = document.querySelector('.nav-links');
-
-  toggle.addEventListener('click', () => {
-    nav.classList.toggle('open');
-    toggle.classList.toggle('active');
-  });
-</script>
-
-<script>
-  // === CONTADOR HASTA EL 5 SEPT 2026, 13:00 ===
-  const countdown = document.getElementById('countdown');
-  const targetDate = new Date('2026-09-05T13:00:00').getTime();
-
-  function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = targetDate - now;
-
-    if (distance <= 0) {
-      countdown.innerHTML = "<p>¡Es el gran día! 💕</p>";
-      return;
-    }
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    countdown.innerHTML = `
-      <div class="countdown-box">
-        <div><span>${days}</span><small>días</small></div>
-        <div><span>${hours}</span><small>horas</small></div>
-        <div><span>${minutes}</span><small>min</small></div>
-        <div><span>${seconds}</span><small>seg</small></div>
-      </div>
-    `;
-  }
-
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-</script>
+<script src="main.js"></script>
 
 </body>
 </html>

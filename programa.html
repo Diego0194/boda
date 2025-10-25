@@ -55,10 +55,6 @@
       line-height:1.5;
     }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 40px;
-    }
   </style>
 </head>
 <body>
@@ -137,34 +133,7 @@
     </div>
   </footer>
 
-<script>
-  // Animaciones de transición
-const navLinks = document.querySelectorAll('nav a');
-const mainContent = document.querySelector('.program-container');
-
-// Fade-in al cargar la página
-window.addEventListener('DOMContentLoaded', () => {
-  mainContent.classList.add('page-enter');
-});
-
-// Fade-out al hacer clic en un enlace
-navLinks.forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
-    const targetPage = this.getAttribute('href');
-
-    if (window.location.pathname.split('/').pop() === targetPage) return;
-
-    mainContent.classList.remove('page-enter');
-    mainContent.classList.add('page-leave');
-
-    mainContent.addEventListener('transitionend', () => {
-      window.location.href = targetPage;
-    }, { once: true });
-  });
-});
-
-</script>
+<script src="main.js"></script>
 
 </body>
 </html>

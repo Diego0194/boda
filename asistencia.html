@@ -74,6 +74,8 @@
   </div>
 </footer>
 
+<script src="main.js"></script>
+
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwgTMKWd9bvTWPNtFlPBBO50X_8Es0EdQaDgWQEmp2ofL1cfUbVPZ7JrCUOIVYqWumOFg/exec";
 
@@ -133,28 +135,6 @@ document.getElementById('alergenosForm').addEventListener('submit', async (e) =>
   }
 });
 
-// Animaciones de transición
-const navLinks = document.querySelectorAll('nav a');
-const mainContent = document.querySelector('.page-content');
-
-window.addEventListener('DOMContentLoaded', () => {
-  mainContent.classList.add('page-enter');
-});
-
-navLinks.forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
-    const targetPage = this.getAttribute('href');
-    if (window.location.pathname.split('/').pop() === targetPage) return;
-
-    mainContent.classList.remove('page-enter');
-    mainContent.classList.add('page-leave');
-
-    mainContent.addEventListener('transitionend', () => {
-      window.location.href = targetPage;
-    }, { once: true });
-  });
-});
 </script>
 
 </body>

@@ -10,18 +10,16 @@
 	.page-content {
 	  opacity: 0;
 	  transition: opacity 0.5s ease;
+	  width: 100%;
+	  position: relative;
 	  max-width: 500px;
 	  margin: 0 auto;
-	  padding: 60px 20px;
+	  padding: 0 20px;
 	  border-radius: 12px;
 	  text-align: center;
 	}
-    .page-enter { opacity: 1; }
-    .page-leave { opacity: 0; }
-    p { color:#555; line-height:1.6;  }
+
     input, select { width: 100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ddd; }
-    button { background:#b74d4d; color:white; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; transition: background 0.3s; }
-    button:hover { background:#9c3f3f; }
     .hidden { display:none; }
   </style>
 </head>
@@ -29,10 +27,14 @@
 
 <header>
   <div class="container header-flex">
-    <div class="brand">
-      <h1>F&D</h1>
-      <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
-    </div>
+	<div class="brand">
+	  <a href="index.html" style="text-decoration: none; color: inherit;">
+		<h1>F&D</h1>
+	  </a>
+	  <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+	</div>
+
+    <!-- Botón menú móvil -->
     <button class="menu-toggle" aria-label="Abrir menú">☰</button>
   </div>
 
@@ -49,9 +51,9 @@
 </header>
 
 <main class="page-wrapper">
-  <div class="page-container page-content">
+  <div class="page-container page-content" style="padding:40px 0">
     <h2>Confirma tu asistencia</h2>
-    <p>Introduce tu nombre completo para confirmar tu asistencia...</p>
+	<div class="intro">Introduce tu nombre completo para confirmar tu asistencia...</div>
     <input type="text" id="nombre" placeholder="Nombre y apellidos">
     <button id="buscar">Buscar</button>
 
@@ -95,7 +97,7 @@ document.getElementById('buscar').addEventListener('click', async () => {
       mensajeError.classList.add('hidden');
     } else {
       resultado.classList.add('hidden');
-      mensajeError.textContent = "Lo sentimos, no hemos encontrado tu nombre en la lista. Si crees que hay algún error, contacta con Fátima o Diego.";
+      mensajeError.textContent = "Lo sentimos, no hemos encontrado tu nombre en la lista.\nSi crees que hay algún error, contacta con Fátima o Diego.";
       mensajeError.classList.remove('hidden');
     }
   } catch (err) {

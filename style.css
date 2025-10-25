@@ -274,6 +274,7 @@ main.container {
   position: relative;
   opacity: 0;               /* Comienza invisible */
   transition: opacity 0.5s ease;
+
 }
 
 .page-content.page-enter {
@@ -379,7 +380,7 @@ main.container {
 
 .bank-info {
   background-color: #fff4e6;
-  border: 2px solid #e07a5f;
+  border: 2px solid #b74d4d;
   padding: 8px;
   margin: 10px auto;
   border-radius: 10px;
@@ -393,4 +394,22 @@ main.container {
   font-weight: bold;
   letter-spacing: 1px;
   color: #333;
+}
+
+#buscar {
+  background: #b74d4d;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#buscar:hover {
+  background: #9c3f3f;
+}
+
+#mensajeError {
+  white-space: pre-line;
 }

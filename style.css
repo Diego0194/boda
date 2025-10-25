@@ -31,6 +31,7 @@ h1 {
 h2 { 
   color:#b74d4d;
   margin-bottom:20px; 
+  text-align:center;
 }
 
 .lead {
@@ -112,13 +113,12 @@ main.container {
   padding: 40px 20px;
 }
 
-/* --- SECCIÓN NOSOTROS --- */
 .intro {
-  text-align: center;
-  font-family: "Playfair Display", serif;
-  font-size: 1.5rem;
-  margin-bottom: 60px;
-  color: #333;
+  margin-bottom: 40px;
+  text-align:center;
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.6;
 }
 
 /* --- GALERÍA POLAROID --- */
@@ -268,6 +268,8 @@ main.container {
 }
 
 .page-content {
+  margin: 0 auto;
+  padding: 0 20px;
   width: 100%;
   position: relative;
   opacity: 0;               /* Comienza invisible */
@@ -373,4 +375,22 @@ main.container {
   .header-media {
     margin-top: 5px;
   }
+}
+
+.bank-info {
+  background-color: #fff4e6;
+  border: 2px solid #e07a5f;
+  padding: 8px;
+  margin: 10px auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  max-width: 500px;
+}
+
+.iban {
+  font-size: 1.4em;
+  font-family: 'DM Serif Display', serif;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #333;
 }

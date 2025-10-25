@@ -7,19 +7,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    .page-content {
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      max-width: 500px;
-      margin: 60px auto;
-      padding: 40px 20px;
-      border-radius: 12px;
-      text-align: center;
-    }
+	.page-content {
+	  opacity: 0;
+	  transition: opacity 0.5s ease;
+	  max-width: 500px;
+	  margin: 0 auto;
+	  padding: 60px 20px;
+	  border-radius: 12px;
+	  text-align: center;
+	}
     .page-enter { opacity: 1; }
     .page-leave { opacity: 0; }
-    h2 { color:#b74d4d; margin-bottom:20px; }
-    p { color:#555; line-height:1.6; margin-bottom:20px; }
+    p { color:#555; line-height:1.6;  }
     input, select { width: 100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ddd; }
     button { background:#b74d4d; color:white; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; transition: background 0.3s; }
     button:hover { background:#9c3f3f; }
@@ -50,10 +49,9 @@
 </header>
 
 <main class="page-wrapper">
-  <div class="page-content">
+  <div class="page-container page-content">
     <h2>Confirma tu asistencia</h2>
-    <p>Introduce tu nombre completo para confirmar tu asistencia y añadir información de alérgenos si corresponde.</p>
-
+    <p>Introduce tu nombre completo para confirmar tu asistencia...</p>
     <input type="text" id="nombre" placeholder="Nombre y apellidos">
     <button id="buscar">Buscar</button>
 

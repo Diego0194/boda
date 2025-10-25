@@ -250,7 +250,7 @@ main.container {
   left: 50%;
   transform: translate(-50%, -50%);
   font-family: 'Parisienne', cursive;
-  font-size: clamp(60px, 15vw, 150px);
+  font-size: clamp(6px, 6vw, 150px);
   letter-spacing: 2px;
   font-weight: 400;
   color: #fff;
@@ -284,7 +284,7 @@ main.container {
 
 
 /* --- MENÚ RESPONSIVE --- */
-@media (max-width: 850px) {
+@media (max-width: 600px) {
   nav.nav-links {
     display: none;
     flex-direction: column;
@@ -316,25 +316,25 @@ main.container {
 }
 
 
-/* --- CONTADOR DE TIEMPO --- */
+/* --- CRONÓMETRO PROPORCIONAL --- */
 #countdown {
   position: absolute;
-  bottom: 5%;
+  bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
   color: white;
   font-family: "DM Serif Display", serif;
   text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
   background: rgba(0, 0, 0, 0.2); /* Fondo semitransparente */
-  padding: 10px 20px;
-  border-radius: 20px; /* Bordes redondeados */
-  backdrop-filter: blur(4px); /* Suave efecto de desenfoque de fondo */
+  padding: clamp(6px, 1.5vw, 15px);       /* tamaño proporcional */
+  border-radius: clamp(12px, 2vw, 20px);  /* bordes proporcionales */
+  backdrop-filter: blur(4px); /* efecto de desenfoque de fondo */
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .countdown-box {
   display: flex;
-  gap: 15px;
+  gap: clamp(8px, 2vw, 15px); /* separación proporcional */
   justify-content: center;
   align-items: center;
   font-size: 1rem;
@@ -345,25 +345,32 @@ main.container {
 }
 
 .countdown-box span {
-  font-size: 3rem;
-  font-weight: 600;
+  font-size: clamp(1rem, 3vw, 3rem); /* números escalables */
+  font-weight: 400;
   display: block;
 }
 
 .countdown-box small {
-  font-size: 1.5rem;
+  font-size: clamp(0.7rem, 1.5vw, 1.5rem); /* etiquetas escalables */
   opacity: 0.9;
 }
 
+/* --- HEADER MÁS COMPACTO SOLO EN MÓVIL --- */
 @media (max-width: 600px) {
-  .countdown-box span {
-    font-size: 1.4rem;
+  header {
+    padding: 10px 15px 8px 15px;
   }
-  .countdown-box {
-    gap: 10px;
+
+  h1 {
+    font-size: 22px;
   }
-  #countdown {
-    padding: 8px 15px;
-    border-radius: 15px;
+
+  .lead {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .header-media {
+    margin-top: 5px;
   }
 }

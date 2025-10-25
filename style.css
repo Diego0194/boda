@@ -341,7 +341,7 @@ main.container {
   color: white;
   font-family: "DM Serif Display", serif;
   text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
-  background: rgba(0, 0, 0, 0.2); /* Fondo semitransparente */
+  background: rgba(0, 0, 0, 0.1); /* Fondo semitransparente */
   padding: clamp(6px, 1.5vw, 15px);       /* tamaño proporcional */
   border-radius: clamp(12px, 2vw, 20px);  /* bordes proporcionales */
   backdrop-filter: blur(4px); /* efecto de desenfoque de fondo */
@@ -368,7 +368,7 @@ main.container {
 
 .countdown-box small {
   font-size: clamp(0.7rem, 1.5vw, 1.5rem); /* etiquetas escalables */
-  opacity: 0.9;
+  opacity: 0.5;
 }
 
 /* --- HEADER MÁS COMPACTO SOLO EN MÓVIL --- */
@@ -436,5 +436,27 @@ main.container {
 @media (max-width: 600px) {
   .iban {
     font-size: 1.2em; /* Reduce tamaño en móviles */
+  }
+}
+
+/* Ajuste del contador en pantallas pequeñas */
+@media (max-width: 600px) {
+  #countdown {
+    padding: 2px 10px;
+    border-radius: 10px;
+  }
+
+  .countdown-box {
+    font-size: 0.8rem;
+  }
+
+  .countdown-box span {
+    font-size: 1rem; /* tamaño de los números */
+  }
+
+  .countdown-box small {
+    font-size: 0.5rem; /* etiquetas "días", "horas", etc. */
+    margin-top: -2px;  /* acerca más la etiqueta al número */
+    display: block;
   }
 }

@@ -14,7 +14,6 @@
 	  position: relative;
 	  max-width: 500px;
 	  margin: 0 auto;
-	  padding: 0 20px;
 	  border-radius: 12px;
 	  text-align: center;
 	}
@@ -51,19 +50,19 @@
 </header>
 
 <main class="page-wrapper">
-  <div class="page-container page-content" style="padding:40px 0">
+  <div class="page-container page-content">
     <h2>Confirma tu asistencia</h2>
 	<div class="intro">Introduce tu nombre completo para confirmar tu asistencia...</div>
-
+<label>
     <input type="text" id="nombre" placeholder="Nombre y apellidos">
     <button id="buscar">Buscar</button>
-
+        </label>
     <div id="resultado" class="hidden">
       <form id="alergenosForm">
-        <label>Alérgenos o necesidades especiales:<br>
+        <br><label>Alérgenos o necesidades especiales:<br>
           <input type="text" id="alergenos" placeholder="Ej: gluten, frutos secos, etc.">
-        </label><br>
-        <button type="submit">Enviar</button>
+        </label>
+        <button type="submit" id="enviar">Enviar</button>
       </form>
     </div>
 
@@ -73,7 +72,7 @@
 
 <footer>
   <div class="container">
-    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026</p>
+    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026<br>Contacto: 656573103 (Diego), 670935370 (Fátima).</p>
   </div>
 </footer>
 

@@ -34,13 +34,13 @@
   </nav>
 </header>
 
-<main class="container" style="padding:40px 0">
+<main class="container">
   <div class="page-content">
     <h2>Cómo llegar a nuestra boda</h2>
     <div class="intro">Nos hará mucha ilusión veros en el Palacio de los Fernández-Villa. Aquí tenéis toda la información para llegar cómodamente.</div>
 
     <!-- Distancia desde la ubicación del usuario -->
-    <p id="distancia" style="text-align:center; font-weight:bold; color:#b74d4d; margin-bottom:30px;">
+    <p id="distancia" style="text-align:center; font-weight:bold; color:#b74d4d;">
       Calculando distancia...
     </p>
 
@@ -70,7 +70,7 @@
 
 <footer>
   <div class="container">
-    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026</p>
+    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026<br>Contacto: 656573103 (Diego), 670935370 (Fátima).</p>
   </div>
 </footer>
 
@@ -88,7 +88,6 @@
       (position) => {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
-
         const distancia = calcularDistancia(userLat, userLng, bodaLat, bodaLng);
         document.getElementById('distancia').innerText = `🗺️ Ahora mismo estás a ${distancia.toFixed(1)} km del Palacio.`;
       },

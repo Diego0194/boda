@@ -124,6 +124,7 @@ main.container {
   font-size: 1.1rem;
   color: #555;
   line-height: 1.6;
+  padding: 0 20px;
 }
 
 /* --- GALERÍA POLAROID --- */
@@ -274,12 +275,13 @@ main.container {
 
 .page-content {
   margin: 0 auto;
-  padding: 0 20px;
   width: 100%;
   position: relative;
   opacity: 0;               /* Comienza invisible */
   transition: opacity 0.5s ease;
-
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .page-content.page-enter {
@@ -288,6 +290,14 @@ main.container {
 
 .page-content.page-leave {
   opacity: 0;               /* Al salir, se desvanece */
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 900px;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 
@@ -417,4 +427,8 @@ main.container {
 
 #mensajeError {
   white-space: pre-line;
+}
+
+#nombre {
+  padding: 1¡0x 20px;
 }

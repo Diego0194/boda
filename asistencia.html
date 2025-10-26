@@ -79,51 +79,63 @@
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwnhZLbQlOljNHP8MO-hAlliMtU4rnDxa14GYNzntcI2N2HU__Ln60ZmDnoP_xa6Eg92A/exec";
 
-// --- Buscar nombre en lista ---
-document.getElementById('buscar').addEventListener('click', async () => {
-  const nombre = document.getElementById('nombre').value.trim();
+let invitados = [];
+
+// 🔹 Mostrar el contenido al cargar
+window.addEventListener("load", () => {
+  document.querySelector(".page-content").classList.add("page-enter");
+
+  // 🔹 Cargar lista de invitados desde invitados.txt
+  fetch('invitados.txt')
+    .then(res => res.text())
+    .then(text => {
+      invitados = text.split('\n')
+        .map(name => name.trim().toLowerCase())
+        .filter(name => name.length > 0);
+    })
+    .catch(err => {
+      console.error('Error cargando invitados.txt', err);
+    });
+});
+
+// 🔹 Botón "Buscar"
+document.getElementById('buscar').addEventListener('click', () => {
+  const nombre = document.getElementById('nombre').value.trim().toLowerCase();
   const resultado = document.getElementById('resultado');
   const mensajeError = document.getElementById('mensajeError');
 
   if (!nombre) return;
 
-  try {
-    const res = await fetch(`${WEB_APP_URL}?nombre=${encodeURIComponent(nombre)}`);
-    const data = await res.json();
-
-    if (data.ok) {
-      resultado.classList.remove('hidden');
-      mensajeError.classList.add('hidden');
-    } else {
-      resultado.classList.add('hidden');
-      mensajeError.textContent = "Lo sentimos, no hemos encontrado tu nombre en la lista.\nSi crees que hay algún error, contacta con Fátima o Diego.";
-      mensajeError.classList.remove('hidden');
-    }
-  } catch (err) {
-    resultado.classList.add('hidden');
-    mensajeError.textContent = "Error al consultar la lista. Intenta de nuevo más tarde.";
+  if (!invitados.includes(nombre)) {
+    mensajeError.textContent = "Lo sentimos, tu nombre no está en la lista de invitados.";
     mensajeError.classList.remove('hidden');
-    console.error(err);
+    resultado.classList.add('hidden');
+    return;
   }
+
+  resultado.classList.remove('hidden');
+  mensajeError.classList.add('hidden');
 });
 
-// --- Enviar confirmación ---
+// 🔹 Enviar formulario
 document.getElementById('alergenosForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const nombre = document.getElementById('nombre').value.trim();
+  const nombre = document.getElementById('nombre').value.trim().toLowerCase();
   const alergenos = document.getElementById('alergenos').value.trim();
 
-  if (!nombre) return;
+  if (!invitados.includes(nombre)) {
+    alert("Lo sentimos, tu nombre no está en la lista de invitados.");
+    return;
+  }
 
   try {
     await fetch(WEB_APP_URL, {
       method: "POST",
-      mode: "no-cors", // ✅ evita el error CORS
+      mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre, alergenos })
     });
 
-    // No podemos leer respuesta JSON, pero asumimos éxito
     alert("¡Confirmación enviada con éxito!");
     document.getElementById('resultado').classList.add('hidden');
     document.getElementById('nombre').value = "";

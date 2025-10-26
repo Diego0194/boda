@@ -19,13 +19,11 @@
     }
     input, select { width: 100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ddd; }
     .hidden { display:none; }
-    #calendarButtons a {
-      display: inline-block;
-      margin-right: 10px;
-      padding: 10px 15px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 500;
+    #calendarButtons img {
+      width: 150px;
+      height: auto;
+      margin: 10px;
+      cursor: pointer;
     }
   </style>
   <link rel="icon" type="image/png" href="media/favicon.png">
@@ -59,22 +57,31 @@
   <div class="page-container page-content">
     <h2>Confirma tu asistencia</h2>
     <div class="intro">Introduce tu nombre completo para confirmar tu asistencia...</div>
-    <label>
-      <input type="text" id="nombre" placeholder="Nombre y apellidos">
-      <button id="buscar">Buscar</button>
-    </label>
 
-    <div id="resultado" class="hidden">
-      <form id="alergenosForm">
-        <br>
-        <label>Alérgenos o necesidades especiales:<br>
-          <input type="text" id="alergenos" placeholder="Ej: gluten, frutos secos, etc.">
-        </label>
-        <button type="submit" id="enviar">Enviar</button>
-      </form>
+    <!-- Formulario inicial -->
+    <div id="formulario">
+      <label>
+        <input type="text" id="nombre" placeholder="Nombre y apellidos">
+        <button id="buscar">Buscar</button>
+      </label>
+
+      <div id="resultado" class="hidden">
+        <form id="alergenosForm">
+          <br>
+          <label>Alérgenos o necesidades especiales:<br>
+            <input type="text" id="alergenos" placeholder="Ej: gluten, frutos secos, etc.">
+          </label>
+          <button type="submit" id="enviar">Enviar</button>
+        </form>
+      </div>
     </div>
 
+    <!-- Mensaje final -->
+    <div id="mensajeFinal" class="hidden" style="color:#b74d4d; font-weight: 500; margin-top: 20px;"></div>
+
+    <!-- Botones calendario -->
     <div id="calendarButtons" class="hidden"></div>
+
     <p id="mensajeError" class="hidden" style="color:#b74d4d;"></p>
   </div>
 </main>
@@ -89,7 +96,7 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwnhZLbQlOljNHP8MO-hAlliMtU4rnDxa14GYNzntcI2N2HU__Ln60ZmDnoP_xa6Eg92A/exec";
 let invitados = [];
 
-// 🔹 Mostrar contenido al cargar y cargar invitados
+// Mostrar contenido y cargar invitados
 window.addEventListener("load", () => {
   document.querySelector(".page-content").classList.add("page-enter");
 
@@ -101,7 +108,7 @@ window.addEventListener("load", () => {
     .catch(err => console.error('Error cargando invitados.txt', err));
 });
 
-// 🔹 Buscar nombre
+// Botón "Buscar"
 document.getElementById('buscar').addEventListener('click', () => {
   const nombre = document.getElementById('nombre').value.trim().toLowerCase();
   const resultado = document.getElementById('resultado');
@@ -122,13 +129,15 @@ document.getElementById('buscar').addEventListener('click', () => {
   mensajeError.classList.add('hidden');
 });
 
-// 🔹 Enviar formulario
+// Enviar formulario
 document.getElementById('alergenosForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const nombre = document.getElementById('nombre').value.trim().toLowerCase();
   const alergenos = document.getElementById('alergenos').value.trim();
   const resultadoDiv = document.getElementById('resultado');
   const calendarDiv = document.getElementById('calendarButtons');
+  const formularioDiv = document.getElementById('formulario');
+  const mensajeFinal = document.getElementById('mensajeFinal');
 
   if (!invitados.includes(nombre)) {
     alert("Lo sentimos, tu nombre no está en la lista de invitados.");
@@ -143,37 +152,34 @@ document.getElementById('alergenosForm').addEventListener('submit', async (e) =>
       body: JSON.stringify({ nombre, alergenos })
     });
 
-    // Limpiar formulario
-    resultadoDiv.classList.add('hidden');
-    document.getElementById('nombre').value = "";
-    document.getElementById('alergenos').value = "";
+    // Ocultar formulario
+    formularioDiv.classList.add('hidden');
 
-// Crear botones de calendario
-calendarDiv.innerHTML = '';
-calendarDiv.classList.remove('hidden');
+    // Mostrar mensaje final
+    mensajeFinal.textContent = "¡Tus datos han sido guardados, nos vemos el 5 de septiembre!";
+    mensajeFinal.classList.remove('hidden');
 
-const eventDate = '20260905';
-const eventTitle = encodeURIComponent("Boda de Fátima & Diego");
-const eventLocation = encodeURIComponent("Palacio Fernández Villa");
-const eventDetails = encodeURIComponent("Confirma tu asistencia");
+    // Crear botones de calendario
+    calendarDiv.innerHTML = '';
+    calendarDiv.classList.remove('hidden');
 
-// --- Google Calendar ---
-const googleLink = document.createElement('a');
-googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}&sf=true&output=xml`;
-googleLink.target = "_blank";
+    const eventDate = '20260905';
+    const eventTitle = encodeURIComponent("Boda de Fátima & Diego");
+    const eventLocation = encodeURIComponent("Palacio Fernández Villa");
+    const eventDetails = encodeURIComponent("Confirma tu asistencia");
 
-const googleImg = document.createElement('img');
-googleImg.src = "/media/GoogleCalendar.png";
-googleImg.alt = "Google Calendar";
-googleImg.style.width = "150px";  // mismo tamaño para ambos
-googleImg.style.height = "auto";
-googleImg.style.marginRight = "10px";
+    // Google Calendar
+    const googleLink = document.createElement('a');
+    googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}&sf=true&output=xml`;
+    googleLink.target = "_blank";
+    const googleImg = document.createElement('img');
+    googleImg.src = "/media/GoogleCalendar.png";
+    googleImg.alt = "Google Calendar";
+    googleLink.appendChild(googleImg);
+    calendarDiv.appendChild(googleLink);
 
-googleLink.appendChild(googleImg);
-calendarDiv.appendChild(googleLink);
-
-// --- iOS / Mac Calendar (.ics) ---
-const icsContent = `
+    // iOS / Mac Calendar
+    const icsContent = `
 BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
@@ -186,19 +192,15 @@ END:VEVENT
 END:VCALENDAR
 `.trim();
 
-const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-const icsLink = document.createElement('a');
-icsLink.href = URL.createObjectURL(blob);
-icsLink.download = "Boda_Fatima_Diego.ics";
-
-const appleImg = document.createElement('img');
-appleImg.src = "/media/AppleCalendar.png";
-appleImg.alt = "Apple Calendar";
-appleImg.style.width = "150px";  // mismo tamaño
-appleImg.style.height = "auto";
-
-icsLink.appendChild(appleImg);
-calendarDiv.appendChild(icsLink);
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const icsLink = document.createElement('a');
+    icsLink.href = URL.createObjectURL(blob);
+    icsLink.download = "Boda_Fatima_Diego.ics";
+    const appleImg = document.createElement('img');
+    appleImg.src = "/media/AppleCalendar.png";
+    appleImg.alt = "Apple Calendar";
+    icsLink.appendChild(appleImg);
+    calendarDiv.appendChild(icsLink);
 
   } catch (err) {
     alert("Error de conexión. Intenta de nuevo más tarde.");

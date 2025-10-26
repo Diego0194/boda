@@ -19,6 +19,14 @@
     }
     input, select { width: 100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ddd; }
     .hidden { display:none; }
+    #calendarButtons a {
+      display: inline-block;
+      margin-right: 10px;
+      padding: 10px 15px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+    }
   </style>
   <link rel="icon" type="image/png" href="media/favicon.png">
 </head>
@@ -66,6 +74,7 @@
       </form>
     </div>
 
+    <div id="calendarButtons" class="hidden"></div>
     <p id="mensajeError" class="hidden" style="color:#b74d4d;"></p>
   </div>
 </main>
@@ -78,31 +87,26 @@
 
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwnhZLbQlOljNHP8MO-hAlliMtU4rnDxa14GYNzntcI2N2HU__Ln60ZmDnoP_xa6Eg92A/exec";
-
 let invitados = [];
 
-// 🔹 Mostrar el contenido al cargar
+// 🔹 Mostrar contenido al cargar y cargar invitados
 window.addEventListener("load", () => {
   document.querySelector(".page-content").classList.add("page-enter");
 
-  // 🔹 Cargar lista de invitados desde invitados.txt
   fetch('invitados.txt')
     .then(res => res.text())
     .then(text => {
-      invitados = text.split('\n')
-        .map(name => name.trim().toLowerCase())
-        .filter(name => name.length > 0);
+      invitados = text.split('\n').map(name => name.trim().toLowerCase()).filter(name => name);
     })
-    .catch(err => {
-      console.error('Error cargando invitados.txt', err);
-    });
+    .catch(err => console.error('Error cargando invitados.txt', err));
 });
 
-// 🔹 Botón "Buscar"
+// 🔹 Buscar nombre
 document.getElementById('buscar').addEventListener('click', () => {
   const nombre = document.getElementById('nombre').value.trim().toLowerCase();
   const resultado = document.getElementById('resultado');
   const mensajeError = document.getElementById('mensajeError');
+  const calendarDiv = document.getElementById('calendarButtons');
 
   if (!nombre) return;
 
@@ -110,6 +114,7 @@ document.getElementById('buscar').addEventListener('click', () => {
     mensajeError.textContent = "Lo sentimos, tu nombre no está en la lista de invitados.";
     mensajeError.classList.remove('hidden');
     resultado.classList.add('hidden');
+    calendarDiv.classList.add('hidden');
     return;
   }
 
@@ -122,6 +127,8 @@ document.getElementById('alergenosForm').addEventListener('submit', async (e) =>
   e.preventDefault();
   const nombre = document.getElementById('nombre').value.trim().toLowerCase();
   const alergenos = document.getElementById('alergenos').value.trim();
+  const resultadoDiv = document.getElementById('resultado');
+  const calendarDiv = document.getElementById('calendarButtons');
 
   if (!invitados.includes(nombre)) {
     alert("Lo sentimos, tu nombre no está en la lista de invitados.");
@@ -136,10 +143,52 @@ document.getElementById('alergenosForm').addEventListener('submit', async (e) =>
       body: JSON.stringify({ nombre, alergenos })
     });
 
-    alert("¡Confirmación enviada con éxito!");
-    document.getElementById('resultado').classList.add('hidden');
+    // Limpiar formulario
+    resultadoDiv.classList.add('hidden');
     document.getElementById('nombre').value = "";
     document.getElementById('alergenos').value = "";
+
+    // Crear botones de calendario
+    calendarDiv.innerHTML = '';
+    calendarDiv.classList.remove('hidden');
+
+    const eventDate = '20260905';
+    const eventTitle = encodeURIComponent("Boda de Fátima & Diego");
+    const eventLocation = encodeURIComponent("Palacio Fernández Villa");
+    const eventDetails = encodeURIComponent("Confirma tu asistencia");
+
+    // Google Calendar
+    const googleLink = document.createElement('a');
+    googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}&sf=true&output=xml`;
+    googleLink.target = "_blank";
+    googleLink.textContent = "Añadir a Google Calendar";
+    googleLink.style.background = "#4285F4";
+    googleLink.style.color = "white";
+    calendarDiv.appendChild(googleLink);
+
+    // iOS / Mac Calendar
+    const icsContent = `
+BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:${decodeURIComponent(eventTitle)}
+DTSTART;VALUE=DATE:${eventDate}
+DTEND;VALUE=DATE:${eventDate}
+LOCATION:${decodeURIComponent(eventLocation)}
+DESCRIPTION:${decodeURIComponent(eventDetails)}
+END:VEVENT
+END:VCALENDAR
+`.trim();
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const icsLink = document.createElement('a');
+    icsLink.href = URL.createObjectURL(blob);
+    icsLink.download = "Boda_Fatima_Diego.ics";
+    icsLink.textContent = "Añadir a iOS / Mac Calendar";
+    icsLink.style.background = "#34A853";
+    icsLink.style.color = "white";
+    calendarDiv.appendChild(icsLink);
+
   } catch (err) {
     alert("Error de conexión. Intenta de nuevo más tarde.");
     console.error(err);

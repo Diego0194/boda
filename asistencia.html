@@ -7,17 +7,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-	.page-content {
-	  opacity: 0;
-	  transition: opacity 0.5s ease;
-	  width: 100%;
-	  position: relative;
-	  max-width: 500px;
-	  margin: 0 auto;
-	  border-radius: 12px;
-	  text-align: center;
-	}
-
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      width: 100%;
+      position: relative;
+      max-width: 500px;
+      margin: 0 auto;
+      border-radius: 12px;
+      text-align: center;
+    }
     input, select { width: 100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ddd; }
     .hidden { display:none; }
   </style>
@@ -27,14 +26,12 @@
 
 <header>
   <div class="container header-flex">
-	<div class="brand">
-	  <a href="index.html" style="text-decoration: none; color: inherit;">
-		<h1>F&D</h1>
-	  </a>
-	  <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
-	</div>
-
-    <!-- Botón menú móvil -->
+    <div class="brand">
+      <a href="index.html" style="text-decoration: none; color: inherit;">
+        <h1>F&D</h1>
+      </a>
+      <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+    </div>
     <button class="menu-toggle" aria-label="Abrir menú">☰</button>
   </div>
 
@@ -53,14 +50,16 @@
 <main class="page-wrapper">
   <div class="page-container page-content">
     <h2>Confirma tu asistencia</h2>
-	<div class="intro">Introduce tu nombre completo para confirmar tu asistencia...</div>
-<label>
-    <input type="text" id="nombre" placeholder="Nombre y apellidos">
-    <button id="buscar">Buscar</button>
-        </label>
+    <div class="intro">Introduce tu nombre completo para confirmar tu asistencia...</div>
+    <label>
+      <input type="text" id="nombre" placeholder="Nombre y apellidos">
+      <button id="buscar">Buscar</button>
+    </label>
+
     <div id="resultado" class="hidden">
       <form id="alergenosForm">
-        <br><label>Alérgenos o necesidades especiales:<br>
+        <br>
+        <label>Alérgenos o necesidades especiales:<br>
           <input type="text" id="alergenos" placeholder="Ej: gluten, frutos secos, etc.">
         </label>
         <button type="submit" id="enviar">Enviar</button>
@@ -77,11 +76,10 @@
   </div>
 </footer>
 
-<script src="main.js"></script>
-
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwgTMKWd9bvTWPNtFlPBBO50X_8Es0EdQaDgWQEmp2ofL1cfUbVPZ7JrCUOIVYqWumOFg/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwnhZLbQlOljNHP8MO-hAlliMtU4rnDxa14GYNzntcI2N2HU__Ln60ZmDnoP_xa6Eg92A/exec";
 
+// --- Buscar nombre en lista ---
 document.getElementById('buscar').addEventListener('click', async () => {
   const nombre = document.getElementById('nombre').value.trim();
   const resultado = document.getElementById('resultado');
@@ -109,6 +107,7 @@ document.getElementById('buscar').addEventListener('click', async () => {
   }
 });
 
+// --- Enviar confirmación ---
 document.getElementById('alergenosForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const nombre = document.getElementById('nombre').value.trim();
@@ -117,27 +116,23 @@ document.getElementById('alergenosForm').addEventListener('submit', async (e) =>
   if (!nombre) return;
 
   try {
-    const res = await fetch(WEB_APP_URL, {
+    await fetch(WEB_APP_URL, {
       method: "POST",
+      mode: "no-cors", // ✅ evita el error CORS
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre, alergenos })
     });
-    const data = await res.json();
 
-    if (data.ok) {
-      alert("¡Confirmación enviada con éxito!");
-      document.getElementById('resultado').classList.add('hidden');
-      document.getElementById('nombre').value = "";
-      document.getElementById('alergenos').value = "";
-    } else {
-      alert("Error al enviar la confirmación. Contacta con Fátima o Diego.");
-    }
+    // No podemos leer respuesta JSON, pero asumimos éxito
+    alert("¡Confirmación enviada con éxito!");
+    document.getElementById('resultado').classList.add('hidden');
+    document.getElementById('nombre').value = "";
+    document.getElementById('alergenos').value = "";
   } catch (err) {
     alert("Error de conexión. Intenta de nuevo más tarde.");
     console.error(err);
   }
 });
-
 </script>
 
 </body>

@@ -148,26 +148,32 @@ document.getElementById('alergenosForm').addEventListener('submit', async (e) =>
     document.getElementById('nombre').value = "";
     document.getElementById('alergenos').value = "";
 
-    // Crear botones de calendario
-    calendarDiv.innerHTML = '';
-    calendarDiv.classList.remove('hidden');
+// Crear botones de calendario
+calendarDiv.innerHTML = '';
+calendarDiv.classList.remove('hidden');
 
-    const eventDate = '20260905';
-    const eventTitle = encodeURIComponent("Boda de Fátima & Diego");
-    const eventLocation = encodeURIComponent("Palacio Fernández Villa");
-    const eventDetails = encodeURIComponent("Confirma tu asistencia");
+const eventDate = '20260905';
+const eventTitle = encodeURIComponent("Boda de Fátima & Diego");
+const eventLocation = encodeURIComponent("Palacio Fernández Villa");
+const eventDetails = encodeURIComponent("Confirma tu asistencia");
 
-    // Google Calendar
-    const googleLink = document.createElement('a');
-    googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}&sf=true&output=xml`;
-    googleLink.target = "_blank";
-    googleLink.textContent = "Añadir a Google Calendar";
-    googleLink.style.background = "#4285F4";
-    googleLink.style.color = "white";
-    calendarDiv.appendChild(googleLink);
+// --- Google Calendar ---
+const googleLink = document.createElement('a');
+googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}&sf=true&output=xml`;
+googleLink.target = "_blank";
 
-    // iOS / Mac Calendar
-    const icsContent = `
+const googleImg = document.createElement('img');
+googleImg.src = "/media/GoogleCalendar.png";
+googleImg.alt = "Google Calendar";
+googleImg.style.width = "150px";  // mismo tamaño para ambos
+googleImg.style.height = "auto";
+googleImg.style.marginRight = "10px";
+
+googleLink.appendChild(googleImg);
+calendarDiv.appendChild(googleLink);
+
+// --- iOS / Mac Calendar (.ics) ---
+const icsContent = `
 BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
@@ -180,14 +186,19 @@ END:VEVENT
 END:VCALENDAR
 `.trim();
 
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const icsLink = document.createElement('a');
-    icsLink.href = URL.createObjectURL(blob);
-    icsLink.download = "Boda_Fatima_Diego.ics";
-    icsLink.textContent = "Añadir a iOS / Mac Calendar";
-    icsLink.style.background = "#34A853";
-    icsLink.style.color = "white";
-    calendarDiv.appendChild(icsLink);
+const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+const icsLink = document.createElement('a');
+icsLink.href = URL.createObjectURL(blob);
+icsLink.download = "Boda_Fatima_Diego.ics";
+
+const appleImg = document.createElement('img');
+appleImg.src = "/media/AppleCalendar.png";
+appleImg.alt = "Apple Calendar";
+appleImg.style.width = "150px";  // mismo tamaño
+appleImg.style.height = "auto";
+
+icsLink.appendChild(appleImg);
+calendarDiv.appendChild(icsLink);
 
   } catch (err) {
     alert("Error de conexión. Intenta de nuevo más tarde.");

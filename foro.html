@@ -1,3 +1,4 @@
+@ -1,283 +1,276 @@
 <!doctype html>
 <html lang="es">
 <head>
@@ -125,6 +126,7 @@
       color: #b71c1c;
       border-left-color: #b71c1c;
     }
+
   </style>
 </head>
 
@@ -163,7 +165,7 @@
     <!-- Formulario -->
     <form id="formulario">
       <label for="nombre">Tu nombre o alias:</label>
-      <input type="text" id="nombre" name="nombre" required maxlength="50" placeholder="Ej: Luis, Yisus01...">
+      <input type="text" id="nombre" name="nombre" required maxlength="50" placeholder="Ej: Luis, Rosa...">
       
       <label for="mensaje">Tu mensaje:</label>
       <textarea id="mensaje" name="mensaje" required rows="4" placeholder="Escribe aquí tu mensaje..."></textarea>
@@ -191,7 +193,9 @@
   </div>
 </footer>
 
+<script src="main.js"></script>
 <script>
+// URL del script de Google Apps Script
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw37iH6BilDF8SEaG5ZABz05zkqWIFdWE_W45QuiPAta_2cyDP6xEJ8FI2Oq7M-owI/exec";
 
 const form = document.getElementById("formulario");
@@ -212,14 +216,17 @@ form.addEventListener("submit", async e => {
   alerta.style.display = "none";
 
   try {
-    await fetch(SCRIPT_URL, {
+    const res = await fetch(SCRIPT_URL, {
       method: "POST",
       body: JSON.stringify({ nombre, mensaje }),
       headers: { "Content-Type": "application/json" }
     });
+
+    if (!res.ok) throw new Error("Error al guardar el mensaje");
+    
     form.reset();
     mostrarAlerta("💌 ¡Tu mensaje se ha publicado correctamente!");
-    setTimeout(cargarMensajes, 1500);
+    await cargarMensajes();
   } catch (err) {
     console.error(err);
     mostrarAlerta("⚠️ Error al guardar el mensaje. Inténtalo más tarde.", true);
@@ -266,11 +273,11 @@ function escapeHtml(text) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
 
-// Cargar mensajes al inicio
+// Cargar mensajes al abrir la página
 cargarMensajes();
 </script>
 </body>

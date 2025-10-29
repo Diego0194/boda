@@ -125,7 +125,6 @@
       color: #b71c1c;
       border-left-color: #b71c1c;
     }
-
   </style>
 </head>
 
@@ -215,17 +214,15 @@ form.addEventListener("submit", async e => {
   alerta.style.display = "none";
 
   try {
-    const res = await fetch(SCRIPT_URL, {
+    await fetch(SCRIPT_URL, {
       method: "POST",
+      mode: "no-cors",
       body: JSON.stringify({ nombre, mensaje }),
       headers: { "Content-Type": "application/json" }
     });
-
-    if (!res.ok) throw new Error("Error al guardar el mensaje");
-    
     form.reset();
     mostrarAlerta("💌 ¡Tu mensaje se ha publicado correctamente!");
-    await cargarMensajes();
+    setTimeout(cargarMensajes, 1500);
   } catch (err) {
     console.error(err);
     mostrarAlerta("⚠️ Error al guardar el mensaje. Inténtalo más tarde.", true);
@@ -236,8 +233,14 @@ form.addEventListener("submit", async e => {
 
 async function cargarMensajes() {
   try {
-    const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
-    const mensajes = await res.json();
+    const res = await fetch(SCRIPT_URL + "?t=" + Date.now(), { mode: "no-cors" });
+    const texto = await res.text();
+    let mensajes = [];
+    try {
+      mensajes = JSON.parse(texto);
+    } catch {
+      console.warn("No se pudo leer JSON (modo no-cors).");
+    }
     lista.innerHTML = "";
     if (!mensajes || mensajes.length === 0) {
       lista.innerHTML = "<p>Aún no hay mensajes. ¡Sé el primero en escribir! 😊</p>";
@@ -271,13 +274,3 @@ function escapeHtml(text) {
   return text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-// Cargar mensajes al abrir la página
-cargarMensajes();
-</script>
-</body>
-</html>

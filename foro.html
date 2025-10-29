@@ -191,9 +191,7 @@
   </div>
 </footer>
 
-<script src="main.js"></script>
 <script>
-// URL del script de Google Apps Script
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw37iH6BilDF8SEaG5ZABz05zkqWIFdWE_W45QuiPAta_2cyDP6xEJ8FI2Oq7M-owI/exec";
 
 const form = document.getElementById("formulario");
@@ -216,7 +214,6 @@ form.addEventListener("submit", async e => {
   try {
     await fetch(SCRIPT_URL, {
       method: "POST",
-      mode: "no-cors",
       body: JSON.stringify({ nombre, mensaje }),
       headers: { "Content-Type": "application/json" }
     });
@@ -233,14 +230,8 @@ form.addEventListener("submit", async e => {
 
 async function cargarMensajes() {
   try {
-    const res = await fetch(SCRIPT_URL + "?t=" + Date.now(), { mode: "no-cors" });
-    const texto = await res.text();
-    let mensajes = [];
-    try {
-      mensajes = JSON.parse(texto);
-    } catch {
-      console.warn("No se pudo leer JSON (modo no-cors).");
-    }
+    const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
+    const mensajes = await res.json();
     lista.innerHTML = "";
     if (!mensajes || mensajes.length === 0) {
       lista.innerHTML = "<p>Aún no hay mensajes. ¡Sé el primero en escribir! 😊</p>";
@@ -274,3 +265,13 @@ function escapeHtml(text) {
   return text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Cargar mensajes al inicio
+cargarMensajes();
+</script>
+</body>
+</html>

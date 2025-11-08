@@ -195,7 +195,7 @@
 <script src="main.js"></script>
 <script>
 // URL del script de Google Apps Script
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoC_Yg4kq2uZdeAPTSpPxAbY9sm6M-Rhrum6cm9SYx3swPLrr4FY1OIiThdrZjWjyy/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuEJGD5ORlOee6_E-XlvpbKjbl3qoge-aZevj6UlaMp58ERkWH2dNaNgKYvd_IDQFa/exec";
 
 const form = document.getElementById("formulario");
 const lista = document.getElementById("mensajes");
@@ -204,8 +204,10 @@ const alerta = document.getElementById("alerta");
 
 form.addEventListener("submit", async e => {
   e.preventDefault();
+
   const nombre = form.nombre.value.trim();
   const mensaje = form.mensaje.value.trim();
+
   if (!nombre || !mensaje) {
     mostrarAlerta("Por favor, escribe tu nombre y un mensaje.", true);
     return;
@@ -215,14 +217,18 @@ form.addEventListener("submit", async e => {
   alerta.style.display = "none";
 
   try {
+    // Enviamos los datos como FormData (no JSON) para evitar problemas de CORS
+    const formData = new FormData();
+    formData.append("nombre", nombre);
+    formData.append("mensaje", mensaje);
+
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      body: JSON.stringify({ nombre, mensaje }),
-      headers: { "Content-Type": "application/json" }
+      body: formData,
     });
 
     if (!res.ok) throw new Error("Error al guardar el mensaje");
-    
+
     form.reset();
     mostrarAlerta("💌 ¡Tu mensaje se ha publicado correctamente!");
     await cargarMensajes();
@@ -239,11 +245,13 @@ async function cargarMensajes() {
     const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
     const mensajes = await res.json();
     lista.innerHTML = "";
+
     if (!mensajes || mensajes.length === 0) {
       lista.innerHTML = "<p>Aún no hay mensajes. ¡Sé el primero en escribir! 😊</p>";
       return;
     }
 
+    // Mostrar mensajes en orden más reciente primero
     mensajes.reverse().forEach(m => {
       const div = document.createElement("div");
       div.className = "mensaje";
@@ -275,6 +283,11 @@ function escapeHtml(text) {
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+// Cargar mensajes al iniciar
+cargarMensajes();
+</script>
+
 
 // Cargar mensajes al abrir la página
 cargarMensajes();

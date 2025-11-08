@@ -460,3 +460,23 @@ main.container {
     display: block;
   }
 }
+
+.upload-link {
+  display: block;
+  width: fit-content;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #b74d4d;
+  color: white;
+  text-align:center;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.upload-link:hover {
+  background-color: #8a3838;
+}

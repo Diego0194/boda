@@ -42,12 +42,12 @@
     <div class="intro">Nos hará mucha ilusión veros en el Palacio de los Fernández-Villa. Aquí tenéis toda la información para llegar cómodamente.</div>
 
     <!-- Distancia desde la ubicación del usuario -->
-    <p id="distancia" style="text-align:center; font-weight:bold; color:#b74d4d;">
-      Calculando distancia...
-    </p>
+	<p id="distancia" style="text-align:center; font-weight:bold; color:#b74d4d;">
+	  <a href="#" id="btnUbicacion" class="upload-link">📍 Calcular mi distancia</a>
+	</p>
 
     <!-- Tarjeta de dirección -->
-    <div style="max-width:500px; margin:0 auto 30px auto; padding:20px; background:#fdf6f2; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); text-align:center;">
+    <div style="max-width:500px; margin:10px auto 30px auto; padding:20px; background:#fdf6f2; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); text-align:center;">
       <strong>Palacio de los Fernández-Villa</strong><br>
       C. Progreso, 29. Espinosa de los Monteros, Burgos
     </div>
@@ -81,35 +81,42 @@
 
 <!-- JS para calcular distancia -->
 <script>
-  // Coordenadas del Palacio de los Fernández-Villa
   const bodaLat = 43.075577; 
   const bodaLng = -3.552812;
+  const btn = document.getElementById('btnUbicacion');
+  const distanciaTexto = document.getElementById('distancia');
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        const distancia = calcularDistancia(userLat, userLng, bodaLat, bodaLng);
-        document.getElementById('distancia').innerText = `🗺️ Ahora mismo estás a ${distancia.toFixed(1)} km del Palacio.`;
-      },
-      (error) => {
-        console.error('Error obteniendo ubicación', error);
-        document.getElementById('distancia').innerText = 'No se pudo obtener tu ubicación';
-      }
-    );
-  } else {
-    document.getElementById('distancia').innerText = 'Tu navegador no soporta geolocalización';
-  }
+  btn.addEventListener('click', () => {
+    if (navigator.geolocation) {
+      btn.disabled = true;
+      btn.textContent = 'Calculando...';
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          const distancia = calcularDistancia(userLat, userLng, bodaLat, bodaLng);
+          distanciaTexto.innerText = `🗺️ Estás a ${distancia.toFixed(1)} km del Palacio.`;
+        },
+        (error) => {
+          console.error('Error obteniendo ubicación', error);
+          distanciaTexto.innerText = '❌ No se pudo obtener tu ubicación. Revisa los permisos del navegador.';
+          btn.disabled = false;
+          btn.textContent = '📍 Intentar de nuevo';
+        }
+      );
+    } else {
+      distanciaTexto.innerText = 'Tu navegador no soporta geolocalización.';
+    }
+  });
 
   function calcularDistancia(lat1, lng1, lat2, lng2) {
-    const R = 6371; // Radio de la Tierra en km
+    const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLng = toRad(lng2 - lng1);
-    const a =
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
   }

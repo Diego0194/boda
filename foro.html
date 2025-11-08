@@ -32,17 +32,6 @@
       font-size: 1rem;
     }
 
-    button {
-      background-color: #b74d4d;
-      color: white;
-      border: none;
-      padding: .6rem 1.2rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s ease;
-    }
-
     .mensaje {
       background: #fff;
       margin: 1rem 0;
@@ -110,7 +99,6 @@
       border-radius: 8px;
       background-color: #e6f4ea;
       color: #2e7d32;
-      border-left: 4px solid #2e7d32;
       text-align: center;
       font-weight: 500;
     }
@@ -118,7 +106,6 @@
     .alerta.error {
       background-color: #fdecea;
       color: #b71c1c;
-      border-left-color: #b71c1c;
     }
 
   </style>
@@ -157,21 +144,21 @@
     </div>
 
     <!-- Formulario -->
-    <form id="formulario">
-      <label for="nombre">Tu nombre o alias:</label>
-      <input type="text" id="nombre" name="nombre" required maxlength="50" placeholder="Ej: Luis, Rosa...">
-      
-      <label for="mensaje">Tu mensaje:</label>
-      <textarea id="mensaje" name="mensaje" required rows="4" placeholder="Escribe aquí tu mensaje..."></textarea>
-      
-      <button type="submit">Publicar mensaje</button>
+	<form id="formulario">
+	  <label for="nombre">Tu nombre o alias:</label>
+	  <input type="text" id="nombre" name="nombre" required maxlength="50" placeholder="Ej: Luis, Rosa...">
+	  
+	  <label for="mensaje">Tu mensaje:</label>
+	  <textarea id="mensaje" name="mensaje" required rows="4" placeholder="Escribe aquí tu mensaje..."></textarea>
+	  
+	  <button type="submit" class="upload-link">💌 Publicar mensaje</button>
 
-      <div class="spinner" id="spinner">
-        <div class="loader"></div>
-      </div>
+	  <div class="spinner" id="spinner">
+		<div class="loader"></div>
+	  </div>
 
-      <div id="alerta" class="alerta"></div>
-    </form>
+	  <div id="alerta" class="alerta"></div>
+	</form>
 
     <h3 style="margin-top:2rem;">Mensajes recientes</h3>
     <div id="mensajes">

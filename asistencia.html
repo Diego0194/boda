@@ -66,15 +66,16 @@
         <button id="buscar">Buscar</button>
       </label>
 
-      <div id="resultado" class="hidden">
-        <form id="alergenosForm">
-          <br>
-          <label>Alérgenos o necesidades especiales:<br>
-            <input type="text" id="alergenos" placeholder="Ej: gluten, frutos secos, etc.">
-          </label>
-          <button type="submit" id="enviar">Enviar</button>
-        </form>
-      </div>
+		<div id="resultado" class="hidden">
+		  <p id="mensajeGrupo" class="hidden" style="font-weight:500;">
+			¿Quieres confirmar algun@ de tus acompañantes también?
+		  </p>
+
+		  <form id="alergenosForm">
+			<div id="listaInvitados"></div>
+			<button type="submit">Enviar</button>
+		  </form>
+		</div>
     </div>
 
     <!-- Mensaje final -->
@@ -96,116 +97,111 @@
 <script src="main.js"></script>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwnhZLbQlOljNHP8MO-hAlliMtU4rnDxa14GYNzntcI2N2HU__Ln60ZmDnoP_xa6Eg92A/exec";
+const WEB_APP_URL = "TU_URL_DE_GOOGLE_APPS_SCRIPT";
+
+const formulario = document.getElementById('formulario');
+const resultado = document.getElementById('resultado');
+const mensajeError = document.getElementById('mensajeError');
+const mensajeFinal = document.getElementById('mensajeFinal');
+const calendarDiv = document.getElementById('calendarButtons');
+const nombreInput = document.getElementById('nombre');
+
 let invitados = [];
 
-// Mostrar contenido y cargar invitados
-window.addEventListener("load", () => {
-  document.querySelector(".page-content").classList.add("page-enter");
+fetch('invitados.json')
+  .then(res => res.json())
+  .then(data => invitados = data)
+  .catch(err => console.error(err));
 
-  fetch('invitados.txt')
-    .then(res => res.text())
-    .then(text => {
-      invitados = text.split('\n').map(name => name.trim().toLowerCase()).filter(name => name);
-    })
-    .catch(err => console.error('Error cargando invitados.txt', err));
-});
-
-// Botón "Buscar"
 document.getElementById('buscar').addEventListener('click', () => {
-  const nombre = document.getElementById('nombre').value.trim().toLowerCase();
-  const resultado = document.getElementById('resultado');
-  const mensajeError = document.getElementById('mensajeError');
-  const calendarDiv = document.getElementById('calendarButtons');
+  const nombreBuscado = nombreInput.value.trim().toLowerCase();
+  const invitado = invitados.find(
+    i => i.nombre.toLowerCase() === nombreBuscado
+  );
 
-  if (!nombre) return;
-
-  if (!invitados.includes(nombre)) {
+  if (!invitado) {
     mensajeError.textContent = "Lo sentimos, tu nombre no está en la lista de invitados.";
     mensajeError.classList.remove('hidden');
     resultado.classList.add('hidden');
-    calendarDiv.classList.add('hidden');
     return;
   }
 
-  resultado.classList.remove('hidden');
   mensajeError.classList.add('hidden');
+  resultado.classList.remove('hidden');
+
+  const lista = document.getElementById('listaInvitados');
+  const mensajeGrupo = document.getElementById('mensajeGrupo');
+  lista.innerHTML = '';
+
+  let invitadosAMostrar = [invitado];
+
+  if (invitado.grupo) {
+    invitadosAMostrar = invitados.filter(i => i.grupo === invitado.grupo);
+    mensajeGrupo.classList.remove('hidden');
+  } else {
+    mensajeGrupo.classList.add('hidden');
+  }
+
+  invitadosAMostrar.forEach(inv => {
+    const div = document.createElement('div');
+    div.style.marginBottom = "10px";
+
+    div.innerHTML = `
+      <label>
+        <input type="checkbox" name="confirmados" value="${inv.nombre}" checked>
+        ${inv.nombre}
+      </label>
+      <input type="text" class="hidden" placeholder="Alérgenos" data-nombre="${inv.nombre}">
+    `;
+
+    const checkbox = div.querySelector('input[type="checkbox"]');
+    const alergInput = div.querySelector('input[type="text"]');
+
+    checkbox.addEventListener('change', () => {
+      alergInput.classList.toggle('hidden', !checkbox.checked);
+    });
+
+    lista.appendChild(div);
+  });
 });
 
-// Enviar formulario
-document.getElementById('alergenosForm').addEventListener('submit', async (e) => {
+document.getElementById('alergenosForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const nombre = document.getElementById('nombre').value.trim().toLowerCase();
-  const alergenos = document.getElementById('alergenos').value.trim();
-  const resultadoDiv = document.getElementById('resultado');
-  const calendarDiv = document.getElementById('calendarButtons');
-  const formularioDiv = document.getElementById('formulario');
-  const mensajeFinal = document.getElementById('mensajeFinal');
 
-  if (!invitados.includes(nombre)) {
-    alert("Lo sentimos, tu nombre no está en la lista de invitados.");
-    return;
-  }
+  const confirmados = [];
+  document.querySelectorAll('input[name="confirmados"]:checked').forEach(cb => {
+    const alerg = document.querySelector(`input[data-nombre="${cb.value}"]`);
+    confirmados.push({
+      nombre: cb.value,
+      alergenos: alerg ? alerg.value : ''
+    });
+  });
 
   try {
     await fetch(WEB_APP_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, alergenos })
+      body: JSON.stringify({ invitados: confirmados })
     });
 
-    // Ocultar formulario
-    formularioDiv.classList.add('hidden');
-
-    // Mostrar mensaje final
-    mensajeFinal.textContent = "¡Tus datos han sido guardados, nos vemos el 5 de septiembre!";
+    formulario.classList.add('hidden');
+    mensajeFinal.textContent = "¡Asistencia confirmada! Nos vemos el 5 de septiembre 💕";
     mensajeFinal.classList.remove('hidden');
 
-    // Crear botones de calendario
-    calendarDiv.innerHTML = '';
     calendarDiv.classList.remove('hidden');
+    calendarDiv.innerHTML = '';
 
     const eventDate = '20260905';
     const eventTitle = encodeURIComponent("Boda de Fátima & Diego");
     const eventLocation = encodeURIComponent("Palacio Fernández Villa");
     const eventDetails = encodeURIComponent("Confirma tu asistencia");
 
-    // Google Calendar
     const googleLink = document.createElement('a');
-    googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}&sf=true&output=xml`;
+    googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}`;
     googleLink.target = "_blank";
-    const googleImg = document.createElement('img');
-    googleImg.src = "/media/GoogleCalendar.png";
-	googleImg.style.width = "150px";
-    googleImg.alt = "Google Calendar";
-    googleLink.appendChild(googleImg);
+    googleLink.innerHTML = `<img src="/media/GoogleCalendar.png" width="150">`;
     calendarDiv.appendChild(googleLink);
-
-    // iOS / Mac Calendar
-    const icsContent = `
-BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-SUMMARY:${decodeURIComponent(eventTitle)}
-DTSTART;VALUE=DATE:${eventDate}
-DTEND;VALUE=DATE:${eventDate}
-LOCATION:${decodeURIComponent(eventLocation)}
-DESCRIPTION:${decodeURIComponent(eventDetails)}
-END:VEVENT
-END:VCALENDAR
-`.trim();
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const icsLink = document.createElement('a');
-    icsLink.href = URL.createObjectURL(blob);
-    icsLink.download = "Boda_Fatima_Diego.ics";
-    const appleImg = document.createElement('img');
-    appleImg.src = "/media/AppleCalendar.png";
-    appleImg.alt = "Apple Calendar";
-	appleImg.style.width = "150px";
-    icsLink.appendChild(appleImg);
-    calendarDiv.appendChild(icsLink);
 
   } catch (err) {
     alert("Error de conexión. Intenta de nuevo más tarde.");
@@ -213,6 +209,7 @@ END:VCALENDAR
   }
 });
 </script>
+
 
 </body>
 </html>

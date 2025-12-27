@@ -154,12 +154,16 @@ document.getElementById('buscar').addEventListener('click', () => {
       <input type="text" class="hidden" placeholder="Alérgenos" data-nombre="${inv.nombre}">
     `;
 
-    const checkbox = div.querySelector('input[type="checkbox"]');
-    const alergInput = div.querySelector('input[type="text"]');
+	const checkbox = div.querySelector('input[type="checkbox"]');
+	const alergInput = div.querySelector('input[type="text"]');
 
-    checkbox.addEventListener('change', () => {
-      alergInput.classList.toggle('hidden', !checkbox.checked);
-    });
+	// mostrar al inicio si está marcado
+	alergInput.classList.toggle('hidden', !checkbox.checked);
+
+	checkbox.addEventListener('change', () => {
+	  alergInput.classList.toggle('hidden', !checkbox.checked);
+	});
+
 
     lista.appendChild(div);
   });

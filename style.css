@@ -154,6 +154,7 @@ main.container {
   height: 300px;
   perspective: 1000px;
   cursor: pointer;
+  position: relative;
 }
 
 .polaroid-inner {

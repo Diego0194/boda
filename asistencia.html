@@ -147,35 +147,32 @@ invitadosAMostrar.forEach(inv => {
   const div = document.createElement('div');
   div.style.display = 'flex';
   div.style.alignItems = 'center';
-  div.style.justifyContent = 'space-between';
-  div.style.flexWrap = 'nowrap'; // evitar salto de línea
-  div.style.gap = '10px';
+  div.style.justifyContent = 'flex-start';  // No separar mucho
+  div.style.gap = '10px';                    // Espacio entre checkbox, texto y input
   div.style.marginBottom = '10px';
-
-  const label = document.createElement('label');
-  label.style.display = 'flex';
-  label.style.alignItems = 'center';
-  label.style.flex = '1';
 
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.name = 'confirmados';
   checkbox.value = inv.nombre;
-  checkbox.style.marginRight = '10px';
+  // Sin margen derecho, para evitar hueco extra
+  // checkbox.style.marginRight = '10px'; 
 
-  // Aquí solo texto, no span, para evitar saltos
-  label.appendChild(checkbox);
-  label.appendChild(document.createTextNode(inv.nombre));
+  const nombreSpan = document.createElement('span');
+  nombreSpan.textContent = inv.nombre;
+  nombreSpan.style.whiteSpace = 'nowrap';   // Evitar saltos en el nombre
+  nombreSpan.style.minWidth = '120px';      // Para que tenga ancho mínimo y se vea bien
 
   const alergInput = document.createElement('input');
   alergInput.type = 'text';
   alergInput.placeholder = 'Alérgenos';
-  alergInput.style.flex = '1';
-  alergInput.style.marginLeft = '10px';
   alergInput.classList.add('hidden');
   alergInput.setAttribute('data-nombre', inv.nombre);
+  alergInput.style.flexShrink = '0';         // No encoger
+  alergInput.style.width = '150px';           // Ancho fijo para input alérgenos
 
-  div.appendChild(label);
+  div.appendChild(checkbox);
+  div.appendChild(nombreSpan);
   div.appendChild(alergInput);
 
   checkbox.addEventListener('change', () => {
@@ -193,6 +190,7 @@ invitadosAMostrar.forEach(inv => {
 
   lista.appendChild(div);
 });
+
 });
 
 

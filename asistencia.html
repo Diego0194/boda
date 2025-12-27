@@ -71,10 +71,13 @@
 			¿Quieres confirmar algun@ de tus acompañantes también?
 		  </p>
 
-		  <form id="alergenosForm">
-			<div id="listaInvitados"></div>
-			<button type="submit">Enviar</button>
-		  </form>
+		<form id="alergenosForm" class="hidden">
+		  <div id="listaInvitados"></div>
+		  <button type="submit" id="enviar" style="background-color:#b74d4d; color:white; border:none; border-radius:8px; padding:10px 20px; margin-top: 15px; cursor:pointer;" class="hidden">
+			Enviar
+		  </button>
+		</form>
+
 		</div>
     </div>
 
@@ -114,15 +117,14 @@ fetch('invitados.json')
   .catch(err => console.error(err));
 
 document.getElementById('buscar').addEventListener('click', () => {
-  const nombreBuscado = nombreInput.value.trim().toLowerCase();
-  const invitado = invitados.find(
-    i => i.nombre.toLowerCase() === nombreBuscado
-  );
+  const nombreBuscado = nombre.value.trim().toLowerCase();
+  const invitado = invitados.find(i => i.nombre.toLowerCase() === nombreBuscado);
 
   if (!invitado) {
     mensajeError.textContent = "Lo sentimos, tu nombre no está en la lista de invitados.";
     mensajeError.classList.remove('hidden');
     resultado.classList.add('hidden');
+    document.getElementById('alergenosForm').classList.add('hidden');
     return;
   }
 
@@ -130,44 +132,69 @@ document.getElementById('buscar').addEventListener('click', () => {
   resultado.classList.remove('hidden');
 
   const lista = document.getElementById('listaInvitados');
-  const mensajeGrupo = document.getElementById('mensajeGrupo');
+  const formulario = document.getElementById('alergenosForm');
+  const botonEnviar = document.getElementById('enviar');
   lista.innerHTML = '';
+  botonEnviar.classList.add('hidden'); // Oculto hasta que marque alguno
 
-  let invitadosAMostrar = [invitado];
+  let invitadosAMostrar = invitado.grupo 
+    ? invitados.filter(i => i.grupo === invitado.grupo) 
+    : [invitado];
 
-  if (invitado.grupo) {
-    invitadosAMostrar = invitados.filter(i => i.grupo === invitado.grupo);
-    mensajeGrupo.classList.remove('hidden');
-  } else {
-    mensajeGrupo.classList.add('hidden');
-  }
+  formulario.classList.remove('hidden');
 
   invitadosAMostrar.forEach(inv => {
     const div = document.createElement('div');
-    div.style.marginBottom = "10px";
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.marginBottom = '10px';
+    div.style.justifyContent = 'space-between';
 
-    div.innerHTML = `
-      <label>
-        <input type="checkbox" name="confirmados" value="${inv.nombre}" checked>
-        ${inv.nombre}
-      </label>
-      <input type="text" class="hidden" placeholder="Alérgenos" data-nombre="${inv.nombre}">
-    `;
+    const label = document.createElement('label');
+    label.style.flex = '1';
+    label.style.display = 'flex';
+    label.style.alignItems = 'center';
 
-	const checkbox = div.querySelector('input[type="checkbox"]');
-	const alergInput = div.querySelector('input[type="text"]');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.name = 'confirmados';
+    checkbox.value = inv.nombre;
+    checkbox.style.marginRight = '10px';
 
-	// mostrar al inicio si está marcado
-	alergInput.classList.toggle('hidden', !checkbox.checked);
+    const nombreSpan = document.createElement('span');
+    nombreSpan.textContent = inv.nombre;
 
-	checkbox.addEventListener('change', () => {
-	  alergInput.classList.toggle('hidden', !checkbox.checked);
-	});
+    label.appendChild(checkbox);
+    label.appendChild(nombreSpan);
 
+    const alergInput = document.createElement('input');
+    alergInput.type = 'text';
+    alergInput.placeholder = 'Alérgenos';
+    alergInput.style.marginLeft = '10px';
+    alergInput.style.flex = '1';
+    alergInput.classList.add('hidden');
+    alergInput.setAttribute('data-nombre', inv.nombre);
+
+    div.appendChild(label);
+    div.appendChild(alergInput);
+
+    checkbox.addEventListener('change', () => {
+      alergInput.classList.toggle('hidden', !checkbox.checked);
+
+      // Mostrar botón enviar si hay al menos un checkbox marcado
+      const anyChecked = Array.from(document.querySelectorAll('input[name="confirmados"]'))
+        .some(cb => cb.checked);
+      if (anyChecked) {
+        botonEnviar.classList.remove('hidden');
+      } else {
+        botonEnviar.classList.add('hidden');
+      }
+    });
 
     lista.appendChild(div);
   });
 });
+
 
 document.getElementById('alergenosForm').addEventListener('submit', async e => {
   e.preventDefault();

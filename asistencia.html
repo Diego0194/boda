@@ -143,56 +143,56 @@ document.getElementById('buscar').addEventListener('click', () => {
 
   formulario.classList.remove('hidden');
 
-  invitadosAMostrar.forEach(inv => {
-    const div = document.createElement('div');
-    div.style.display = 'flex';
-    div.style.alignItems = 'center';
-    div.style.marginBottom = '10px';
-    div.style.justifyContent = 'space-between';
+invitadosAMostrar.forEach(inv => {
+  const div = document.createElement('div');
+  div.style.display = 'flex';
+  div.style.alignItems = 'center';
+  div.style.justifyContent = 'space-between';
+  div.style.flexWrap = 'nowrap'; // evitar salto de línea
+  div.style.gap = '10px';
+  div.style.marginBottom = '10px';
 
-    const label = document.createElement('label');
-    label.style.flex = '1';
-    label.style.display = 'flex';
-    label.style.alignItems = 'center';
+  const label = document.createElement('label');
+  label.style.display = 'flex';
+  label.style.alignItems = 'center';
+  label.style.flex = '1';
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.name = 'confirmados';
-    checkbox.value = inv.nombre;
-    checkbox.style.marginRight = '10px';
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.name = 'confirmados';
+  checkbox.value = inv.nombre;
+  checkbox.style.marginRight = '10px';
 
-    const nombreSpan = document.createElement('span');
-    nombreSpan.textContent = inv.nombre;
+  // Aquí solo texto, no span, para evitar saltos
+  label.appendChild(checkbox);
+  label.appendChild(document.createTextNode(inv.nombre));
 
-    label.appendChild(checkbox);
-    label.appendChild(nombreSpan);
+  const alergInput = document.createElement('input');
+  alergInput.type = 'text';
+  alergInput.placeholder = 'Alérgenos';
+  alergInput.style.flex = '1';
+  alergInput.style.marginLeft = '10px';
+  alergInput.classList.add('hidden');
+  alergInput.setAttribute('data-nombre', inv.nombre);
 
-    const alergInput = document.createElement('input');
-    alergInput.type = 'text';
-    alergInput.placeholder = 'Alérgenos';
-    alergInput.style.marginLeft = '10px';
-    alergInput.style.flex = '1';
-    alergInput.classList.add('hidden');
-    alergInput.setAttribute('data-nombre', inv.nombre);
+  div.appendChild(label);
+  div.appendChild(alergInput);
 
-    div.appendChild(label);
-    div.appendChild(alergInput);
+  checkbox.addEventListener('change', () => {
+    alergInput.classList.toggle('hidden', !checkbox.checked);
 
-    checkbox.addEventListener('change', () => {
-      alergInput.classList.toggle('hidden', !checkbox.checked);
+    const anyChecked = Array.from(document.querySelectorAll('input[name="confirmados"]'))
+      .some(cb => cb.checked);
 
-      // Mostrar botón enviar si hay al menos un checkbox marcado
-      const anyChecked = Array.from(document.querySelectorAll('input[name="confirmados"]'))
-        .some(cb => cb.checked);
-      if (anyChecked) {
-        botonEnviar.classList.remove('hidden');
-      } else {
-        botonEnviar.classList.add('hidden');
-      }
-    });
-
-    lista.appendChild(div);
+    if (anyChecked) {
+      botonEnviar.classList.remove('hidden');
+    } else {
+      botonEnviar.classList.add('hidden');
+    }
   });
+
+  lista.appendChild(div);
+});
 });
 
 
@@ -225,8 +225,8 @@ document.getElementById('alergenosForm').addEventListener('submit', async e => {
 
     const eventDate = '20260905';
     const eventTitle = encodeURIComponent("Boda de Fátima & Diego");
-    const eventLocation = encodeURIComponent("Palacio Fernández Villa");
-    const eventDetails = encodeURIComponent("Confirma tu asistencia");
+    const eventLocation = encodeURIComponent("Palacio de los Fernández-Villa, Torre de los Fernandez Villa, C. Progreso, 29, 09560 Espinosa de los Monteros, Burgos, Españaa");
+    const eventDetails = encodeURIComponent("Prepárate para un día increíble");
 
     const googleLink = document.createElement('a');
     googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}`;

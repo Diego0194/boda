@@ -9,21 +9,35 @@
   <link rel="icon" type="image/png" href="media/favicon.png">
 
   <style>
-    body, html { margin:0; padding:0; font-family:'Inter',sans-serif; background:#fff; color:#000; }
+   
+    /* Contenedor principal centrado */
+    .page-wrapper { display:flex; justify-content:center; }
     .page-container { display:flex; flex-direction:column; align-items:center; max-width:900px; margin:0 auto; padding:40px 20px; }
-    h2 { color:#b74d4d; margin-bottom:20px; }
-    input, button, textarea { width:100%; padding:12px; margin:10px 0; border-radius:12px; border:1px solid #ddd; font-size:16px; box-sizing:border-box; }
-    button { background:#b74d4d; color:#fff; border:none; cursor:pointer; transition:background 0.3s ease; }
-    button:hover { background:#95353a; }
+
+
+
     .hidden { display:none; }
+
+    /* Lista de invitados */
     .inv-row { display:flex; align-items:center; gap:10px; margin-bottom:15px; justify-content:flex-start; width:100%; max-width:600px; background:#fdf6f2; padding:12px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
     .inv-row span { min-width:160px; text-align:left; white-space:nowrap; }
     .inv-row input[type="text"] { flex:1; }
+
     p#error, #mensajeFinal { max-width:600px; text-align:center; }
+
+
+
+    .menu-toggle { display:none; font-size:1.5rem; background:none; border:none; cursor:pointer; }
+
+    @media(max-width:768px) {
+      .nav-links { display:none; flex-direction:column; width:100%; }
+      .nav-links.show { display:flex; }
+      .menu-toggle { display:block; }
+    }
   </style>
 </head>
-<body>
 
+<body>
 <header>
   <div class="container header-flex">
     <div class="brand">
@@ -60,10 +74,10 @@
     <div id="resultado" class="hidden">
       <p id="mensajeGrupo" class="hidden" style="font-weight:500;">¿Quieres confirmar algún otro invitado?</p>
 
-      <form id="alergenosForm" class="hidden">
-        <div id="listaInvitados"></div>
-        <button type="submit" id="enviar" class="hidden">Confirmar asistencia</button>
-      </form>
+	<form id="alergenosForm" class="hidden asistencia-form">
+	  <div id="listaInvitados"></div>
+	  <button type="submit" id="enviar" class="hidden">Confirmar asistencia</button>
+	</form>
     </div>
 
     <div id="mensajeFinal" class="hidden" style="color:#b74d4d;font-weight:500;margin-top:20px;"></div>
@@ -85,11 +99,8 @@ async function cargarInvitados() {
   try {
     const res = await fetch(WEB_APP_URL);
     const data = await res.json();
-    // normalizamos nombres
-    invitados = data.map(i => ({...i, _norm: normalizar(`${i.nombre} ${i.apellido}`)}));
-  } catch (e) {
-    mostrarError("No se pudo cargar la lista de invitados.");
-  }
+    invitados = data.map(i => ({...i, _norm: i.nombre.toLowerCase().trim() + ' ' + i.apellido.toLowerCase().trim()}));
+  } catch(e){ mostrarError("No se pudo cargar la lista de invitados."); }
 }
 
 const nombreInput = document.getElementById("nombre");
@@ -102,112 +113,82 @@ const form = document.getElementById("alergenosForm");
 const enviarBtn = document.getElementById("enviar");
 const mensajeFinal = document.getElementById("mensajeFinal");
 
-buscarBtn.addEventListener("click", () => {
+buscarBtn.addEventListener("click", ()=>{
   resetUI();
-  const texto = normalizar(nombreInput.value);
-
-  const invitado = invitados.find(i => i._norm === texto);
-
-  if (!invitado) {
-    mostrarError("Lo sentimos, tu nombre no está en la lista de invitados.");
-    return;
-  }
+  const texto = nombreInput.value.toLowerCase().trim();
+  const invitado = invitados.find(i=>i._norm===texto);
+  if(!invitado){ mostrarError("Lo sentimos, tu nombre no está en la lista de invitados."); return; }
 
   resultado.classList.remove("hidden");
   form.classList.remove("hidden");
 
-  let miembros = [invitado];
-  if (invitado.grupo) {
-    miembros = invitados.filter(i => i.grupo === invitado.grupo && !i.confirmado);
-    if (!miembros.length) {
-      mostrarError("Todos los miembros de tu grupo ya han confirmado.");
-      return;
-    }
+  let miembros=[invitado];
+  if(invitado.grupo){
+    miembros=invitados.filter(i=>i.grupo===invitado.grupo && !i.confirmado);
+    if(!miembros.length){ mostrarError("Todos los miembros de tu grupo ya han confirmado."); return; }
     mensajeGrupo.classList.remove("hidden");
   }
 
-  miembros.forEach(i => pintarFila(i, true));
+  miembros.forEach(i=>pintarFila(i,true));
   enviarBtn.classList.remove("hidden");
 });
 
-form.addEventListener("submit", async (e) => {
+form.addEventListener("submit", async e=>{
   e.preventDefault();
   const filas = document.querySelectorAll(".inv-row");
-  const confirmados = [];
-
-  filas.forEach(fila => {
-    const checkbox = fila.querySelector("input[type='checkbox']");
-    if (!checkbox.checked) return;
-    const nombreApellido = fila.querySelector("span").textContent;
-    const [nombre, ...resto] = nombreApellido.split(" ");
-    const apellido = resto.join(" ");
-    const alergenos = fila.querySelector("input[type='text']").value;
-    confirmados.push({ nombre, apellido, alergenos });
+  const confirmados=[];
+  filas.forEach(fila=>{
+    const checkbox=fila.querySelector("input[type='checkbox']");
+    if(!checkbox.checked) return;
+    const nombreApellido=fila.querySelector("span").textContent;
+    const [nombre,...resto]=nombreApellido.split(" ");
+    const apellido=resto.join(" ");
+    const alergenos=fila.querySelector("input[type='text']").value;
+    confirmados.push({nombre,apellido,alergenos});
   });
 
-  if (!confirmados.length) {
-    mostrarError("Debes seleccionar al menos un invitado.");
-    return;
-  }
+  if(!confirmados.length){ mostrarError("Debes seleccionar al menos un invitado."); return; }
 
-  try {
-    await fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ confirmados })
+  try{
+    await fetch(WEB_APP_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({confirmados})
     });
     form.classList.add("hidden");
-    mensajeFinal.textContent = "¡Gracias por confirmar tu asistencia!";
+    mensajeFinal.textContent="¡Gracias por confirmar tu asistencia!";
     mensajeFinal.classList.remove("hidden");
-  } catch (err) {
-    mostrarError("Error al enviar la confirmación.");
-  }
+  }catch(err){ mostrarError("Error al enviar la confirmación."); }
 });
 
-function pintarFila(inv, auto) {
-  const div = document.createElement("div");
-  div.className = "inv-row";
-
-  const cb = document.createElement("input");
-  cb.type = "checkbox";
-  cb.checked = auto;
-
-  const span = document.createElement("span");
-  span.textContent = `${inv.nombre} ${inv.apellido}`;
-
-  const alerg = document.createElement("input");
-  alerg.type = "text";
-  alerg.placeholder = "Alérgenos";
-  alerg.classList.toggle("hidden", !auto);
-
-  cb.addEventListener("change", () => alerg.classList.toggle("hidden", !cb.checked));
-
-  div.appendChild(cb);
-  div.appendChild(span);
-  div.appendChild(alerg);
-  lista.appendChild(div);
+function pintarFila(inv,auto){
+  const div=document.createElement("div");
+  div.className="inv-row";
+  const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=auto;
+  const span=document.createElement("span"); span.textContent=`${inv.nombre} ${inv.apellido}`;
+  const alerg=document.createElement("input"); alerg.type="text"; alerg.placeholder="Alérgenos"; alerg.classList.toggle("hidden",!auto);
+  cb.addEventListener("change",()=>alerg.classList.toggle("hidden",!cb.checked));
+  div.appendChild(cb); div.appendChild(span); div.appendChild(alerg); lista.appendChild(div);
 }
 
-function resetUI() {
+function resetUI(){
   mensajeError.classList.add("hidden");
   resultado.classList.add("hidden");
   form.classList.add("hidden");
-  lista.innerHTML = "";
+  lista.innerHTML="";
   enviarBtn.classList.add("hidden");
   mensajeFinal.classList.add("hidden");
   mensajeGrupo.classList.add("hidden");
 }
 
-function mostrarError(msg) {
-  mensajeError.textContent = msg;
-  mensajeError.classList.remove("hidden");
-}
-
-function normalizar(texto) {
-  return texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-}
+function mostrarError(msg){ mensajeError.textContent=msg; mensajeError.classList.remove("hidden"); }
 
 document.addEventListener("DOMContentLoaded", cargarInvitados);
+
+// Menú móvil
+const menuToggle = document.querySelector(".menu-toggle");
+const navLinks = document.querySelector(".nav-links");
+menuToggle.addEventListener("click", ()=>navLinks.classList.toggle("show"));
 </script>
 
 </body>

@@ -47,7 +47,7 @@
       <p id="mensajeGrupo" class="hidden">¿Quieres confirmar algún otro invitado?</p>
 
       <!-- Formulario clásico para evitar CORS -->
-      <form id="alergenosForm" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbwi_vlMjbCPRsaVGWAUyXHjLy4THbLwX0uXDc5761yR01asrrizha_Ow_Mq8NE2-G3K/exec">
+      <form id="alergenosForm" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbzsUr07-2wDoqXpys8Z4cUHk2ueC7f706UIKZkksUlxhKagm5-iXJXIeU7NyYWwNTKI/exec">
         <div id="listaInvitados"></div>
         <input type="hidden" name="confirmadosJSON" id="confirmadosJSON">
         <button type="submit" id="enviar" class="hidden">Confirmar asistencia</button>
@@ -68,7 +68,7 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwi_vlMjbCPRsaVGWAUyXHjLy4THbLwX0uXDc5761yR01asrrizha_Ow_Mq8NE2-G3K/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsUr07-2wDoqXpys8Z4cUHk2ueC7f706UIKZkksUlxhKagm5-iXJXIeU7NyYWwNTKI/exec";
 let invitados = [];
 
 async function cargarInvitados() {
@@ -127,11 +127,14 @@ form.addEventListener("submit", async e => {
   if(!confirmados.length){ mostrarError("Debes seleccionar al menos un invitado."); return; }
 
   try{
-    await fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ confirmados })
-    });
+	const formData = new FormData();
+	formData.append("confirmados", JSON.stringify(confirmados));
+
+	await fetch(WEB_APP_URL, {
+	  method: "POST",
+	  body: formData
+	});
+
     form.classList.add("hidden");
     mensajeFinal.textContent = "¡Gracias por confirmar tu asistencia!";
     mensajeFinal.classList.remove("hidden");

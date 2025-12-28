@@ -4,30 +4,47 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Confirma asistencia — F&D</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
   <style>
     .page-content {
-      opacity: 0;
-      transition: opacity 0.5s ease;
+      opacity: 1;
       width: 100%;
-      position: relative;
       max-width: 500px;
       margin: 0 auto;
       border-radius: 12px;
       text-align: center;
     }
-    input, select { width: 100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ddd; }
+    input, button {
+      width: 100%;
+      padding:10px;
+      margin:10px 0;
+      border-radius:8px;
+      border:1px solid #ddd;
+    }
     .hidden { display:none; }
-    #calendarButtons img {
-      width: 150px;
-      height: auto;
-      margin: 10px;
-      cursor: pointer;
+    .inv-row {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+      justify-content:flex-start;
+    }
+    .inv-row span {
+      min-width:150px;
+      text-align:left;
+      white-space:nowrap;
+    }
+    .inv-row input[type="text"] {
+      width:140px;
     }
   </style>
+
   <link rel="icon" type="image/png" href="media/favicon.png">
 </head>
+
 <body>
 
 <header>
@@ -50,195 +67,181 @@
     <a href="informacion.html">📌 Información útil</a>
     <a href="regalos.html">🎁 Lista de regalos</a>
     <a href="fotos.html">📷 Fotos de la boda</a>
-	<a href="foro.html">💬 Foro</a>
+    <a href="foro.html">💬 Foro</a>
   </nav>
 </header>
 
 <main class="page-wrapper">
   <div class="page-container page-content">
+
     <h2>Confirma tu asistencia</h2>
     <div class="intro">Introduce tu nombre completo para confirmar tu asistencia...</div>
 
-    <!-- Formulario inicial -->
-    <div id="formulario">
-      <label>
-        <input type="text" id="nombre" placeholder="Nombre y apellidos">
-        <button id="buscar">Buscar</button>
-      </label>
-
-		<div id="resultado" class="hidden">
-		  <p id="mensajeGrupo" class="hidden" style="font-weight:500;">
-			¿Quieres confirmar algun@ de tus acompañantes también?
-		  </p>
-
-		<form id="alergenosForm" class="hidden">
-		  <div id="listaInvitados"></div>
-		  <button type="submit" id="enviar" style="background-color:#b74d4d; color:white; border:none; border-radius:8px; padding:10px 20px; margin-top: 15px; cursor:pointer;" class="hidden">
-			Enviar
-		  </button>
-		</form>
-
-		</div>
-    </div>
-
-    <!-- Mensaje final -->
-    <div id="mensajeFinal" class="hidden" style="color:#b74d4d; font-weight: 500; margin-top: 20px;"></div>
-
-    <!-- Botones calendario -->
-    <div id="calendarButtons" class="hidden"></div>
+    <input type="text" id="nombre" placeholder="Nombre y apellidos">
+    <button id="buscar">Buscar</button>
 
     <p id="mensajeError" class="hidden" style="color:#b74d4d;"></p>
+
+    <div id="resultado" class="hidden">
+
+      <p id="mensajeGrupo" class="hidden" style="font-weight:500;">
+        ¿Quieres confirmar algún otro invitado?
+      </p>
+
+      <form id="alergenosForm" class="hidden">
+        <div id="listaInvitados"></div>
+
+        <button type="submit" id="enviar" class="hidden"
+          style="background-color:#b74d4d;color:white;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;">
+          Enviar
+        </button>
+      </form>
+
+    </div>
+
+    <div id="mensajeFinal" class="hidden" style="color:#b74d4d;font-weight:500;margin-top:20px;"></div>
+
   </div>
 </main>
 
 <footer>
   <div class="container">
-    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026<br>Contacto: 656573103 (Diego), 670935370 (Fátima).</p>
+    <p>
+      Creado con cariño — Fátima & Diego • 5 Septiembre 2026<br>
+      Contacto: 656573103 (Diego), 670935370 (Fátima).
+    </p>
   </div>
 </footer>
 
-<script src="main.js"></script>
-
 <script>
-const WEB_APP_URL = "TU_URL_DE_GOOGLE_APPS_SCRIPT";
-
-const formulario = document.getElementById('formulario');
-const resultado = document.getElementById('resultado');
-const mensajeError = document.getElementById('mensajeError');
-const mensajeFinal = document.getElementById('mensajeFinal');
-const calendarDiv = document.getElementById('calendarButtons');
-const nombreInput = document.getElementById('nombre');
-
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwbbjWT1mbu7UfJcTBc7b2mKvBqigafR7eQ43l8Zbi3dUz0E7jVlwU_zpPV1EPFdP43UQ/exec";
 let invitados = [];
 
-fetch('invitados.json')
-  .then(res => res.json())
-  .then(data => invitados = data)
-  .catch(err => console.error(err));
+fetch("invitados.json")
+  .then(r => r.json())
+  .then(d => invitados = d);
 
-document.getElementById('buscar').addEventListener('click', () => {
-  const nombreBuscado = nombre.value.trim().toLowerCase();
-  const invitado = invitados.find(i => i.nombre.toLowerCase() === nombreBuscado);
+const nombreInput = document.getElementById("nombre");
+const buscarBtn = document.getElementById("buscar");
+const mensajeError = document.getElementById("mensajeError");
+const resultado = document.getElementById("resultado");
+const mensajeGrupo = document.getElementById("mensajeGrupo");
+const lista = document.getElementById("listaInvitados");
+const form = document.getElementById("alergenosForm");
+const enviarBtn = document.getElementById("enviar");
+const mensajeFinal = document.getElementById("mensajeFinal");
+
+buscarBtn.addEventListener("click", () => {
+  resetUI();
+
+  const texto = nombreInput.value.trim().toLowerCase();
+  const invitado = invitados.find(i =>
+    `${i.nombre} ${i.apellido}`.toLowerCase() === texto
+  );
 
   if (!invitado) {
-    mensajeError.textContent = "Lo sentimos, tu nombre no está en la lista de invitados.";
-    mensajeError.classList.remove('hidden');
-    resultado.classList.add('hidden');
-    document.getElementById('alergenosForm').classList.add('hidden');
+    mostrarError("Lo sentimos, tu nombre no está en la lista de invitados.");
     return;
   }
 
-  mensajeError.classList.add('hidden');
-  resultado.classList.remove('hidden');
+  if (!invitado.grupo && invitado.confirmado) {
+    mostrarError("Ya has confirmado anteriormente tu asistencia, ponte en contacto con los novios si necesitas cambiar algo.");
+    return;
+  }
 
-  const lista = document.getElementById('listaInvitados');
-  const formulario = document.getElementById('alergenosForm');
-  const botonEnviar = document.getElementById('enviar');
-  lista.innerHTML = '';
-  botonEnviar.classList.add('hidden'); // Oculto hasta que marque alguno
+  resultado.classList.remove("hidden");
+  form.classList.remove("hidden");
 
-  let invitadosAMostrar = invitado.grupo 
-    ? invitados.filter(i => i.grupo === invitado.grupo) 
-    : [invitado];
+  if (!invitado.grupo) {
+    pintarFila(invitado, true);
+    enviarBtn.classList.remove("hidden");
+    return;
+  }
 
-  formulario.classList.remove('hidden');
+  const grupo = invitados.filter(i => i.grupo === invitado.grupo);
+  const pendientes = grupo.filter(i => !i.confirmado);
 
-invitadosAMostrar.forEach(inv => {
-  const div = document.createElement('div');
-  div.style.display = 'flex';
-  div.style.alignItems = 'center';
-  div.style.justifyContent = 'flex-start';  // No separar mucho
-  div.style.gap = '10px';                    // Espacio entre checkbox, texto y input
-  div.style.marginBottom = '10px';
+  if (pendientes.length === 0) {
+    const nombres = grupo.map(i => `${i.nombre} ${i.apellido}`).join(", ");
+    mostrarError(`El grupo ${nombres} ya ha sido confirmado anteriormente, ponte en contacto con los novios si necesitas cambiar algo.`);
+    return;
+  }
 
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.name = 'confirmados';
-  checkbox.value = inv.nombre;
-  // Sin margen derecho, para evitar hueco extra
-  // checkbox.style.marginRight = '10px'; 
+  mensajeGrupo.classList.remove("hidden");
+  pendientes.forEach(i => pintarFila(i, false));
+});
 
-  const nombreSpan = document.createElement('span');
-  nombreSpan.textContent = inv.nombre;
-  nombreSpan.style.whiteSpace = 'nowrap';   // Evitar saltos en el nombre
-  nombreSpan.style.minWidth = '120px';      // Para que tenga ancho mínimo y se vea bien
+function pintarFila(inv, auto) {
+  const div = document.createElement("div");
+  div.className = "inv-row";
 
-  const alergInput = document.createElement('input');
-  alergInput.type = 'text';
-  alergInput.placeholder = 'Alérgenos';
-  alergInput.classList.add('hidden');
-  alergInput.setAttribute('data-nombre', inv.nombre);
-  alergInput.style.flexShrink = '0';         // No encoger
-  alergInput.style.width = '150px';           // Ancho fijo para input alérgenos
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.checked = auto;
 
-  div.appendChild(checkbox);
-  div.appendChild(nombreSpan);
-  div.appendChild(alergInput);
+  const span = document.createElement("span");
+  span.textContent = `${inv.nombre} ${inv.apellido}`;
 
-  checkbox.addEventListener('change', () => {
-    alergInput.classList.toggle('hidden', !checkbox.checked);
+  const alerg = document.createElement("input");
+  alerg.type = "text";
+  alerg.placeholder = "Alérgenos";
+  alerg.classList.toggle("hidden", !auto);
 
-    const anyChecked = Array.from(document.querySelectorAll('input[name="confirmados"]'))
-      .some(cb => cb.checked);
-
-    if (anyChecked) {
-      botonEnviar.classList.remove('hidden');
-    } else {
-      botonEnviar.classList.add('hidden');
-    }
+  cb.addEventListener("change", () => {
+    alerg.classList.toggle("hidden", !cb.checked);
+    enviarBtn.classList.toggle(
+      "hidden",
+      !document.querySelectorAll(".inv-row input[type='checkbox']:checked").length
+    );
   });
 
+  div.append(cb, span, alerg);
   lista.appendChild(div);
-});
+}
 
-});
-
-
-document.getElementById('alergenosForm').addEventListener('submit', async e => {
+form.addEventListener("submit", async e => {
   e.preventDefault();
 
   const confirmados = [];
-  document.querySelectorAll('input[name="confirmados"]:checked').forEach(cb => {
-    const alerg = document.querySelector(`input[data-nombre="${cb.value}"]`);
-    confirmados.push({
-      nombre: cb.value,
-      alergenos: alerg ? alerg.value : ''
-    });
+  document.querySelectorAll(".inv-row").forEach(row => {
+    const cb = row.querySelector("input[type='checkbox']");
+    if (cb.checked) {
+      const texto = row.querySelector("span").textContent.split(" ");
+      confirmados.push({
+        nombre: texto[0],
+        apellido: texto.slice(1).join(" "),
+        alergenos: row.querySelector("input[type='text']").value
+      });
+    }
   });
 
-  try {
-    await fetch(WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ invitados: confirmados })
-    });
+  await fetch(WEB_APP_URL, {
+    method:"POST",
+    mode:"no-cors",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ confirmados })
+  });
 
-    formulario.classList.add('hidden');
-    mensajeFinal.textContent = "¡Asistencia confirmada! Nos vemos el 5 de septiembre 💕";
-    mensajeFinal.classList.remove('hidden');
-
-    calendarDiv.classList.remove('hidden');
-    calendarDiv.innerHTML = '';
-
-    const eventDate = '20260905';
-    const eventTitle = encodeURIComponent("Boda de Fátima & Diego");
-    const eventLocation = encodeURIComponent("Palacio de los Fernández-Villa, Torre de los Fernandez Villa, C. Progreso, 29, 09560 Espinosa de los Monteros, Burgos, Españaa");
-    const eventDetails = encodeURIComponent("Prepárate para un día increíble");
-
-    const googleLink = document.createElement('a');
-    googleLink.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventDate}/${eventDate}&details=${eventDetails}&location=${eventLocation}`;
-    googleLink.target = "_blank";
-    googleLink.innerHTML = `<img src="/media/GoogleCalendar.png" width="150">`;
-    calendarDiv.appendChild(googleLink);
-
-  } catch (err) {
-    alert("Error de conexión. Intenta de nuevo más tarde.");
-    console.error(err);
-  }
+  form.classList.add("hidden");
+  mensajeGrupo.classList.add("hidden");
+  mensajeFinal.textContent = "¡Asistencia confirmada! Nos vemos el 5 de septiembre 💕";
+  mensajeFinal.classList.remove("hidden");
 });
-</script>
 
+function resetUI() {
+  mensajeError.classList.add("hidden");
+  resultado.classList.add("hidden");
+  mensajeGrupo.classList.add("hidden");
+  mensajeFinal.classList.add("hidden");
+  lista.innerHTML = "";
+  enviarBtn.classList.add("hidden");
+}
+
+function mostrarError(txt) {
+  mensajeError.textContent = txt;
+  mensajeError.classList.remove("hidden");
+}
+</script>
 
 </body>
 </html>

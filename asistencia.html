@@ -1,48 +1,90 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Confirma asistencia — F&D</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="media/favicon.png">
 
   <style>
-    .page-content {
-      width:100%;
-      max-width:500px;
-      margin:0 auto;
-      text-align:center;
-    }
-    input, button, textarea {
-      width:100%;
-      padding:10px;
-      margin:10px 0;
-      border-radius:8px;
-      border:1px solid #ddd;
-      font-size:16px;
+    body, html {
+      margin:0;
+      padding:0;
       font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #000;
     }
-    .hidden { display:none; }
+
+    /* Contenedor principal centrado */
+    .page-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      color: #b74d4d;
+      margin-bottom: 20px;
+    }
+
+    input, button, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #b74d4d;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #95353a;
+    }
+
+    .hidden { display: none; }
+
     .inv-row {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-      justify-content:flex-start;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      justify-content: flex-start;
+      width: 100%;
+      max-width: 600px;
+      background: #fdf6f2;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
+
     .inv-row span {
-      min-width:160px;
-      text-align:left;
-      white-space:nowrap;
+      min-width: 160px;
+      text-align: left;
+      white-space: nowrap;
     }
+
     .inv-row input[type="text"] {
-      width:140px;
+      flex: 1;
+    }
+
+    p#error, #mensajeFinal {
+      max-width: 600px;
+      text-align: center;
     }
   </style>
-
-  <link rel="icon" type="image/png" href="media/favicon.png">
 </head>
 
 <body>
@@ -50,7 +92,7 @@
 <header>
   <div class="container header-flex">
     <div class="brand">
-      <a href="index.html" style="text-decoration:none;color:inherit;">
+      <a href="index.html" style="text-decoration: none; color: inherit;">
         <h1>F&D</h1>
       </a>
       <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
@@ -72,7 +114,7 @@
 </header>
 
 <main class="page-wrapper">
-  <div class="page-container page-content">
+  <div class="page-container">
 
     <h2>Confirma tu asistencia</h2>
     <div class="intro">Introduce tu nombre y apellido para confirmar tu asistencia</div>
@@ -83,38 +125,27 @@
     <p id="mensajeError" class="hidden" style="color:#b74d4d;"></p>
 
     <div id="resultado" class="hidden">
-
-      <p id="mensajeGrupo" class="hidden" style="font-weight:500;">
-        ¿Quieres confirmar algún otro invitado?
-      </p>
+      <p id="mensajeGrupo" class="hidden" style="font-weight:500;">¿Quieres confirmar algún otro invitado?</p>
 
       <form id="alergenosForm" class="hidden">
         <div id="listaInvitados"></div>
-        <button type="submit" id="enviar" class="hidden"
-          style="background:#b74d4d;color:white;border:none;border-radius:8px;">
-          Confirmar asistencia
-        </button>
+        <button type="submit" id="enviar" class="hidden">Confirmar asistencia</button>
       </form>
-
     </div>
 
-    <div id="mensajeFinal" class="hidden"
-      style="color:#b74d4d;font-weight:500;margin-top:20px;"></div>
+    <div id="mensajeFinal" class="hidden" style="color:#b74d4d;font-weight:500;margin-top:20px;"></div>
 
   </div>
 </main>
 
 <footer>
   <div class="container">
-    <p>
-      Creado con cariño — Fátima & Diego • 5 Septiembre 2026<br>
-      Contacto: 656573103 (Diego), 670935370 (Fátima).
-    </p>
+    <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026<br>Contacto: 656573103 (Diego), 670935370 (Fátima).</p>
   </div>
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz-CYUvkyJ_Ku7u-E-RwWF86FG3cgjM3AOXjc_VjWS8iq2NdOuFKHStRcO7V1vsEOtjIA/exec";
+const WEB_APP_URL = "PEGA_AQUI_TU_URL_DEL_SCRIPT";
 let invitados = [];
 
 async function cargarInvitados() {

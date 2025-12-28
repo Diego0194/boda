@@ -15,12 +15,14 @@
       margin:0 auto;
       text-align:center;
     }
-    input, button {
+    input, button, textarea {
       width:100%;
       padding:10px;
       margin:10px 0;
       border-radius:8px;
       border:1px solid #ddd;
+      font-size:16px;
+      font-family: 'Inter', sans-serif;
     }
     .hidden { display:none; }
     .inv-row {
@@ -73,9 +75,9 @@
   <div class="page-container page-content">
 
     <h2>Confirma tu asistencia</h2>
-    <div class="intro">Introduce tu nombre completo para confirmar tu asistencia</div>
+    <div class="intro">Introduce tu nombre y apellido para confirmar tu asistencia</div>
 
-    <input id="nombre" placeholder="Nombre y apellidos">
+    <input id="nombre" placeholder="Nombre y Apellido">
     <button id="buscar">Buscar</button>
 
     <p id="mensajeError" class="hidden" style="color:#b74d4d;"></p>
@@ -88,10 +90,9 @@
 
       <form id="alergenosForm" class="hidden">
         <div id="listaInvitados"></div>
-
         <button type="submit" id="enviar" class="hidden"
           style="background:#b74d4d;color:white;border:none;border-radius:8px;">
-          Enviar
+          Confirmar asistencia
         </button>
       </form>
 
@@ -113,12 +114,17 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz-CYUvkyJ_Ku7u-E-RwWF86FG3cgjM3AOXjc_VjWS8iq2NdOuFKHStRcO7V1vsEOtjIA/exec";
+const WEB_APP_URL = "PEGA_AQUI_TU_URL_DEL_SCRIPT";
 let invitados = [];
 
-fetch(WEB_APP_URL)
-  .then(r => r.json())
-  .then(d => invitados = d);
+async function cargarInvitados() {
+  try {
+    const res = await fetch(WEB_APP_URL);
+    invitados = await res.json();
+  } catch (e) {
+    mostrarError("No se pudo cargar la lista de invitados.");
+  }
+}
 
 const nombreInput = document.getElementById("nombre");
 const buscarBtn = document.getElementById("buscar");
@@ -143,31 +149,32 @@ buscarBtn.addEventListener("click", () => {
     return;
   }
 
-  if (!invitado.grupo && invitado.confirmado) {
-    mostrarError("Ya has confirmado anteriormente tu asistencia, ponte en contacto con los novios si necesitas cambiar algo.");
-    return;
-  }
-
   resultado.classList.remove("hidden");
   form.classList.remove("hidden");
 
-  if (!invitado.grupo) {
-    pintarFila(invitado, true);
-    enviarBtn.classList.remove("hidden");
-    return;
+  pintarFila(invitado, true);
+  enviarBtn.classList.remove("hidden");
+});
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const filas = document.querySelectorAll(".inv-row");
+  for (let fila of filas) {
+    const checkbox = fila.querySelector("input[type='checkbox']");
+    const nombreApellido = fila.querySelector("span").textContent;
+    const alergenos = fila.querySelector("input[type='text']").value;
+
+    if (checkbox.checked) {
+      const [nombre, apellido] = nombreApellido.split(" ");
+      await fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ nombre, apellido, confirmado:true, alergenos })
+      });
+    }
   }
-
-  const grupo = invitados.filter(i => i.grupo === invitado.grupo);
-  const pendientes = grupo.filter(i => !i.confirmado);
-
-  if (!pendientes.length) {
-    const nombres = grupo.map(i => `${i.nombre} ${i.apellido}`).join(", ");
-    mostrarError(`El grupo ${nombres} ya ha sido confirmado anteriormente.`);
-    return;
-  }
-
-  mensajeGrupo.classList.remove("hidden");
-  pendientes.forEach(i => pintarFila(i, false));
+  form.classList.add("hidden");
+  mensajeFinal.textContent = "¡Gracias por confirmar tu asistencia!";
+  mensajeFinal.classList.remove("hidden");
 });
 
 function pintarFila(inv, auto) {
@@ -188,6 +195,34 @@ function pintarFila(inv, auto) {
 
   cb.addEventListener("change", () => {
     alerg.classList.toggle("hidden", !cb.checked);
-    enviarBtn.classList.toggle(
-      "hidden",
-      !document.querySelectorAll(".inv-row input[type='che]()
+  });
+
+  div.appendChild(cb);
+  div.appendChild(span);
+  div.appendChild(alerg);
+  lista.appendChild(div);
+}
+
+function resetUI() {
+  mensajeError.classList.add("hidden");
+  resultado.classList.add("hidden");
+  form.classList.add("hidden");
+  lista.innerHTML = "";
+  enviarBtn.classList.add("hidden");
+  mensajeFinal.classList.add("hidden");
+}
+
+function mostrarError(msg) {
+  mensajeError.textContent = msg;
+  mensajeError.classList.remove("hidden");
+}
+
+function normalizar(texto) {
+  return texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+document.addEventListener("DOMContentLoaded", cargarInvitados);
+</script>
+
+</body>
+</html>

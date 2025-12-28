@@ -10,15 +10,13 @@
 
   <style>
     .page-content {
-      opacity: 1;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-      border-radius: 12px;
-      text-align: center;
+      width:100%;
+      max-width:500px;
+      margin:0 auto;
+      text-align:center;
     }
     input, button {
-      width: 100%;
+      width:100%;
       padding:10px;
       margin:10px 0;
       border-radius:8px;
@@ -33,7 +31,7 @@
       justify-content:flex-start;
     }
     .inv-row span {
-      min-width:150px;
+      min-width:160px;
       text-align:left;
       white-space:nowrap;
     }
@@ -50,7 +48,7 @@
 <header>
   <div class="container header-flex">
     <div class="brand">
-      <a href="index.html" style="text-decoration: none; color: inherit;">
+      <a href="index.html" style="text-decoration:none;color:inherit;">
         <h1>F&D</h1>
       </a>
       <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
@@ -75,9 +73,9 @@
   <div class="page-container page-content">
 
     <h2>Confirma tu asistencia</h2>
-    <div class="intro">Introduce tu nombre completo para confirmar tu asistencia...</div>
+    <div class="intro">Introduce tu nombre completo para confirmar tu asistencia</div>
 
-    <input type="text" id="nombre" placeholder="Nombre y apellidos">
+    <input id="nombre" placeholder="Nombre y apellidos">
     <button id="buscar">Buscar</button>
 
     <p id="mensajeError" class="hidden" style="color:#b74d4d;"></p>
@@ -92,14 +90,15 @@
         <div id="listaInvitados"></div>
 
         <button type="submit" id="enviar" class="hidden"
-          style="background-color:#b74d4d;color:white;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;">
+          style="background:#b74d4d;color:white;border:none;border-radius:8px;">
           Enviar
         </button>
       </form>
 
     </div>
 
-    <div id="mensajeFinal" class="hidden" style="color:#b74d4d;font-weight:500;margin-top:20px;"></div>
+    <div id="mensajeFinal" class="hidden"
+      style="color:#b74d4d;font-weight:500;margin-top:20px;"></div>
 
   </div>
 </main>
@@ -114,10 +113,10 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwbbjWT1mbu7UfJcTBc7b2mKvBqigafR7eQ43l8Zbi3dUz0E7jVlwU_zpPV1EPFdP43UQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz-CYUvkyJ_Ku7u-E-RwWF86FG3cgjM3AOXjc_VjWS8iq2NdOuFKHStRcO7V1vsEOtjIA/exec";
 let invitados = [];
 
-fetch("invitados.json")
+fetch(WEB_APP_URL)
   .then(r => r.json())
   .then(d => invitados = d);
 
@@ -133,10 +132,10 @@ const mensajeFinal = document.getElementById("mensajeFinal");
 
 buscarBtn.addEventListener("click", () => {
   resetUI();
+  const texto = normalizar(nombreInput.value);
 
-  const texto = nombreInput.value.trim().toLowerCase();
   const invitado = invitados.find(i =>
-    `${i.nombre} ${i.apellido}`.toLowerCase() === texto
+    normalizar(`${i.nombre} ${i.apellido}`) === texto
   );
 
   if (!invitado) {
@@ -161,9 +160,9 @@ buscarBtn.addEventListener("click", () => {
   const grupo = invitados.filter(i => i.grupo === invitado.grupo);
   const pendientes = grupo.filter(i => !i.confirmado);
 
-  if (pendientes.length === 0) {
+  if (!pendientes.length) {
     const nombres = grupo.map(i => `${i.nombre} ${i.apellido}`).join(", ");
-    mostrarError(`El grupo ${nombres} ya ha sido confirmado anteriormente, ponte en contacto con los novios si necesitas cambiar algo.`);
+    mostrarError(`El grupo ${nombres} ya ha sido confirmado anteriormente.`);
     return;
   }
 
@@ -191,57 +190,4 @@ function pintarFila(inv, auto) {
     alerg.classList.toggle("hidden", !cb.checked);
     enviarBtn.classList.toggle(
       "hidden",
-      !document.querySelectorAll(".inv-row input[type='checkbox']:checked").length
-    );
-  });
-
-  div.append(cb, span, alerg);
-  lista.appendChild(div);
-}
-
-form.addEventListener("submit", async e => {
-  e.preventDefault();
-
-  const confirmados = [];
-  document.querySelectorAll(".inv-row").forEach(row => {
-    const cb = row.querySelector("input[type='checkbox']");
-    if (cb.checked) {
-      const texto = row.querySelector("span").textContent.split(" ");
-      confirmados.push({
-        nombre: texto[0],
-        apellido: texto.slice(1).join(" "),
-        alergenos: row.querySelector("input[type='text']").value
-      });
-    }
-  });
-
-  await fetch(WEB_APP_URL, {
-    method:"POST",
-    mode:"no-cors",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ confirmados })
-  });
-
-  form.classList.add("hidden");
-  mensajeGrupo.classList.add("hidden");
-  mensajeFinal.textContent = "¡Asistencia confirmada! Nos vemos el 5 de septiembre 💕";
-  mensajeFinal.classList.remove("hidden");
-});
-
-function resetUI() {
-  mensajeError.classList.add("hidden");
-  resultado.classList.add("hidden");
-  mensajeGrupo.classList.add("hidden");
-  mensajeFinal.classList.add("hidden");
-  lista.innerHTML = "";
-  enviarBtn.classList.add("hidden");
-}
-
-function mostrarError(txt) {
-  mensajeError.textContent = txt;
-  mensajeError.classList.remove("hidden");
-}
-</script>
-
-</body>
-</html>
+      !document.querySelectorAll(".inv-row input[type='che]()

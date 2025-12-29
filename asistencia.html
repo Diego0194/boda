@@ -273,12 +273,15 @@ form.addEventListener("submit", async e => {
     const icsContent = `
 BEGIN:VCALENDAR
 VERSION:2.0
+CALSCALE:GREGORIAN
 BEGIN:VEVENT
-DTSTART;VALUE=DATE:${fecha}
-DTEND;VALUE=DATE:${fecha}
-SUMMARY:${titulo}
-DESCRIPTION:${descripcion}
-LOCATION:${ubicacion}
+UID:boda-fatima-diego-20260905
+DTSTAMP:20250101T120000Z
+DTSTART:20260905T120000
+DTEND:20260905T235900
+SUMMARY:Boda Fátima & Diego
+DESCRIPTION:Gracias por acompañarnos a celebrar nuestro amor ❤️
+LOCATION:Torre de los Fernandez Villa, C. Progreso, 29, 09560 Espinosa de los Monteros, Burgos
 END:VEVENT
 END:VCALENDAR
 `.trim();

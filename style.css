@@ -118,7 +118,6 @@ main.container {
 
 .intro {
   text-align:center;
-  font-size: 1.1rem;
   color: #555;
   line-height: 1.6;
   padding: 0 20px;
@@ -411,7 +410,7 @@ main.container {
   white-space: nowrap;
 }
 
-#buscar,#enviar {
+#buscar {
   background: #b74d4d;
   color: white;
   border: none;
@@ -425,13 +424,71 @@ main.container {
   background: #9c3f3f;
 }
 
+#enviar {
+  background: #b74d4d;
+  color: white;
+  border: none;
+  padding: 14px 26px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Playfair Display', serif; /* ← fuente elegante */
+  font-size: 1rem; /* ← más grande */
+  margin-top: 25px; /* ← separa del contenido anterior */
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+#enviar:hover {
+  background: #9c3f3f;
+  transform: translateY(-2px);
+}
+
+.inv-row input[type="text"] {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  padding: 10px 14px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 8px;
+}
+
+.inv-row input[type="text"]:focus {
+  border-color: #b74d4d;
+  box-shadow: 0 0 0 3px rgba(183, 77, 77, 0.2);
+  outline: none;
+}
+
+#calendars a {
+  text-decoration: none;
+  color: inherit;
+}
+
+
 #mensajeError {
   white-space: pre-line;
 }
 
 #nombre {
-  padding: 1¡0x 20px;
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 14px;
+  font-size: 18px;
+  font-family: 'Playfair Display', serif; /* Elegante y coherente con tu título */
+  border: 2px solid #d4d4d4;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+#nombre:focus {
+  border-color: #c0392b;
+  box-shadow: 0 0 6px rgba(192, 57, 43, 0.3);
+  outline: none;
+}
+
 
 /* Ajusta el tamaño en pantallas pequeñas */
 @media (max-width: 600px) {
@@ -476,6 +533,9 @@ main.container {
   outline: none;
   border-radius: 8px;
   transition: background 0.3s ease;
+  font-family: "Playfair Display", sans-serif;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 .upload-link:hover {
@@ -527,24 +587,49 @@ input[type="text"]:focus {
 
 #autocomplete {
   list-style: none;
-  margin: 0;
+}
+
+#autocomplete {
+  list-style: none;
+  margin: 4px auto 0 auto; /* espacio arriba y centrado */
   padding: 0;
-  width: 80%;
+  width: 100%;
   max-width: 400px;
   background: white;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10;
 }
 
 #autocomplete li {
-  padding: 10px 14px;
+  padding: 2px 2px;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s ease;
+}
+
+#autocomplete li:last-child {
+  border-bottom: none;
 }
 
 #autocomplete li:hover {
-  background: #f5f5f5;
+  background: #f9f9f9;
+}
+
+#mensajeError,
+#mensajeGrupo,
+#mensajeFinal,
+.inv-confirmado {
+  color: #555; /* gris oscuro */
+}
+
+#resultado,
+#listaInvitados,
+#alergenosForm {
+  color: #555;
 }

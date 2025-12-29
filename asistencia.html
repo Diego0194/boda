@@ -264,27 +264,29 @@ form.addEventListener("submit", async e => {
     document.getElementById("calendars").classList.remove("hidden");
 
     // DATOS DEL EVENTO
-    const titulo = "Boda Fátima & Diego";
-    const fecha = "20260905"; // YYYYMMDD
-    const ubicacion = "Torre de los Fernandez Villa, C. Progreso, 29, 09560 Espinosa de los Monteros, Burgos";
-    const descripcion = "Gracias por acompañarnos a celebrar nuestro amor ❤️";
+const titulo = "Boda Fátima & Diego";
+const fechaInicio = "20260905"; // 5 septiembre 2026
+const fechaFin = "20260906";    // día siguiente (exclusivo)
+const ubicacion = "Torre de los Fernandez Villa, C. Progreso, 29, 09560 Espinosa de los Monteros, Burgos";
+const descripcion = "Gracias por acompañarnos a celebrar nuestro amor ❤️";
 
-    // APPLE CALENDAR (.ics)
-    const icsContent = `
-BEGIN:VCALENDAR
-VERSION:2.0
-CALSCALE:GREGORIAN
-BEGIN:VEVENT
-UID:boda-fatima-diego-20260905
-DTSTAMP:20250101T120000Z
-DTSTART:20260905T120000
-DTEND:20260905T235900
-SUMMARY:Boda Fátima & Diego
-DESCRIPTION:Gracias por acompañarnos a celebrar nuestro amor ❤️
-LOCATION:Torre de los Fernandez Villa, C. Progreso, 29, 09560 Espinosa de los Monteros, Burgos
-END:VEVENT
-END:VCALENDAR
-`.trim();
+const icsContent = [
+  "BEGIN:VCALENDAR",
+  "VERSION:2.0",
+  "CALSCALE:GREGORIAN",
+  "PRODID:-//Boda Fatima Diego//ES",
+  "BEGIN:VEVENT",
+  "UID:boda-fatima-diego-20260905",
+  "DTSTAMP:20250101T120000Z",
+  `DTSTART;VALUE=DATE:${fechaInicio}`,
+  `DTEND;VALUE=DATE:${fechaFin}`,
+  `SUMMARY:${titulo}`,
+  `DESCRIPTION:${descripcion}`,
+  `LOCATION:${ubicacion}`,
+  "END:VEVENT",
+  "END:VCALENDAR"
+].join("\r\n");
+
 
     const blob = new Blob([icsContent], { type: "text/calendar" });
     const appleUrl = URL.createObjectURL(blob);

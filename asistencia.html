@@ -337,7 +337,7 @@ function pintarFilaConfirmado(inv) {
   const div = document.createElement("div");
   div.className = "inv-confirmado";
   div.textContent =
-    `${inv.nombre} ${inv.apellido} — Confirmado — Alérgeno: ${inv.alergenos || "Ninguno"}`;
+    `${inv.nombre} ${inv.apellido} — ✅ — Alérgeno: ${inv.alergenos || "Ninguno"}`;
   lista.appendChild(div);
 }
 

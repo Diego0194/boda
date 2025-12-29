@@ -33,24 +33,24 @@
 </header>
 
 <main class="page-wrapper">
-  <div class="page-container">
+  <div class="page-container" style="margin-bottom: 100px;">
 
     <h2>Confirma tu asistencia</h2>
     <div class="intro">Introduce tu nombre y apellido para confirmar tu asistencia</div>
 
     <input id="nombre" placeholder="Nombre y Apellido">
+    <ul id="autocomplete" class="hidden"></ul>
     <button id="buscar">Buscar</button>
 
     <p id="mensajeError" class="hidden"></p>
 
-	<div id="resultado" class="hidden">
-	  <p id="mensajeGrupo" class="hidden"></p>
-	  <form id="alergenosForm" class="hidden">
-		<div id="listaInvitados"></div>
-		<button type="submit" id="enviar" class="hidden"></button>
-	  </form>
-	</div>
-
+    <div id="resultado" class="hidden">
+      <p id="mensajeGrupo" class="hidden"></p>
+      <form id="alergenosForm" class="hidden">
+        <div id="listaInvitados"></div>
+        <button type="submit" id="enviar" class="hidden"></button>
+      </form>
+    </div>
 
     <div id="mensajeFinal" class="hidden"></div>
 
@@ -82,7 +82,48 @@ async function cargarInvitados() {
   }
 }
 
-const nombreInput = document.getElementById("nombre");
+const autocomplete = document.getElementById("autocomplete");
+const nombreInput = document.getElementById("nombre");  // ← ORDEN CORRECTO
+
+// AUTOCOMPLETADO
+nombreInput.addEventListener("input", () => {
+  const texto = nombreInput.value.toLowerCase().trim();
+  autocomplete.innerHTML = "";
+
+  if (!texto) {
+    autocomplete.classList.add("hidden");
+    return;
+  }
+
+  const sugerencias = invitados.filter(i =>
+    i._norm.includes(texto)
+  );
+
+  if (!sugerencias.length) {
+    autocomplete.classList.add("hidden");
+    return;
+  }
+
+  sugerencias.slice(0, 5).forEach(inv => {
+    const li = document.createElement("li");
+    li.textContent = `${inv.nombre} ${inv.apellido}`;
+    li.addEventListener("click", () => {
+      nombreInput.value = li.textContent;
+      autocomplete.classList.add("hidden");
+    });
+    autocomplete.appendChild(li);
+  });
+
+  autocomplete.classList.remove("hidden");
+});
+
+// Ocultar sugerencias al hacer clic fuera
+document.addEventListener("click", (e) => {
+  if (!autocomplete.contains(e.target) && e.target !== nombreInput) {
+    autocomplete.classList.add("hidden");
+  }
+});
+
 const buscarBtn = document.getElementById("buscar");
 const mensajeError = document.getElementById("mensajeError");
 const resultado = document.getElementById("resultado");
@@ -106,8 +147,8 @@ buscarBtn.addEventListener("click", () => {
   form.classList.remove("hidden");
   nombreInput.classList.add("hidden");
   buscarBtn.classList.add("hidden");
-  document.querySelector(".intro").textContent = "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
-
+  document.querySelector(".intro").textContent =
+    "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
 
   let miembros = [];
 
@@ -117,34 +158,29 @@ buscarBtn.addEventListener("click", () => {
   } else {
     miembros = invitados.filter(i => i.grupo === invitado.grupo && !i.confirmado);
 
-if (!miembros.length) {
-  // Mostrar mensaje
-  mostrarError("Todos los miembros de tu grupo ya han confirmado, si necesitas hacer algún cambio ponte en contacto con los novios.");
+    if (!miembros.length) {
+      mostrarError("Todos los miembros de tu grupo ya han confirmado, si necesitas hacer algún cambio ponte en contacto con los novios.");
 
-  // Mostrar contenedor
-  resultado.classList.remove("hidden");
-  form.classList.remove("hidden");
+      resultado.classList.remove("hidden");
+      form.classList.remove("hidden");
 
-  // Obtener todos los miembros del grupo (confirmados)
-  const grupoCompleto = invitados.filter(i => i.grupo === invitado.grupo);
+      const grupoCompleto = invitados.filter(i => i.grupo === invitado.grupo);
+      grupoCompleto.forEach(miembro => pintarFilaConfirmado(miembro));
 
-  // Pintar cada miembro con sus alérgenos, sin checkbox y sin permitir editar
-  grupoCompleto.forEach(miembro => pintarFilaConfirmado(miembro));
+      return;
+    }
 
-  return;
-}
-
-
-    mensajeGrupo.textContent = "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
-	mensajeGrupo.classList.remove("hidden");
+    mensajeGrupo.textContent =
+      "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
+    mensajeGrupo.classList.remove("hidden");
 
     miembros.forEach(i => {
-  const esBuscado = (i._norm === invitado._norm);
-  pintarFila(i, true, esBuscado);
-});
-
+      const esBuscado = (i._norm === invitado._norm);
+      pintarFila(i, true, esBuscado);
+    });
   }
 
+  enviarBtn.textContent = "Confirmar asistencia";
   enviarBtn.classList.remove("hidden");
 });
 
@@ -198,7 +234,7 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   if (esGrupo) {
     cb = document.createElement("input");
     cb.type = "checkbox";
-    cb.checked = esBuscado; // SOLO el buscado marcado
+    cb.checked = esBuscado;
     div.appendChild(cb);
   }
 
@@ -212,24 +248,22 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
 
   if (esGrupo) {
     alerg.classList.toggle("hidden", !cb.checked);
-    cb.addEventListener("change", () => alerg.classList.toggle("hidden", !cb.checked));
+    cb.addEventListener("change", () =>
+      alerg.classList.toggle("hidden", !cb.checked)
+    );
   }
 
   div.appendChild(alerg);
   lista.appendChild(div);
 }
 
-
 function pintarFilaConfirmado(inv) {
   const div = document.createElement("div");
   div.className = "inv-confirmado";
-  div.textContent = `${inv.nombre} ${inv.apellido} — Confirmado — Alérgeno: ${inv.alergenos || "Ninguno"}`;
+  div.textContent =
+    `${inv.nombre} ${inv.apellido} — Confirmado — Alérgeno: ${inv.alergenos || "Ninguno"}`;
   lista.appendChild(div);
 }
-
-
-
-
 
 function resetUI() {
   mensajeError.classList.add("hidden");

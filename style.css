@@ -492,3 +492,36 @@ main.container {
   z-index: 9999;
 }
 
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.page-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+input[type="text"] {
+  width: 100%;
+  max-width: 200px;
+  padding: 12px 12px;
+  font-size: 16px;
+  margin: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #b74d4d;
+  box-shadow: 0 0 0 3px rgba(183, 77, 77, 0.2);
+  outline: none;
+}
+

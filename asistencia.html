@@ -43,16 +43,14 @@
 
     <p id="mensajeError" class="hidden"></p>
 
-    <div id="resultado" class="hidden">
-      <p id="mensajeGrupo" class="hidden">¿Quieres confirmar algún otro invitado?</p>
+	<div id="resultado" class="hidden">
+	  <p id="mensajeGrupo" class="hidden"></p>
+	  <form id="alergenosForm" class="hidden">
+		<div id="listaInvitados"></div>
+		<button type="submit" id="enviar" class="hidden"></button>
+	  </form>
+	</div>
 
-      <!-- Formulario clásico para evitar CORS -->
-      <form id="alergenosForm" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbzsUr07-2wDoqXpys8Z4cUHk2ueC7f706UIKZkksUlxhKagm5-iXJXIeU7NyYWwNTKI/exec">
-        <div id="listaInvitados"></div>
-        <input type="hidden" name="confirmadosJSON" id="confirmadosJSON">
-        <button type="submit" id="enviar" class="hidden">Confirmar asistencia</button>
-      </form>
-    </div>
 
     <div id="mensajeFinal" class="hidden"></div>
 
@@ -75,8 +73,13 @@ async function cargarInvitados() {
   try {
     const res = await fetch(WEB_APP_URL);
     const data = await res.json();
-    invitados = data.map(i => ({...i, _norm: i.nombre.toLowerCase().trim() + ' ' + i.apellido.toLowerCase().trim()}));
-  } catch(e){ mostrarError("No se pudo cargar la lista de invitados."); }
+    invitados = data.map(i => ({
+      ...i,
+      _norm: i.nombre.toLowerCase().trim() + ' ' + i.apellido.toLowerCase().trim()
+    }));
+  } catch(e){
+    mostrarError("No se pudo cargar la lista de invitados.");
+  }
 }
 
 const nombreInput = document.getElementById("nombre");
@@ -89,51 +92,95 @@ const form = document.getElementById("alergenosForm");
 const enviarBtn = document.getElementById("enviar");
 const mensajeFinal = document.getElementById("mensajeFinal");
 
-buscarBtn.addEventListener("click", ()=>{
+buscarBtn.addEventListener("click", () => {
   resetUI();
   const texto = nombreInput.value.toLowerCase().trim();
   const invitado = invitados.find(i => i._norm === texto);
-  if(!invitado){ mostrarError("Lo sentimos, tu nombre no está en la lista de invitados."); return; }
+
+  if (!invitado) {
+    mostrarError("Lo sentimos, tu nombre no está en la lista de invitados.");
+    return;
+  }
 
   resultado.classList.remove("hidden");
   form.classList.remove("hidden");
+  nombreInput.classList.add("hidden");
+  buscarBtn.classList.add("hidden");
+  document.querySelector(".intro").textContent = "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
 
-  let miembros=[invitado];
-  if(invitado.grupo){
+
+  let miembros = [];
+
+  if (!invitado.grupo) {
+    miembros = [invitado];
+    pintarFila(invitado, false);
+  } else {
     miembros = invitados.filter(i => i.grupo === invitado.grupo && !i.confirmado);
-    if(!miembros.length){ mostrarError("Todos los miembros de tu grupo ya han confirmado."); return; }
-    mensajeGrupo.classList.remove("hidden");
+
+if (!miembros.length) {
+  // Mostrar mensaje
+  mostrarError("Todos los miembros de tu grupo ya han confirmado, si necesitas hacer algún cambio ponte en contacto con los novios.");
+
+  // Mostrar contenedor
+  resultado.classList.remove("hidden");
+  form.classList.remove("hidden");
+
+  // Obtener todos los miembros del grupo (confirmados)
+  const grupoCompleto = invitados.filter(i => i.grupo === invitado.grupo);
+
+  // Pintar cada miembro con sus alérgenos, sin checkbox y sin permitir editar
+  grupoCompleto.forEach(miembro => pintarFilaConfirmado(miembro));
+
+  return;
+}
+
+
+    mensajeGrupo.textContent = "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
+	mensajeGrupo.classList.remove("hidden");
+
+    miembros.forEach(i => {
+  const esBuscado = (i._norm === invitado._norm);
+  pintarFila(i, true, esBuscado);
+});
+
   }
 
-  miembros.forEach(i => pintarFila(i, true));
   enviarBtn.classList.remove("hidden");
 });
 
 form.addEventListener("submit", async e => {
-  e.preventDefault(); // evita la navegación
+  e.preventDefault();
+
   const filas = document.querySelectorAll(".inv-row");
   const confirmados = [];
 
   filas.forEach(fila => {
     const checkbox = fila.querySelector("input[type='checkbox']");
-    if(!checkbox.checked) return;
+    const seleccionado = checkbox ? checkbox.checked : true;
+
+    if (!seleccionado) return;
+
     const nombreApellido = fila.querySelector("span").textContent;
     const [nombre, ...resto] = nombreApellido.split(" ");
     const apellido = resto.join(" ");
     const alergenos = fila.querySelector("input[type='text']").value;
+
     confirmados.push({ nombre, apellido, alergenos });
   });
 
-  if(!confirmados.length){ mostrarError("Debes seleccionar al menos un invitado."); return; }
+  if (!confirmados.length) {
+    mostrarError("Debes seleccionar al menos un invitado.");
+    return;
+  }
 
-  try{
-	const formData = new FormData();
-	formData.append("confirmados", JSON.stringify(confirmados));
+  try {
+    const formData = new FormData();
+    formData.append("confirmados", JSON.stringify(confirmados));
 
-	await fetch(WEB_APP_URL, {
-	  method: "POST",
-	  body: formData
-	});
+    await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: formData
+    });
 
     form.classList.add("hidden");
     mensajeFinal.textContent = "¡Gracias por confirmar tu asistencia!";
@@ -143,35 +190,71 @@ form.addEventListener("submit", async e => {
   }
 });
 
-function pintarFila(inv, auto){
+function pintarFila(inv, esGrupo, esBuscado = false) {
   const div = document.createElement("div");
   div.className = "inv-row";
-  const cb = document.createElement("input"); cb.type="checkbox"; cb.checked = auto;
-  const span = document.createElement("span"); span.textContent = `${inv.nombre} ${inv.apellido}`;
-  const alerg = document.createElement("input"); alerg.type="text"; alerg.placeholder="Alérgenos"; alerg.classList.toggle("hidden", !auto);
-  cb.addEventListener("change", ()=>alerg.classList.toggle("hidden", !cb.checked));
-  div.appendChild(cb); div.appendChild(span); div.appendChild(alerg);
+
+  let cb = null;
+  if (esGrupo) {
+    cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = esBuscado; // SOLO el buscado marcado
+    div.appendChild(cb);
+  }
+
+  const span = document.createElement("span");
+  span.textContent = `${inv.nombre} ${inv.apellido}`;
+  div.appendChild(span);
+
+  const alerg = document.createElement("input");
+  alerg.type = "text";
+  alerg.placeholder = "Alérgenos";
+
+  if (esGrupo) {
+    alerg.classList.toggle("hidden", !cb.checked);
+    cb.addEventListener("change", () => alerg.classList.toggle("hidden", !cb.checked));
+  }
+
+  div.appendChild(alerg);
   lista.appendChild(div);
 }
 
-function resetUI(){
+
+function pintarFilaConfirmado(inv) {
+  const div = document.createElement("div");
+  div.className = "inv-confirmado";
+  div.textContent = `${inv.nombre} ${inv.apellido} — Confirmado — Alérgeno: ${inv.alergenos || "Ninguno"}`;
+  lista.appendChild(div);
+}
+
+
+
+
+
+function resetUI() {
   mensajeError.classList.add("hidden");
   resultado.classList.add("hidden");
   form.classList.add("hidden");
-  lista.innerHTML="";
+  lista.innerHTML = "";
   enviarBtn.classList.add("hidden");
   mensajeFinal.classList.add("hidden");
   mensajeGrupo.classList.add("hidden");
 }
 
-function mostrarError(msg){ mensajeError.textContent = msg; mensajeError.classList.remove("hidden"); }
+function mostrarError(msg) {
+  mensajeError.textContent = msg;
+  mensajeError.classList.remove("hidden");
+}
 
-document.addEventListener("DOMContentLoaded", cargarInvitados);
+document.addEventListener("DOMContentLoaded", () => {
+  cargarInvitados();
+  resetUI();
+});
 
 // Menú móvil
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
-menuToggle.addEventListener("click", ()=>navLinks.classList.toggle("open"));
+menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));
 </script>
 
 </body>

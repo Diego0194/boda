@@ -472,9 +472,9 @@ main.container {
 }
 
 #nombre {
-  width: 100%;
-  max-width: 80%;
-  padding: 8px 14px;
+  width: 80%;
+  max-width: 70%;
+  padding: 8px 10px;
   font-size: 18px;
   font-family: 'Playfair Display', serif; /* Elegante y coherente con tu título */
   border: 2px solid #d4d4d4;

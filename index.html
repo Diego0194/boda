@@ -14,19 +14,60 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="media/favicon.png">
 
+  <style>
+    .header-media {
+      position: relative;
+      background: white;
+    }
+
+    /* Intro video overlay */
+    #intro-video {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      background: black;
+      transition: background 1.2s ease;
+    }
+
+    #intro-video video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1.2s ease;
+    }
+
+    #intro-video.fade-out {
+      background: white;
+    }
+
+    #intro-video.fade-out video {
+      opacity: 0;
+    }
+
+    /* Fade-in image */
+    .fade-in-image {
+      opacity: 0;
+      transition: opacity 2.8s ease;
+    }
+
+    .fade-in-image.visible {
+      opacity: 1;
+    }
+  </style>
 </head>
+
 <body>
 
 <header>
   <div class="container header-flex">
-	<div class="brand">
-	  <a href="index.html" style="text-decoration: none; color: inherit;">
-		<h1>F&D</h1>
-	  </a>
-	  <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
-	</div>
+    <div class="brand">
+      <a href="index.html" style="text-decoration: none; color: inherit;">
+        <h1>F&D</h1>
+      </a>
+      <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+    </div>
 
-    <!-- Botón menú móvil -->
     <button class="menu-toggle" aria-label="Abrir menú">☰</button>
   </div>
 
@@ -39,14 +80,29 @@
     <a href="informacion.html">📌 Información útil</a>
     <a href="regalos.html">🎁 Lista de regalos</a>
     <a href="fotos.html">📷 Fotos de la boda</a>
-	<a href="foro.html">💬 Foro</a>
+    <a href="foro.html">💬 Foro</a>
   </nav>
 </header>
 
 <main class="page-wrapper">
   <div class="page-content">
     <div class="header-media">
-      <img src="media/mano_inicio.jpg" alt="Mano" style="width:100%; display:block;">
+
+      <!-- INTRO VIDEO -->
+      <div id="intro-video">
+        <video id="introPlayer" playsinline autoplay muted>
+          <source src="media/intro.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <img
+        src="media/mano_inicio.jpg"
+        alt="Mano"
+        class="fade-in-image"
+        style="width:100%; display:block;"
+        id="heroImage"
+      >
+
       <div class="initials">
         Fátima y Diego
       </div>
@@ -73,6 +129,35 @@
 </footer>
 
 <script src="main.js"></script>
+
+<script>
+  (function () {
+    const seen = localStorage.getItem('introSeen');
+    const intro = document.getElementById('intro-video');
+    const video = document.getElementById('introPlayer');
+    const image = document.getElementById('heroImage');
+
+    if (!seen) {
+      intro.style.display = 'block';
+      video.play();
+
+      const finishIntro = () => {
+        intro.classList.add('fade-out');
+
+        setTimeout(() => {
+          intro.style.display = 'none';
+          image.classList.add('visible');
+          localStorage.setItem('introSeen', 'true');
+        }, 1200);
+      };
+
+      video.addEventListener('ended', finishIntro);
+      intro.addEventListener('click', finishIntro);
+    } else {
+      image.classList.add('visible');
+    }
+  })();
+</script>
 
 </body>
 </html>

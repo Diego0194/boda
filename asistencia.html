@@ -8,7 +8,46 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="media/favicon.png">
 </head>
+<style>
+.inv-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
 
+.inv-row span {
+  flex: 1 1 180px;
+  font-weight: 500;
+}
+
+.inv-row select.asistencia {
+  flex: 0 0 50px;
+  padding: 6px;
+}
+
+.inv-row input.alergenos {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  flex: 2 1 220px;
+  padding: 6px;
+}
+.inv-row input.alergenos.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+#enviar:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  border: none;
+}
+
+
+</style>
 <body>
 <header>
   <div class="container header-flex">
@@ -79,7 +118,7 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzsUr07-2wDoqXpys8Z4cUHk2ueC7f706UIKZkksUlxhKagm5-iXJXIeU7NyYWwNTKI/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwlzKnyZ486eDFyg0GH5nag1scfd_GhWTwkWmqA3foZQav0p4ZPUCdWXcJ-jCxsk9Xa/exec";
 let invitados = [];
 
 async function cargarInvitados() {
@@ -226,22 +265,21 @@ if (!invitado.grupo) {
 form.addEventListener("submit", async e => {
   e.preventDefault();
 
-  const filas = document.querySelectorAll(".inv-row");
-  const confirmados = [];
+const filas = document.querySelectorAll(".inv-row");
+const confirmados = [];
 
-  filas.forEach(fila => {
-    const checkbox = fila.querySelector("input[type='checkbox']");
-    const seleccionado = checkbox ? checkbox.checked : true;
+filas.forEach(fila => {
+  const nombreApellido = fila.querySelector("span").textContent;
+  const [nombre, ...resto] = nombreApellido.split(" ");
+  const apellido = resto.join(" ");
 
-    if (!seleccionado) return;
+  const asistencia = fila.querySelector(".asistencia").value;
+  const alergenos = fila.querySelector(".alergenos").value.trim();
 
-    const nombreApellido = fila.querySelector("span").textContent;
-    const [nombre, ...resto] = nombreApellido.split(" ");
-    const apellido = resto.join(" ");
-    const alergenos = fila.querySelector("input[type='text']").value;
+  if (asistencia === "") return;
+  confirmados.push({ nombre, apellido, asistencia, alergenos });
+});
 
-    confirmados.push({ nombre, apellido, alergenos });
-  });
 
   if (!confirmados.length) {
     mostrarError("Debes seleccionar al menos un invitado.");
@@ -306,32 +344,44 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   const div = document.createElement("div");
   div.className = "inv-row";
 
-  let cb = null;
-  if (esGrupo) {
-    cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.checked = esBuscado;
-    div.appendChild(cb);
-  }
-
   const span = document.createElement("span");
   span.textContent = `${inv.nombre} ${inv.apellido}`;
   div.appendChild(span);
 
+  // Selector SI / NO
+  const select = document.createElement("select");
+  select.className = "asistencia";
+  select.innerHTML = `
+    <option value="">-</option>
+	<option value="SI">Sí</option>
+    <option value="NO">No</option>
+  `;
+  div.appendChild(select);
+
+select.addEventListener("change", () => { actualizarAlergenos(); actualizarEstadoBoton(); });
+  // Campo alérgenos
   const alerg = document.createElement("input");
   alerg.type = "text";
   alerg.placeholder = "Alérgenos";
+  alerg.className = "alergenos";
 
-  if (esGrupo) {
-    alerg.classList.toggle("hidden", !cb.checked);
-    cb.addEventListener("change", () =>
-      alerg.classList.toggle("hidden", !cb.checked)
-    );
-  }
+// Mostrar/ocultar alérgenos según asistencia
+function actualizarAlergenos() {
+  const valor = select.value;
+alerg.classList.toggle("visible", valor === "SI");
+if (valor !== "SI") alerg.value = "";
 
-  div.appendChild(alerg);
-  lista.appendChild(div);
 }
+
+select.addEventListener("change", actualizarAlergenos);
+actualizarAlergenos(); // ejecutar al cargar
+
+div.appendChild(alerg);
+lista.appendChild(div);
+actualizarEstadoBoton();
+
+}
+
 
 function pintarFilaConfirmado(inv) {
   const div = document.createElement("div");
@@ -350,6 +400,13 @@ function resetUI() {
   mensajeFinal.classList.add("hidden");
   mensajeGrupo.classList.add("hidden");
   document.getElementById("calendars").classList.add("hidden");
+}
+
+function actualizarEstadoBoton() {
+  const selects = document.querySelectorAll(".inv-row select.asistencia");
+  const algunoSeleccionado = Array.from(selects).some(sel => sel.value === "SI" || sel.value === "NO");
+
+  enviarBtn.disabled = !algunoSeleccionado;
 }
 
 function mostrarError(msg) {

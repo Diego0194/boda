@@ -46,6 +46,9 @@
   border: none;
 }
 
+.page-wrapper {
+  padding-bottom: 50px;
+}
 
 </style>
 <body>
@@ -118,7 +121,7 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwlzKnyZ486eDFyg0GH5nag1scfd_GhWTwkWmqA3foZQav0p4ZPUCdWXcJ-jCxsk9Xa/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9MXxH_QXQrr6SaFjIpYDujQam3zOahUqBNs4_ppZk59ihCYgYe9ifEXcRY8V0rZZa/exec";
 let invitados = [];
 
 async function cargarInvitados() {
@@ -127,7 +130,7 @@ async function cargarInvitados() {
     const data = await res.json();
     invitados = data.map(i => ({
       ...i,
-      _norm: i.nombre.toLowerCase().trim() + ' ' + i.apellido.toLowerCase().trim()
+      _norm: normalizarTexto(i.nombre + ' ' + i.apellido)
     }));
   } catch(e){
     mostrarError("No se pudo cargar la lista de invitados.");
@@ -140,7 +143,8 @@ const buscarBtn = document.getElementById("buscar");
 
 // AUTOCOMPLETADO
 nombreInput.addEventListener("input", () => {
-  const texto = nombreInput.value.toLowerCase().trim();
+  const texto = normalizarTexto(nombreInput.value);
+
   autocomplete.innerHTML = "";
 
   if (!texto) {
@@ -162,7 +166,7 @@ nombreInput.addEventListener("input", () => {
     li.addEventListener("click", () => {
       nombreInput.value = li.textContent;
       autocomplete.classList.add("hidden");
-      buscarBtn.click(); // ← ejecuta la lógica original
+      buscarBtn.click();
     });
 
     autocomplete.appendChild(li);
@@ -188,7 +192,7 @@ const mensajeFinal = document.getElementById("mensajeFinal");
 
 buscarBtn.addEventListener("click", () => {
   resetUI();
-  const texto = nombreInput.value.toLowerCase().trim();
+  const texto = normalizarTexto(nombreInput.value);
   const invitado = invitados.find(i => i._norm === texto);
 
   if (!invitado) {
@@ -196,66 +200,50 @@ buscarBtn.addEventListener("click", () => {
     return;
   }
 
-resultado.classList.remove("hidden");
-form.classList.remove("hidden");
-nombreInput.classList.add("hidden");
+  resultado.classList.remove("hidden");
+  form.classList.remove("hidden");
+  nombreInput.classList.add("hidden");
 
-// Mostrar el texto SOLO si el invitado NO ha confirmado
-if (!invitado.confirmado) {
-  document.querySelector(".intro").textContent =
-    "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
-}
+  // CASO: INVITADO INDIVIDUAL
+  if (!invitado.grupo) {
+    if (invitado.confirmado === "SI" || invitado.confirmado === "NO") {
+      document.querySelector(".intro").textContent = "";
+      mostrarError("Ya hemos recibido tu respuesta. Si necesitas hacer cambios ponte en contacto con los novios.");
+      pintarFilaConfirmado(invitado);
+      if (invitado.confirmado === "SI") mostrarBotonesCalendario();
+      return;
+    }
+    document.querySelector(".intro").textContent = "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
+    pintarFila(invitado, false);
+  } 
+  // CASO: INVITADO EN GRUPO
+  else {
+    const grupoCompleto = invitados.filter(i => i.grupo === invitado.grupo);
+    const miembrosPendientes = grupoCompleto.filter(i => i.confirmado === "" || i.confirmado === null);
 
-
-  let miembros = [];
-
-if (!invitado.grupo) {
-
-  // Si ya está confirmado → mostrar mensaje y datos
-  if (invitado.confirmado) {
-	document.querySelector(".intro").textContent = ""; // ← OCULTAR INTRO
-    mostrarError("Ya has confirmado tu asistencia anteriormente. Si necesitas hacer cambios ponte en contacto con los novios");
-
-    resultado.classList.remove("hidden");
-    form.classList.remove("hidden");
-
-    // Mostrar su fila como confirmada
-    pintarFilaConfirmado(invitado);
-	
-	// Mostrar botones calendario
-	mostrarBotonesCalendario();
-    return;
-  }
-
-  // Si NO está confirmado → permitir confirmar
-  miembros = [invitado];
-  pintarFila(invitado, false);
-} else {
-    miembros = invitados.filter(i => i.grupo === invitado.grupo && !i.confirmado);
-
-    if (!miembros.length) {
-	  document.querySelector(".intro").textContent = ""; // ← OCULTAR INTRO
+    // Si TODO el grupo ha confirmado ya
+    if (miembrosPendientes.length === 0) {
+      document.querySelector(".intro").textContent = "";
       mostrarError("Todos los miembros de tu grupo ya han confirmado, si necesitas hacer algún cambio ponte en contacto con los novios.");
-
-      resultado.classList.remove("hidden");
-      form.classList.remove("hidden");
-
-      const grupoCompleto = invitados.filter(i => i.grupo === invitado.grupo);
       grupoCompleto.forEach(miembro => pintarFilaConfirmado(miembro));
-	  
-	  // Mostrar botones calendario
-	  mostrarBotonesCalendario();
+      if (grupoCompleto.some(m => m.confirmado === "SI")) mostrarBotonesCalendario();
       return;
     }
 
-    mensajeGrupo.textContent =
-      "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
+    // Si hay gente pendiente en el grupo
+    document.querySelector(".intro").textContent = "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
+    mensajeGrupo.textContent = "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
     mensajeGrupo.classList.remove("hidden");
 
-    miembros.forEach(i => {
+    // Pintar los que faltan por confirmar (Formulario)
+    miembrosPendientes.forEach(i => {
       const esBuscado = (i._norm === invitado._norm);
       pintarFila(i, true, esBuscado);
     });
+
+    // Pintar los que YA confirmaron (Solo información)
+    const yaConfirmados = grupoCompleto.filter(i => i.confirmado)
+    yaConfirmados.forEach(miembro => pintarFilaConfirmado(miembro));
   }
 
   enviarBtn.textContent = "Confirmar asistencia";
@@ -264,81 +252,95 @@ if (!invitado.grupo) {
 
 form.addEventListener("submit", async e => {
   e.preventDefault();
+  const filas = document.querySelectorAll(".inv-row");
+  const confirmados = [];
 
-const filas = document.querySelectorAll(".inv-row");
-const confirmados = [];
+  filas.forEach(fila => {
+    const nombreApellido = fila.querySelector("span").textContent;
+    const asistencia = fila.querySelector(".asistencia").value;
+    const alergenos = fila.querySelector(".alergenos").value.trim();
 
-filas.forEach(fila => {
-  const nombreApellido = fila.querySelector("span").textContent;
-  const [nombre, ...resto] = nombreApellido.split(" ");
-  const apellido = resto.join(" ");
-
-  const asistencia = fila.querySelector(".asistencia").value;
-  const alergenos = fila.querySelector(".alergenos").value.trim();
-
-  if (asistencia === "") return;
-  confirmados.push({ nombre, apellido, asistencia, alergenos });
-});
-
+    if (asistencia === "") return;
+    
+    const partes = nombreApellido.split(" ");
+    confirmados.push({ 
+      nombre: partes[0], 
+      apellido: partes.slice(1).join(" "), 
+      asistencia, 
+      alergenos 
+    });
+  });
 
   if (!confirmados.length) {
     mostrarError("Debes seleccionar al menos un invitado.");
     return;
   }
 
+  enviarBtn.disabled = true;
+  enviarBtn.textContent = "Enviando...";
+
   try {
     const formData = new FormData();
     formData.append("confirmados", JSON.stringify(confirmados));
 
-    await fetch(WEB_APP_URL, {
+    const response = await fetch(WEB_APP_URL, {
       method: "POST",
       body: formData
     });
 
+    if (!response.ok) throw new Error("Error en el servidor");
+
     form.classList.add("hidden");
+    document.querySelector(".intro").classList.add("hidden");
+    mensajeError.classList.add("hidden");
+    mensajeGrupo.classList.add("hidden");
+    resultado.classList.add("hidden");
+
     mensajeFinal.textContent = "¡Gracias por confirmar tu asistencia!";
     mensajeFinal.classList.remove("hidden");
 
-    // MOSTRAR BOTONES DE CALENDARIO
-    document.getElementById("calendars").classList.remove("hidden");
+    const titulo = "Boda Fátima & Diego";
+    const fechaInicio = "20260905"; 
+    const fechaFin = "20260906";
+    const ubicacion = "Palacio de los Fernández Villa, Calle del Progreso, 29, 09560 Espinosa de los Monteros, Burgos";
+    const descripcion = "Gracias por acompañarnos a celebrar nuestro amor ❤️";
 
-    // DATOS DEL EVENTO
-const titulo = "Boda Fátima & Diego";
-const fechaInicio = "20260905"; // 5 septiembre 2026
-const fechaFin = "20260906";    // día siguiente (exclusivo)
-const ubicacion = "Palacio de los Fernández Villa, Calle del Progreso, 29, 09560 Espinosa de los Monteros, Burgos";
-const descripcion = "Gracias por acompañarnos a celebrar nuestro amor ❤️";
-
-const icsContent = [
-  "BEGIN:VCALENDAR",
-  "VERSION:2.0",
-  "CALSCALE:GREGORIAN",
-  "PRODID:-//Boda Fatima Diego//ES",
-  "BEGIN:VEVENT",
-  "UID:boda-fatima-diego-20260905",
-  "DTSTAMP:20250101T120000Z",
-  `DTSTART;VALUE=DATE:${fechaInicio}`,
-  `DTEND;VALUE=DATE:${fechaFin}`,
-  `SUMMARY:${titulo}`,
-  `DESCRIPTION:${descripcion}`,
-  `LOCATION:${ubicacion}`,
-  "END:VEVENT",
-  "END:VCALENDAR"
-].join("\r\n");
-
+    const icsContent = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "BEGIN:VEVENT",
+      `DTSTART;VALUE=DATE:${fechaInicio}`,
+      `DTEND;VALUE=DATE:${fechaFin}`,
+      `SUMMARY:${titulo}`,
+      `DESCRIPTION:${descripcion}`,
+      `LOCATION:${ubicacion}`,
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ].join("\r\n");
 
     const blob = new Blob([icsContent], { type: "text/calendar" });
-    const appleUrl = URL.createObjectURL(blob);
-    document.getElementById("appleLink").href = appleUrl;
+    document.getElementById("appleLink").href = URL.createObjectURL(blob);
+    document.getElementById("googleLink").href = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(titulo)}&dates=${fechaInicio}/${fechaInicio}&details=${encodeURIComponent(descripcion)}&location=${encodeURIComponent(ubicacion)}&sf=true&output=xml`;
 
-    // GOOGLE CALENDAR
-    const googleUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(titulo)}&dates=${fecha}/${fecha}&details=${encodeURIComponent(descripcion)}&location=${encodeURIComponent(ubicacion)}&sf=true&output=xml`;
-    document.getElementById("googleLink").href = googleUrl;
+    document.getElementById("calendars").classList.remove("hidden");
+    
+    // Actualizar lista local para reflejar cambios sin recargar
+    await cargarInvitados();
 
   } catch(err){
-    mostrarError("Error al enviar la confirmación.");
+    mostrarError("Error al enviar la confirmación. Por favor, inténtalo de nuevo.");
+    enviarBtn.disabled = false;
+    enviarBtn.textContent = "Confirmar asistencia";
   }
 });
+
+function normalizarTexto(txt) {
+  return txt
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
 
 function pintarFila(inv, esGrupo, esBuscado = false) {
   const div = document.createElement("div");
@@ -348,46 +350,33 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   span.textContent = `${inv.nombre} ${inv.apellido}`;
   div.appendChild(span);
 
-  // Selector SI / NO
   const select = document.createElement("select");
   select.className = "asistencia";
-  select.innerHTML = `
-    <option value="">-</option>
-	<option value="SI">Sí</option>
-    <option value="NO">No</option>
-  `;
+  select.innerHTML = `<option value="">-</option><option value="SI">Sí</option><option value="NO">No</option>`;
   div.appendChild(select);
 
-select.addEventListener("change", () => { actualizarAlergenos(); actualizarEstadoBoton(); });
-  // Campo alérgenos
   const alerg = document.createElement("input");
   alerg.type = "text";
   alerg.placeholder = "Alérgenos";
   alerg.className = "alergenos";
 
-// Mostrar/ocultar alérgenos según asistencia
-function actualizarAlergenos() {
-  const valor = select.value;
-alerg.classList.toggle("visible", valor === "SI");
-if (valor !== "SI") alerg.value = "";
+  select.addEventListener("change", () => {
+    alerg.classList.toggle("visible", select.value === "SI");
+    if (select.value !== "SI") alerg.value = "";
+    actualizarEstadoBoton();
+  });
 
+  div.appendChild(alerg);
+  lista.appendChild(div);
 }
-
-select.addEventListener("change", actualizarAlergenos);
-actualizarAlergenos(); // ejecutar al cargar
-
-div.appendChild(alerg);
-lista.appendChild(div);
-actualizarEstadoBoton();
-
-}
-
 
 function pintarFilaConfirmado(inv) {
   const div = document.createElement("div");
   div.className = "inv-confirmado";
-  div.textContent =
-    `${inv.nombre} ${inv.apellido} — ✅ — Alérgeno: ${inv.alergenos || "Ninguno"}`;
+  const asistira = inv.confirmado === "SI";
+  const icono = asistira ? "✅ Asistiré" : "❌ No podré asistir";
+  const alerg = (asistira && inv.alergenos) ? ` — Alérgenos: ${inv.alergenos}` : "";
+  div.innerHTML = `<strong>${inv.nombre} ${inv.apellido}</strong> — ${icono}${alerg}`;
   lista.appendChild(div);
 }
 
@@ -404,8 +393,7 @@ function resetUI() {
 
 function actualizarEstadoBoton() {
   const selects = document.querySelectorAll(".inv-row select.asistencia");
-  const algunoSeleccionado = Array.from(selects).some(sel => sel.value === "SI" || sel.value === "NO");
-
+  const algunoSeleccionado = Array.from(selects).some(sel => sel.value !== "");
   enviarBtn.disabled = !algunoSeleccionado;
 }
 
@@ -414,44 +402,11 @@ function mostrarError(msg) {
   mensajeError.classList.remove("hidden");
 }
 
-function mostrarBotonesCalendario() {
-  const titulo = "Boda Fátima & Diego";
-  const fecha = "20260905"; // YYYYMMDD
-  const ubicacion = "Torre de los Fernandez Villa, C. Progreso, 29, 09560 Espinosa de los Monteros, Burgos";
-  const descripcion = "Gracias por acompañarnos a celebrar nuestro amor ❤️";
-
-  // Apple Calendar (.ics)
-  const icsContent = `
-BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-DTSTART;VALUE=DATE:${fecha}
-DTEND;VALUE=DATE:${fecha}
-SUMMARY:${titulo}
-DESCRIPTION:${descripcion}
-LOCATION:${ubicacion}
-END:VEVENT
-END:VCALENDAR
-`.trim();
-
-  const blob = new Blob([icsContent], { type: "text/calendar" });
-  const appleUrl = URL.createObjectURL(blob);
-  document.getElementById("appleLink").href = appleUrl;
-
-  // Google Calendar
-  const googleUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(titulo)}&dates=${fecha}/${fecha}&details=${encodeURIComponent(descripcion)}&location=${encodeURIComponent(ubicacion)}&sf=true&output=xml`;
-  document.getElementById("googleLink").href = googleUrl;
-
-  document.getElementById("calendars").classList.remove("hidden");
-}
-
-
 document.addEventListener("DOMContentLoaded", () => {
   cargarInvitados();
   resetUI();
 });
 
-// Menú móvil
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
 menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));

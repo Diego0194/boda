@@ -50,6 +50,45 @@
   padding-bottom: 50px;
 }
 
+#btnEnviarCorreo {
+  background-color: #b74d4d;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  padding: 0 20px;
+  font-family: 'Playfair Display', serif;
+  cursor: pointer;
+}
+
+#btnEnviarCorreo:hover {
+  background: #9c3f3f;
+}
+/* Estilo idéntico a alérgenos pero siempre visible */
+.email-clon-alergenos {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex: 2 1 220px;
+  padding: 10px;
+  border: 2px solid #ddd; /* El mismo borde que usas en .inv-row input */
+  border-radius: 10px;    /* Redondeado exacto de tu imagen */
+  font-family: 'Playfair Display', serif;
+  outline: none;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.email-clon-alergenos:focus {
+  border-color: #b74d4d;
+}
+
+#mensajeFinal {
+  white-space: pre-line; /* Esto hace que los \n se conviertan en saltos de línea reales */
+  color: #555;
+  font-weight: 600;
+  margin-top: 20px;
+  line-height: 1.5;
+}
 </style>
 <body>
 <header>
@@ -99,15 +138,24 @@
     <div id="mensajeFinal" class="hidden"></div>
 
     <!-- BOTONES DE CALENDARIO -->
-    <div id="calendars" class="hidden" style="margin-top: 25px;">
-      <a id="appleLink" target="_blank">
-        <img src="media/AppleCalendar.png" alt="Añadir a Apple Calendar" style="height: 55px; margin-right: 12px;">
-      </a>
-      <a id="googleLink" target="_blank">
-        <img src="media/GoogleCalendar.png" alt="Añadir a Google Calendar" style="height: 55px; color: #555;">
-		<p>*Si seleccionas Apple, se te descargará un fichero .ics, ese fichero reenvíatelo a tu correo y desde ahí puedes añadirlo al calendario.</p>
-      </a>
+<div id="seccionCorreo" class="hidden" style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px;">
+  <p style="margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 1.1rem; text-align: center;">
+    Si quieres recibir el recordatorio en tu email, escríbelo aquí:
+  </p>
+  
+  <div id="listaCorreo">
+    <div class="inv-row" style="justify-content: center; align-items: center;">
+      <span style="flex: 0 0 auto; margin-right: 10px;">Tu Email:</span>
+      <input type="text" id="emailUsuario" placeholder="ejemplo@correo.com" class="email-clon-alergenos">
+      <button id="btnEnviarCorreo" class="btn" style="margin-left: 15px; height: 45px;">Enviar</button>
     </div>
+  </div>
+  
+  <p id="msgCorreo" style="margin-top:15px; font-size: 0.9rem; font-weight:600; text-align: center;"></p>
+</div>
+  
+  <p id="msgCorreo" style="margin-top:15px; font-size: 0.9rem; font-weight:600;"></p>
+</div>
 	
   </div>
 </main>
@@ -121,7 +169,7 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9MXxH_QXQrr6SaFjIpYDujQam3zOahUqBNs4_ppZk59ihCYgYe9ifEXcRY8V0rZZa/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZBdCiO48E9NQzPcybO_Ca4Ulhdvc5XKaD8dSgsztw_P2-cYbWBbdiG6_e3zDurHuI/exec";
 let invitados = [];
 
 async function cargarInvitados() {
@@ -250,28 +298,42 @@ buscarBtn.addEventListener("click", () => {
   enviarBtn.classList.remove("hidden");
 });
 
-form.addEventListener("submit", async e => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const filas = document.querySelectorAll(".inv-row");
-  const confirmados = [];
+
+  // Solo buscamos las filas que están dentro de la lista de invitados para no confundir con el email
+  const listaInvitados = document.getElementById("listaInvitados");
+  const filas = listaInvitados.querySelectorAll(".inv-row");
+  
+  const datosParaEnviar = [];
+  let nombresConfirmados = [];
+  let nombresNoAsistiran = [];
 
   filas.forEach(fila => {
-    const nombreApellido = fila.querySelector("span").textContent;
+    const nombreCompleto = fila.querySelector("span").textContent.trim();
     const asistencia = fila.querySelector(".asistencia").value;
     const alergenos = fila.querySelector(".alergenos").value.trim();
 
     if (asistencia === "") return;
-    
-    const partes = nombreApellido.split(" ");
-    confirmados.push({ 
+
+    // Guardamos los datos para el envío al servidor
+    const partes = nombreCompleto.split(" ");
+    datosParaEnviar.push({ 
       nombre: partes[0], 
       apellido: partes.slice(1).join(" "), 
       asistencia, 
       alergenos 
     });
+
+    // Clasificamos para el mensaje de éxito local
+    if (asistencia === "SI") {
+      nombresConfirmados.push(nombreCompleto);
+    } else {
+      nombresNoAsistiran.push(nombreCompleto);
+    }
   });
 
-  if (!confirmados.length) {
+  if (!datosParaEnviar.length) {
     mostrarError("Debes seleccionar al menos un invitado.");
     return;
   }
@@ -281,7 +343,7 @@ form.addEventListener("submit", async e => {
 
   try {
     const formData = new FormData();
-    formData.append("confirmados", JSON.stringify(confirmados));
+    formData.append("confirmados", JSON.stringify(datosParaEnviar));
 
     const response = await fetch(WEB_APP_URL, {
       method: "POST",
@@ -290,44 +352,37 @@ form.addEventListener("submit", async e => {
 
     if (!response.ok) throw new Error("Error en el servidor");
 
+    // Ocultamos elementos del formulario
     form.classList.add("hidden");
-    document.querySelector(".intro").classList.add("hidden");
+    const intro = document.querySelector(".intro");
+    if (intro) intro.classList.add("hidden");
     mensajeError.classList.add("hidden");
     mensajeGrupo.classList.add("hidden");
     resultado.classList.add("hidden");
 
-    mensajeFinal.textContent = "¡Gracias por confirmar tu asistencia!";
+    // CONSTRUCCIÓN DEL MENSAJE DINÁMICO
+    let textoResumen = "¡Gracias por confirmar tu asistencia!";
+    
+    if (nombresConfirmados.length > 0 || nombresNoAsistiran.length > 0) {
+      textoResumen += "\n\nSe ha actualizado el estado de:";
+      if (nombresConfirmados.length > 0) {
+        textoResumen += "\n✅ Confirmados: " + nombresConfirmados.join(", ");
+      }
+      if (nombresNoAsistiran.length > 0) {
+        textoResumen += "\n❌ No asistirán: " + nombresNoAsistiran.join(", ");
+      }
+    }
+
+    mensajeFinal.innerText = textoResumen; // Usamos innerText para los saltos de línea
     mensajeFinal.classList.remove("hidden");
 
-    const titulo = "Boda Fátima & Diego";
-    const fechaInicio = "20260905"; 
-    const fechaFin = "20260906";
-    const ubicacion = "Palacio de los Fernández Villa, Calle del Progreso, 29, 09560 Espinosa de los Monteros, Burgos";
-    const descripcion = "Gracias por acompañarnos a celebrar nuestro amor ❤️";
-
-    const icsContent = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "BEGIN:VEVENT",
-      `DTSTART;VALUE=DATE:${fechaInicio}`,
-      `DTEND;VALUE=DATE:${fechaFin}`,
-      `SUMMARY:${titulo}`,
-      `DESCRIPTION:${descripcion}`,
-      `LOCATION:${ubicacion}`,
-      "END:VEVENT",
-      "END:VCALENDAR"
-    ].join("\r\n");
-
-    const blob = new Blob([icsContent], { type: "text/calendar" });
-    document.getElementById("appleLink").href = URL.createObjectURL(blob);
-    document.getElementById("googleLink").href = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(titulo)}&dates=${fechaInicio}/${fechaInicio}&details=${encodeURIComponent(descripcion)}&location=${encodeURIComponent(ubicacion)}&sf=true&output=xml`;
-
-    document.getElementById("calendars").classList.remove("hidden");
+    // Mostramos la sección para enviar el correo recordatorio
+    mostrarSeccionCorreo(); 
     
-    // Actualizar lista local para reflejar cambios sin recargar
+    // Actualizamos la lista local desde la base de datos
     await cargarInvitados();
 
-  } catch(err){
+  } catch (err) {
     mostrarError("Error al enviar la confirmación. Por favor, inténtalo de nuevo.");
     enviarBtn.disabled = false;
     enviarBtn.textContent = "Confirmar asistencia";
@@ -388,7 +443,8 @@ function resetUI() {
   enviarBtn.classList.add("hidden");
   mensajeFinal.classList.add("hidden");
   mensajeGrupo.classList.add("hidden");
-  document.getElementById("calendars").classList.add("hidden");
+  // Eliminamos la línea de 'calendars' porque ya no existe ese ID
+  document.getElementById("seccionCorreo").classList.add("hidden"); 
 }
 
 function actualizarEstadoBoton() {
@@ -410,6 +466,43 @@ document.addEventListener("DOMContentLoaded", () => {
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
 menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));
+
+// Manejo del botón de enviar correo
+const btnCorreo = document.getElementById("btnEnviarCorreo");
+btnCorreo.addEventListener("click", async () => {
+  const email = document.getElementById("emailUsuario").value;
+  const msgCorreo = document.getElementById("msgCorreo");
+
+  if (!email || !email.includes("@")) {
+    msgCorreo.textContent = "Por favor, introduce un correo válido.";
+    return;
+  }
+
+  btnCorreo.disabled = true;
+  btnCorreo.textContent = "Enviando...";
+
+  try {
+    const formData = new FormData();
+    formData.append("accion", "enviarEmailConCalendario");
+    formData.append("destinatario", email);
+
+    // Reutilizamos tu URL de Google Apps Script
+    await fetch(WEB_APP_URL, { method: "POST", body: formData });
+
+    msgCorreo.style.color = "green";
+    msgCorreo.textContent = "¡Correo enviado con éxito!";
+    btnCorreo.classList.add("hidden");
+  } catch (e) {
+    msgCorreo.textContent = "Error al enviar el correo.";
+    btnCorreo.disabled = false;
+  }
+});
+
+// Función para mostrar la sección de correo (llámala en vez de mostrarBotonesCalendario)
+function mostrarSeccionCorreo() {
+  document.getElementById("seccionCorreo").classList.remove("hidden");
+}
+
 </script>
 
 </body>

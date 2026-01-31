@@ -13,24 +13,18 @@
       margin-bottom: 3rem;
     }
 
-    form {
-      margin-top: 1.5rem;
-      background: #fff;
-      padding: 1.2rem 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      position: relative;
-    }
 
-    input, textarea {
-      width: 100%;
-      margin-bottom: .8rem;
-      padding: .6rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 1rem;
-    }
+
+	input, textarea {
+	  width: 100%;
+	  margin-bottom: .8rem;
+	  padding: .6rem;
+	  border: 1px solid #ccc;
+	  border-radius: 8px;
+	  font-family: inherit;
+	  font-size: 1rem;
+	  resize: none; /* Esto desactiva el tirador de la esquina inferior derecha */
+	}
 
     .mensaje {
       background: #fff;
@@ -148,7 +142,7 @@
 	  <label for="nombre">Tu nombre o alias:</label>
 	  <input type="text" id="nombre" name="nombre" required maxlength="50" placeholder="Ej: Luis, Rosa...">
 	  
-	  <label for="mensaje">Tu mensaje:</label>
+	  <label for="mensaje"><br>Tu mensaje:</label>
 	  <textarea id="mensaje" name="mensaje" required rows="4" placeholder="Escribe aquí tu mensaje..."></textarea>
 	  
 	  <button type="submit" class="upload-link">💌 Publicar mensaje</button>

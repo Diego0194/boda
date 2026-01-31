@@ -228,16 +228,20 @@ main.container {
 
 /* --- TAB PROGRAMA --- */
 /* Contenedor principal centrado */
+/* --- TAB PROGRAMA --- */
 .program-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   max-width: 900px;
   margin: 0 auto;
-  padding: 0 20px; /* Añade esto: 0 arriba/abajo, 20px izquierda/derecha */
-  box-sizing: border-box; /* Asegura que el padding no rompa el ancho total */
+  padding: 0 20px;
+  box-sizing: border-box;
+  
+  /* AÑADE ESTA LÍNEA PARA QUE EL JS DETECTE EL CAMBIO */
+  transition: opacity 0.5s ease; 
+  opacity: 0; /* Empieza invisible para el fade-in */
 }
-
 .program-container.page-enter {
   opacity: 1;
 }

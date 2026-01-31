@@ -227,9 +227,15 @@ main.container {
 }
 
 /* --- TAB PROGRAMA --- */
+/* Contenedor principal centrado */
 .program-container {
-  opacity: 0; /* inicial invisible */
-  transition: opacity 0.5s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px; /* Añade esto: 0 arriba/abajo, 20px izquierda/derecha */
+  box-sizing: border-box; /* Asegura que el padding no rompa el ancho total */
 }
 
 .program-container.page-enter {

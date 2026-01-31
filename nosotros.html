@@ -7,18 +7,68 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="media/favicon.png">
+  <style>
+	/* Estilo base para la parte trasera de las Polaroids */
+	.polaroid-back {
+	  position: relative;
+	  overflow: hidden;
+	  display: flex;
+	  align-items: center;    /* Centrado vertical del texto */
+	  justify-content: center; /* Centrado horizontal del texto */
+	  padding: 20px;
+	  text-align: center;
+	  background-color: #ffffff;
+	  width: 100%;
+	  height: 100%;
+	  min-height: 300px; 
+	}
+
+	/* Capa para la imagen de fondo semitransparente */
+	.polaroid-back::before {
+	  content: "";
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  right: 0;
+	  bottom: 0;
+	  opacity: 0.3; 
+	  z-index: 1;
+	  background-size: cover; /* Cambia a 'contain' si la imagen se corta mucho */
+	  background-position: center center; 
+	  background-repeat: no-repeat;
+	}
+
+    /* Contenedor del texto para que quede por encima de la foto */
+    .polaroid-back p {
+      position: relative;
+      z-index: 2;
+      margin: 0;
+      font-weight: 600;
+      color: #333;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    }
+
+    /* ASIGNACIÓN DE IMÁGENES - ASEGÚRATE DE QUE ESTOS ARCHIVOS EXISTAN EN /media */
+    .back-2018::before { background-image: url('media/back2018.jpg?v=2'); }
+    .back-2019::before { background-image: url('media/back2019.jpg?v=2'); }
+    .back-2020::before { background-image: url('media/back2020.jpg?v=2'); }
+    .back-2021::before { background-image: url('media/back2021.jpg?v=2'); }
+    .back-2022::before { background-image: url('media/back2022.jpg?v=2'); }
+    .back-2023::before { background-image: url('media/back2023.jpg?v=2'); }
+    .back-2024::before { background-image: url('media/back2024.jpg?v=2'); }
+    .back-2025::before { background-image: url('media/back2025.jpg?v=2'); }
+    .back-2026::before { background-image: url('media/back2026.jpg?v=2'); }
+  </style>
 </head>
 <body>
 <header>
   <div class="container header-flex">
-	<div class="brand">
-	  <a href="index.html" style="text-decoration: none; color: inherit;">
-		<h1>F&D</h1>
-	  </a>
-	  <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
-	</div>
-
-    <!-- Botón menú móvil -->
+    <div class="brand">
+      <a href="index.html" style="text-decoration: none; color: inherit;">
+        <h1>F&D</h1>
+      </a>
+      <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+    </div>
     <button class="menu-toggle" aria-label="Abrir menú">☰</button>
   </div>
 
@@ -31,139 +81,128 @@
     <a href="informacion.html">📌 Información útil</a>
     <a href="regalos.html">🎁 Lista de regalos</a>
     <a href="fotos.html">📷 Fotos de la boda</a>
-	<a href="foro.html">💬 Foro</a>
+    <a href="foro.html">💬 Foro</a>
   </nav>
 </header>
-
 
 <main class="container">
   <div class="page-content">
     <h2>Sobre nosotros</h2>
-      <div class="intro">
-        Nuestra historia comenzó el 11/10/2018, y cada momento juntos ha sido una nueva página en este viaje que ahora culmina en nuestro gran día.
-      </div>
-
-      <div class="gallery">
-        <!-- Polaroid 2018 -->
-        <div class="polaroid" onclick="this.classList.toggle('flipped')">
-          <div class="polaroid-inner">
-            <div class="polaroid-front">
-              <img src="media/2018.jpg" alt="2018">
-              <p class="caption">2018</p>
-            </div>
-            <div class="polaroid-back">
-              <p>El año en que todo comenzó, primeros findes juntos para conocernos mejor.🧳</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Polaroid 2019 -->
-        <div class="polaroid" onclick="this.classList.toggle('flipped')">
-          <div class="polaroid-inner">
-            <div class="polaroid-front">
-              <img src="media/2019.jpg" alt="2019">
-              <p class="caption">2019</p>
-            </div>
-            <div class="polaroid-back">
-              <p>Primer año completo juntos, muchas primeras veces 🏖️</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Polaroid 2020 -->
-        <div class="polaroid" onclick="this.classList.toggle('flipped')">
-          <div class="polaroid-inner">
-            <div class="polaroid-front">
-              <img src="media/2020.jpg" alt="2020">
-              <p class="caption">2020</p>
-            </div>
-            <div class="polaroid-back">
-              <p>Entre la cuarentena 🦠 y los viajes Madrid-Arévalo pasamos el año 🚗</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Polaroid 2021 -->
-        <div class="polaroid" onclick="this.classList.toggle('flipped')">
-          <div class="polaroid-inner">
-            <div class="polaroid-front">
-              <img src="media/2021.jpg" alt="2021">
-              <p class="caption">2021</p>
-            </div>
-            <div class="polaroid-back">
-              <p>Se acaba la cuarentena y llega Filomena ❄️ con ese paseo bajo la nieve de Madrid. Año de muchos conciertos 🎶</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Polaroid 2022 -->
-        <div class="polaroid" onclick="this.classList.toggle('flipped')">
-          <div class="polaroid-inner">
-            <div class="polaroid-front">
-              <img src="media/2022.jpg" alt="2022">
-              <p class="caption">2022</p>
-            </div>
-            <div class="polaroid-back">
-              <p>Recorriendo Europa juntos💂🏻‍♂️🗼y nuestro primer festival.🎡🎵</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Polaroid 2023 -->
-        <div class="polaroid" onclick="this.classList.toggle('flipped')">
-          <div class="polaroid-inner">
-            <div class="polaroid-front">
-              <img src="media/2023.jpg" alt="2023">
-              <p class="caption">2023</p>
-            </div>
-            <div class="polaroid-back">
-              <p>Nos regalamos el primer viaje a Asia 🇮🇩.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Polaroid 2024 -->
-        <div class="polaroid" onclick="this.classList.toggle('flipped')">
-          <div class="polaroid-inner">
-            <div class="polaroid-front">
-              <img src="media/2024.jpg" alt="2024">
-              <p class="caption">2024</p>
-            </div>
-            <div class="polaroid-back">
-              <p>Cumpliendo sueños. 🗽🏙️🍎🚕🍕</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Polaroid 2025 -->
-        <div class="polaroid" onclick="this.classList.toggle('flipped')">
-          <div class="polaroid-inner">
-            <div class="polaroid-front">
-              <img src="media/2025.jpg" alt="2025">
-              <p class="caption">2025</p>
-            </div>
-            <div class="polaroid-back">
-              <p>En la Gran Muralla dijimos “sí” al resto de nuestra vida juntos. 🥠</p>
-            </div>
-          </div>
-        </div>
-
-		<!-- Polaroid 2026 -->
-		<div class="polaroid" id="polaroid-2026">
-		  <div class="polaroid-inner">
-			<div class="polaroid-front">
-			  <img src="media/2026.jpg" alt="2026">
-			  <p class="caption">2026</p>
-			</div>
-			<div class="polaroid-back">
-			  <p>El año en que celebramos nuestro amor con todos los que queremos. 💒</p>
-			</div>
-		  </div>
-		</div>
-      </div>
-
+    <div class="intro">
+      Nuestra historia comenzó el 11/10/2018, y cada momento juntos ha sido una nueva página en este viaje que ahora culmina en nuestro gran día.
     </div>
-  </main>
+
+    <div class="gallery">
+      <div class="polaroid" onclick="this.classList.toggle('flipped')">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2018.jpg" alt="2018">
+            <p class="caption">2018</p>
+          </div>
+          <div class="polaroid-back back-2018">
+            <p>El año en que todo comenzó, primeros findes juntos para conocernos mejor.🧳</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid" onclick="this.classList.toggle('flipped')">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2019.jpg" alt="2019">
+            <p class="caption">2019</p>
+          </div>
+          <div class="polaroid-back back-2019">
+            <p>Primer año completo juntos, muchas primeras veces 🏖️</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid" onclick="this.classList.toggle('flipped')">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2020.jpg" alt="2020">
+            <p class="caption">2020</p>
+          </div>
+          <div class="polaroid-back back-2020">
+            <p>Entre la cuarentena 🦠 y los viajes Madrid-Arévalo pasamos el año 🚗</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid" onclick="this.classList.toggle('flipped')">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2021.jpg" alt="2021">
+            <p class="caption">2021</p>
+          </div>
+          <div class="polaroid-back back-2021">
+            <p>Se acaba la cuarentena y llega Filomena ❄️ con ese paseo bajo la nieve de Madrid. Año de muchos conciertos 🎶</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid" onclick="this.classList.toggle('flipped')">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2022.jpg" alt="2022">
+            <p class="caption">2022</p>
+          </div>
+          <div class="polaroid-back back-2022">
+            <p>Recorriendo Europa juntos💂🏻‍♂️<br>🎡y nuestro primer festival.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid" onclick="this.classList.toggle('flipped')">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2023.jpg" alt="2023">
+            <p class="caption">2023</p>
+          </div>
+          <div class="polaroid-back back-2023">
+            <p>Nos regalamos el primer viaje a Asia 🇮🇩.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid" onclick="this.classList.toggle('flipped')">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2024.jpg" alt="2024">
+            <p class="caption">2024</p>
+          </div>
+          <div class="polaroid-back back-2024">
+            <p>Cumpliendo sueños.<br> 🗽🏙️🍎🚕🍕</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid" onclick="this.classList.toggle('flipped')">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2025.jpg" alt="2025">
+            <p class="caption">2025</p>
+          </div>
+          <div class="polaroid-back back-2025">
+            <p>En la Gran Muralla dijimos “sí” al resto de nuestra vida juntos. 🥠</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="polaroid" id="polaroid-2026">
+        <div class="polaroid-inner">
+          <div class="polaroid-front">
+            <img src="media/2026.jpg" alt="2026">
+            <p class="caption">2026</p>
+          </div>
+          <div class="polaroid-back back-2026">
+            <p>El año en que celebramos nuestro amor con todos los que queremos. 💒</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
 
 <footer>
   <div class="container">

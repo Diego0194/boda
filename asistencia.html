@@ -258,7 +258,9 @@ buscarBtn.addEventListener("click", () => {
       document.querySelector(".intro").textContent = "";
       mostrarError("Ya hemos recibido tu respuesta. Si necesitas hacer cambios ponte en contacto con los novios.");
       pintarFilaConfirmado(invitado);
-      if (invitado.confirmado === "SI") mostrarBotonesCalendario();
+      
+      // CAMBIO: Si ya confirmó que SI, mostramos el correo directamente
+      if (invitado.confirmado === "SI") mostrarSeccionCorreo(); 
       return;
     }
     document.querySelector(".intro").textContent = "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
@@ -272,9 +274,11 @@ buscarBtn.addEventListener("click", () => {
     // Si TODO el grupo ha confirmado ya
     if (miembrosPendientes.length === 0) {
       document.querySelector(".intro").textContent = "";
-      mostrarError("Todos los miembros de tu grupo ya han confirmado, si necesitas hacer algún cambio ponte en contacto con los novios.");
+      mostrarError("Todos los miembros de tu grupo ya han confirmado.");
       grupoCompleto.forEach(miembro => pintarFilaConfirmado(miembro));
-      if (grupoCompleto.some(m => m.confirmado === "SI")) mostrarBotonesCalendario();
+      
+      // CAMBIO: Si alguien del grupo confirmó que SI, mostramos el correo
+      if (grupoCompleto.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
       return;
     }
 
@@ -283,15 +287,16 @@ buscarBtn.addEventListener("click", () => {
     mensajeGrupo.textContent = "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
     mensajeGrupo.classList.remove("hidden");
 
-    // Pintar los que faltan por confirmar (Formulario)
     miembrosPendientes.forEach(i => {
       const esBuscado = (i._norm === invitado._norm);
       pintarFila(i, true, esBuscado);
     });
 
-    // Pintar los que YA confirmaron (Solo información)
-    const yaConfirmados = grupoCompleto.filter(i => i.confirmado)
+    const yaConfirmados = grupoCompleto.filter(i => i.confirmado);
     yaConfirmados.forEach(miembro => pintarFilaConfirmado(miembro));
+
+    // CAMBIO: Si ya hay alguien confirmado como "SI" en el grupo aunque falten otros
+    if (yaConfirmados.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
   }
 
   enviarBtn.textContent = "Confirmar asistencia";

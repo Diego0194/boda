@@ -19,6 +19,38 @@
       margin: 20px auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
+	
+	/* Estilo para la foto tipo revelado */
+.photo-frame {
+  background-color: white;
+  padding: 15px 15px 40px 15px; /* Más espacio abajo para imitar una Polaroid */
+  margin: 10px auto;
+  max-width: 400px; /* Ajusta el tamaño a tu gusto */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  border-radius: 2px;
+  transform: rotate(-2deg); /* Un toque de inclinación para que parezca apoyada */
+  transition: transform 0.3s ease;
+}
+
+.photo-frame:hover {
+  transform: rotate(0deg) scale(1.02); /* Se endereza al pasar el ratón */
+}
+
+.photo-frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid #eee; /* Fino borde para separar la foto del marco blanco */
+}
+
+.photo-caption {
+  font-family: 'Playfair Display', serif;
+  text-align: center;
+  margin-top: 15px;
+  color: #555;
+  font-style: italic;
+  font-size: 1.1rem;
+}
   </style>
 </head>
 <body>
@@ -54,10 +86,15 @@
 	<div class="intro">
 	  <p>Vuestra presencia en este día tan especial es el mejor regalo que podríamos recibir.</p>
 	  <p>Si además queréis acompañarnos con un detalle, estaremos encantados de recibir vuestra aportación para nuestra Luna de Miel.</p>
-	  <p>Preferimos que nos lo déis en efectivo, pero os compartimos igualmente nuestro número de cuenta por si os resulta más cómodo.</p>
+	  <p>Preferimos que nos lo déis en efectivo 😊 pero os compartimos igualmente nuestro número de cuenta por si os resulta más cómodo.</p>
 	<p class="iban">ES68 0182 5322 2502 0105 4455</p>
 	<p class="intro">Cada pequeño gesto nos hará sonreír y será recordado para siempre. ❤️</p>
 	</div>
+	<div class="photo-frame">
+      <img src="media/japon.jpg" alt="Nuestro viaje a Japón">
+      <div class="photo-caption">Próxima parada: ¡Japón! 🇯🇵</div>
+    </div>
+  </div> </main>
 </main>
 
 <footer>

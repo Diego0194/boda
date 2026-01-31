@@ -3,13 +3,61 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Información — F&D</title>
+  <title>Programa — F&D</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="media/favicon.png">
+  <style>
+    /* Contenedor principal centrado */
+    .program-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Programa: tarjetas con iconos */
+    .program-card {
+      display: flex;
+      align-items: center;
+      background: #fdf6f2;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .program-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .program-card img {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-right: 20px;
+    }
+
+    .program-card .program-info h3 {
+      margin: 0 0 5px 0;
+      font-size: 1.2rem;
+      color: #b74d4d;
+    }
+
+    .program-card .program-info p {
+      margin: 0;
+      color: #555;
+      line-height:1.5;
+    }
+
+  </style>
 </head>
 <body>
-
 <header>
   <div class="container header-flex">
 	<div class="brand">
@@ -36,21 +84,51 @@
   </nav>
 </header>
 
-<main class="container">
-  <div class="page-content">
-      <h2>Consejos para los invitados</h2>
-      <div class="intro">
-        🥶 No queremos que pases frío y, aunque sea verano, las noches son frescas. ¡Lleva una chaqueta por si acaso! 🥶<br><br>
-		🚌 Si necesitas volver en autobús a Medina de Pomar, comunícanoslo para tenerlo en cuenta 🚌<br><br>
-        🚗 Si quieres llevar tu coche hay sitio para aparcar en los alrededores. 🚗<br><br>
-        ✅ Confirma tu asistencia a tiempo y, si tienes alguna alergia o necesidad especial, indícalo en el formulario. ✅<br><br>
-        📷 Si vienes desde lejos, aprovecha para quedarte un par de días más en la zona, ¡no te arrepentirás! 📷<br><br>
-        💇🏼‍♀️ Hay varias peluquerías por la zona <a href="https://www.google.com/maps/search/peluquerias/@43.014214,-3.5693649,12z?entry=ttu&g_ep=EgoyMDI1MTAyMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" style="text-decoration: none; color: inherit;">(Pincha aquí para ver)</a> recomendamos llamar para reservar 💇🏼‍♀️ <br><br>
-        🎉 Disfruta, sonríe y comparte este día tan especial con nosotros. ¡Queremos que lo pases genial! 🎉
-      </div>
-  </div>
-</main>
+  <main class="page-wrapper">
+    <div class="program-container">
+      <h2>Información útil</h2>
 
+      <div class="program-card">
+        <img src="media/tiempo.jpg" alt="Temperatura">
+        <div class="program-info">
+          <h3>Temperatura</h3>
+          <p>No queremos que pases frío y, aunque sea verano, las noches son frescas. ¡Lleva una chaqueta por si acaso!</p>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img src="media/autobus.jpg" alt="Autobuses">
+        <div class="program-info">
+          <h3>Autobuses</h3>
+          <p>Si necesitas volver en autobús a Medina de Pomar, comunícanoslo para tenerlo en cuenta, ¡cuánto antes mejor!</p>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img src="media/parking.jpg" alt="Parking">
+        <div class="program-info">
+          <h3>Coches</h3>
+          <p>Si quieres llevar tu coche hay sitio para aparcar en los alrededores. (Hay que tener en cuenta que son fiestas en Espinosa 👮🏻)</p>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img src="media/peluqueria.jpg" alt="Peluquería">
+        <div class="program-info">
+          <h3>Peluquería</h3>
+          <p>Hay varias peluquerías por la zona <a href="https://www.google.com/maps/search/peluquerias/@43.014214,-3.5693649,12z?entry=ttu&g_ep=EgoyMDI1MTAyMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" style="text-decoration: none; color: inherit;">(Pincha aquí para ver)</a> recomendamos llamar para reservar</p>
+        </div>
+      </div>
+	
+	<div class="program-card">
+        <img src="media/turismo.jpg" alt="Turismo">
+        <div class="program-info">
+          <h3>Turisteo</h3>
+          <p>Si vienes desde lejos, aprovecha para quedarte un par de días más en la zona de las Merindades, ¡no te arrepentirás!</p>
+        </div>
+      </div>
+    </div>
+  </main>
 
 <footer>
   <div class="container">

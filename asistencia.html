@@ -9,34 +9,47 @@
   <link rel="icon" type="image/png" href="media/favicon.png">
 </head>
 <style>
+
+/* Reducimos el espacio general entre elementos de la fila */
 .inv-row {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 8px; /* Antes era 15px, ahora están más pegaditos */
+  margin-bottom: 12px;
+  justify-content: center; /* Centramos la fila entera para que no se pegue a la izquierda */
 }
 
+/* Ajustamos el ancho del nombre para que el selector esté más cerca */
 .inv-row span {
-  flex: 1 1 180px;
+  flex: 0 0 auto;
+  min-width: 100px; /* Reducido de 150px a 110px */
+  text-align: right; /* Alinea el nombre hacia el selector */
   font-weight: 500;
+  padding-right: 5px; /* Pequeño margen extra de seguridad */
 }
 
+/* El selector de Sí/No un poco más estrecho si fuera necesario */
 .inv-row select.asistencia {
-  flex: 0 0 50px;
-  padding: 6px;
+  flex: 0 0 auto;
+  width: 50px;
+  padding: 4px;
 }
 
-.inv-row input.alergenos {
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  flex: 2 1 220px;
-  padding: 6px;
+/* Los inputs ahora ocuparán solo el espacio necesario o un máximo razonable */
+.inv-row input.alergenos,
+.inv-row input.barra {
+  display: none;
+  flex: 0 1 180px; /* No crecen infinitamente, máximo 180px */
+  min-width: 0;
+  font-size: 14px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
-.inv-row input.alergenos.visible {
-  visibility: visible;
-  opacity: 1;
+
+.inv-row input.alergenos.visible,
+.inv-row input.barra.visible {
+  display: block;
 }
 
 #enviar:disabled {
@@ -63,15 +76,16 @@
 #btnEnviarCorreo:hover {
   background: #9c3f3f;
 }
-/* Estilo idéntico a alérgenos pero siempre visible */
+
+/* Input de email (siempre visible) */
 .email-clon-alergenos {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
   flex: 2 1 220px;
   padding: 10px;
-  border: 2px solid #ddd; /* El mismo borde que usas en .inv-row input */
-  border-radius: 10px;    /* Redondeado exacto de tu imagen */
+  border: 2px solid #ddd;
+  border-radius: 10px;
   font-family: 'Playfair Display', serif;
   outline: none;
   background-color: white;
@@ -83,11 +97,79 @@
 }
 
 #mensajeFinal {
-  white-space: pre-line; /* Esto hace que los \n se conviertan en saltos de línea reales */
+  white-space: pre-line;
   color: #555;
   font-weight: 600;
   margin-top: 20px;
   line-height: 1.5;
+}
+
+/* ===== MÓVIL (Solución Estructural Anti-Estiramiento) ===== */
+
+@media (max-width: 600px) {
+
+  .inv-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important; /* Alinea al principio, no estira */
+    gap: 12px !important;
+    margin-bottom: 35px !important;
+    height: auto !important; /* Asegura que el contenedor no tenga altura fija */
+  }
+
+  .inv-row span {
+    width: 100% !important;
+    text-align: center !important;
+    margin-bottom: 5px !important;
+  }
+
+  .inv-row select.asistencia {
+    width: 90px !important;
+    height: 35px !important;
+    flex: none !important; /* Evita que el flexbox lo deforme */
+  }
+
+  .inv-row input.alergenos,
+  .inv-row input.barra {
+    /* IMPORTANTE: Forzamos a que NO sea un elemento flexible que se estire */
+    display: none; 
+    flex: none !important; 
+    
+    width: 90% !important;
+    max-width: 300px !important;
+    
+    /* Dimensiones estrictas */
+    height: 40px !important;
+    max-height: 40px !important; 
+    min-height: 40px !important;
+    
+    /* Reset de espaciado interno */
+    padding: 0 15px !important;
+    margin: 5px 0 !important;
+    line-height: 40px !important;
+    
+    border: 1px solid #ccc !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+    -webkit-appearance: none; /* Quita estilos por defecto de iOS */
+  }
+
+  .inv-row input.alergenos.visible,
+  .inv-row input.barra.visible {
+    display: block !important;
+  }
+}
+
+/* Aplicamos esto a los textos informativos */
+.intro, #mensajeGrupo {
+    max-width: 600px;  /* Limitamos el ancho para que no se vean infinitos */
+    margin-left: auto; /* Estos dos margin centran el bloque entero */
+    margin-right: auto;
+    text-align: center;
+    line-height: 1.6;  /* Un poco más de espacio entre líneas para lectura fácil */
+    margin-bottom: 20px;
+    width: 90%;        /* Para que en móviles no peguen a los bordes */
 }
 </style>
 <body>
@@ -169,7 +251,7 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZBdCiO48E9NQzPcybO_Ca4Ulhdvc5XKaD8dSgsztw_P2-cYbWBbdiG6_e3zDurHuI/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzao_c-hGZsC_WMzzUD8kIWW8THrrOC18tO7HUacoboTF76HWkD9ytjLDdr8dKqExTO/exec";
 let invitados = [];
 
 async function cargarInvitados() {
@@ -263,7 +345,7 @@ buscarBtn.addEventListener("click", () => {
       if (invitado.confirmado === "SI") mostrarSeccionCorreo(); 
       return;
     }
-    document.querySelector(".intro").textContent = "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
+    document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre y selecciona Enviar para confirmar tu asistencia";
     pintarFila(invitado, false);
   } 
   // CASO: INVITADO EN GRUPO
@@ -283,7 +365,7 @@ buscarBtn.addEventListener("click", () => {
     }
 
     // Si hay gente pendiente en el grupo
-    document.querySelector(".intro").textContent = "Introduce alérgenos y selecciona Enviar para confirmar tu asistencia";
+    document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre y selecciona Enviar para confirmar tu asistenciaa";
     mensajeGrupo.textContent = "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
     mensajeGrupo.classList.remove("hidden");
 
@@ -318,17 +400,19 @@ form.addEventListener("submit", async (e) => {
     const nombreCompleto = fila.querySelector("span").textContent.trim();
     const asistencia = fila.querySelector(".asistencia").value;
     const alergenos = fila.querySelector(".alergenos").value.trim();
+	const barra = fila.querySelector(".barra")?.value.trim() || "";
 
     if (asistencia === "") return;
 
     // Guardamos los datos para el envío al servidor
     const partes = nombreCompleto.split(" ");
-    datosParaEnviar.push({ 
-      nombre: partes[0], 
-      apellido: partes.slice(1).join(" "), 
-      asistencia, 
-      alergenos 
-    });
+	datosParaEnviar.push({ 
+	  nombre: partes[0], 
+	  apellido: partes.slice(1).join(" "), 
+	  asistencia, 
+	  alergenos,
+	  barra
+	});
 
     // Clasificamos para el mensaje de éxito local
     if (asistencia === "SI") {
@@ -415,18 +499,36 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   select.innerHTML = `<option value="">-</option><option value="SI">Sí</option><option value="NO">No</option>`;
   div.appendChild(select);
 
+  // Campo de alérgenos
   const alerg = document.createElement("input");
   alerg.type = "text";
-  alerg.placeholder = "Alérgenos";
+  alerg.placeholder = "Alérgenos 💊";
   alerg.className = "alergenos";
 
+  // Campo de preferencias de barra libre
+  const prefBarra = document.createElement("input");
+  prefBarra.type = "text";
+  prefBarra.placeholder = "Preferencias barra libre 🍹";
+  prefBarra.className = "barra";
+
+  // Mostrar campos solo si el invitado asiste
   select.addEventListener("change", () => {
-    alerg.classList.toggle("visible", select.value === "SI");
-    if (select.value !== "SI") alerg.value = "";
+    const visible = select.value === "SI";
+
+    alerg.classList.toggle("visible", visible);
+    prefBarra.classList.toggle("visible", visible);
+
+    if (!visible) {
+      alerg.value = "";
+      prefBarra.value = "";
+    }
+
     actualizarEstadoBoton();
   });
 
   div.appendChild(alerg);
+  div.appendChild(prefBarra);
+
   lista.appendChild(div);
 }
 

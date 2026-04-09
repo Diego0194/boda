@@ -8,170 +8,119 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="media/favicon.png">
 </head>
-<style>
 
-/* Reducimos el espacio general entre elementos de la fila */
+<style>
+/* Estilos generales de la fila */
 .inv-row {
   display: flex;
+  /* Cambiado a column para que aparezcan uno debajo del otro también en web */
+  flex-direction: column; 
   align-items: center;
-  gap: 8px; /* Antes era 15px, ahora están más pegaditos */
-  margin-bottom: 12px;
-  justify-content: center; /* Centramos la fila entera para que no se pegue a la izquierda */
+  gap: 12px;
+  margin-bottom: 35px;
+  justify-content: center;
+  /* Fuente unificada a Playfair Display */
+  font-family: 'Playfair Display', serif; 
 }
 
-/* Ajustamos el ancho del nombre para que el selector esté más cerca */
+/* NOMBRE DEL INVITADO */
 .inv-row span {
   flex: 0 0 auto;
-  min-width: 100px; /* Reducido de 150px a 110px */
-  text-align: right; /* Alinea el nombre hacia el selector */
-  font-weight: 500;
-  padding-right: 5px; /* Pequeño margen extra de seguridad */
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  /* Nombre en negro */
+  color: #000000; 
+  font-size: 1.2rem;
+  margin-bottom: 5px;
 }
 
-/* El selector de Sí/No un poco más estrecho si fuera necesario */
-.inv-row select.asistencia {
-  flex: 0 0 auto;
-  width: 50px;
-  padding: 4px;
+/* ESTILO UNIFICADO PARA SELECTS E INPUTS */
+.inv-row select,
+.inv-row input.alergenos,
+.inv-row input.barra {
+  height: 45px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  /* Fuente Playfair Display mantenida */
+  font-family: 'Playfair Display', serif; 
+  font-size: 16px;
+  /* Texto en gris oscuro */
+  color: #555555; 
+  padding: 0 15px;
+  box-sizing: border-box;
+  background-color: white;
+  width: 90%;
+  max-width: 350px;
 }
 
-/* Los inputs ahora ocuparán solo el espacio necesario o un máximo razonable */
+/* Selectores específicos y visibilidad */
+.inv-row select.asistencia { display: block; }
+.inv-row select.bus { display: none; }
+.inv-row select.bus.visible { display: block; }
+
 .inv-row input.alergenos,
 .inv-row input.barra {
   display: none;
-  flex: 0 1 180px; /* No crecen infinitamente, máximo 180px */
-  min-width: 0;
-  font-size: 14px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
 }
 
-.inv-row input.alergenos.visible,
-.inv-row input.barra.visible {
-  display: block;
+.inv-row .visible { display: block !important; }
+
+/* Botones con estilo original */
+#enviar, #btnEnviarCorreo {
+  background-color: #b74d4d;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-top: 10px;
 }
 
 #enviar:disabled {
   background-color: #ccc;
   color: #666;
   cursor: not-allowed;
-  border: none;
-}
-
-.page-wrapper {
-  padding-bottom: 50px;
-}
-
-#btnEnviarCorreo {
-  background-color: #b74d4d;
-  color: white;
-  border-radius: 10px;
-  border: none;
-  padding: 0 20px;
-  font-family: 'Playfair Display', serif;
-  cursor: pointer;
-}
-
-#btnEnviarCorreo:hover {
-  background: #9c3f3f;
 }
 
 /* Input de email (siempre visible) */
 .email-clon-alergenos {
   display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  flex: 2 1 220px;
+  width: 90%;
+  max-width: 350px;
   padding: 10px;
   border: 2px solid #ddd;
   border-radius: 10px;
   font-family: 'Playfair Display', serif;
-  outline: none;
+  color: #555555;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.email-clon-alergenos:focus {
-  border-color: #b74d4d;
-}
-
-#mensajeFinal {
-  white-space: pre-line;
-  color: #555;
-  font-weight: 600;
-  margin-top: 20px;
-  line-height: 1.5;
-}
-
-/* ===== MÓVIL (Solución Estructural Anti-Estiramiento) ===== */
-
+/* Adaptación para móviles (mantiene la estructura vertical) */
 @media (max-width: 600px) {
-
   .inv-row {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important; /* Alinea al principio, no estira */
     gap: 12px !important;
-    margin-bottom: 35px !important;
-    height: auto !important; /* Asegura que el contenedor no tenga altura fija */
+    margin-bottom: 40px !important;
   }
-
+  
   .inv-row span {
-    width: 100% !important;
-    text-align: center !important;
-    margin-bottom: 5px !important;
-  }
-
-  .inv-row select.asistencia {
-    width: 90px !important;
-    height: 35px !important;
-    flex: none !important; /* Evita que el flexbox lo deforme */
-  }
-
-  .inv-row input.alergenos,
-  .inv-row input.barra {
-    /* IMPORTANTE: Forzamos a que NO sea un elemento flexible que se estire */
-    display: none; 
-    flex: none !important; 
-    
-    width: 90% !important;
-    max-width: 300px !important;
-    
-    /* Dimensiones estrictas */
-    height: 40px !important;
-    max-height: 40px !important; 
-    min-height: 40px !important;
-    
-    /* Reset de espaciado interno */
-    padding: 0 15px !important;
-    margin: 5px 0 !important;
-    line-height: 40px !important;
-    
-    border: 1px solid #ccc !important;
-    border-radius: 8px !important;
-    box-sizing: border-box !important;
-    -webkit-appearance: none; /* Quita estilos por defecto de iOS */
-  }
-
-  .inv-row input.alergenos.visible,
-  .inv-row input.barra.visible {
-    display: block !important;
+    font-size: 1.1rem;
   }
 }
 
-/* Aplicamos esto a los textos informativos */
 .intro, #mensajeGrupo {
-    max-width: 600px;  /* Limitamos el ancho para que no se vean infinitos */
-    margin-left: auto; /* Estos dos margin centran el bloque entero */
-    margin-right: auto;
+    max-width: 600px;
+    margin: 0 auto 20px auto;
     text-align: center;
-    line-height: 1.6;  /* Un poco más de espacio entre líneas para lectura fácil */
-    margin-bottom: 20px;
-    width: 90%;        /* Para que en móviles no peguen a los bordes */
+    line-height: 1.6;
+    width: 90%;
+    font-family: 'Playfair Display', serif;
 }
 </style>
+
 <body>
 <header>
   <div class="container header-flex">
@@ -251,7 +200,7 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzao_c-hGZsC_WMzzUD8kIWW8THrrOC18tO7HUacoboTF76HWkD9ytjLDdr8dKqExTO/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxl1KqxfZzUkBlv2XvRLe-5Fu7oSsRFmHAd6Xe0BhhO4cd627x-rpqP7sh6uAxKjTYJ/exec";
 let invitados = [];
 
 async function cargarInvitados() {
@@ -345,7 +294,7 @@ buscarBtn.addEventListener("click", () => {
       if (invitado.confirmado === "SI") mostrarSeccionCorreo(); 
       return;
     }
-    document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre y selecciona Enviar para confirmar tu asistencia";
+    document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
     pintarFila(invitado, false);
   } 
   // CASO: INVITADO EN GRUPO
@@ -365,7 +314,7 @@ buscarBtn.addEventListener("click", () => {
     }
 
     // Si hay gente pendiente en el grupo
-    document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre y selecciona Enviar para confirmar tu asistenciaa";
+    document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
     mensajeGrupo.textContent = "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
     mensajeGrupo.classList.remove("hidden");
 
@@ -381,7 +330,7 @@ buscarBtn.addEventListener("click", () => {
     if (yaConfirmados.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
   }
 
-  enviarBtn.textContent = "Confirmar asistencia";
+  enviarBtn.textContent = "✉ Enviar";
   enviarBtn.classList.remove("hidden");
 });
 
@@ -396,23 +345,24 @@ form.addEventListener("submit", async (e) => {
   let nombresConfirmados = [];
   let nombresNoAsistiran = [];
 
-  filas.forEach(fila => {
+filas.forEach(fila => {
     const nombreCompleto = fila.querySelector("span").textContent.trim();
     const asistencia = fila.querySelector(".asistencia").value;
     const alergenos = fila.querySelector(".alergenos").value.trim();
-	const barra = fila.querySelector(".barra")?.value.trim() || "";
+    const barra = fila.querySelector(".barra")?.value.trim() || "";
+    const bus = fila.querySelector(".bus")?.value || "NO"; // Recoger valor del bus
 
     if (asistencia === "") return;
 
-    // Guardamos los datos para el envío al servidor
     const partes = nombreCompleto.split(" ");
-	datosParaEnviar.push({ 
-	  nombre: partes[0], 
-	  apellido: partes.slice(1).join(" "), 
-	  asistencia, 
-	  alergenos,
-	  barra
-	});
+    datosParaEnviar.push({ 
+      nombre: partes[0], 
+      apellido: partes.slice(1).join(" "), 
+      asistencia, 
+      alergenos,
+      barra,
+      bus
+    });
 
     // Clasificamos para el mensaje de éxito local
     if (asistencia === "SI") {
@@ -494,41 +444,48 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   span.textContent = `${inv.nombre} ${inv.apellido}`;
   div.appendChild(span);
 
-  const select = document.createElement("select");
-  select.className = "asistencia";
-  select.innerHTML = `<option value="">-</option><option value="SI">Sí</option><option value="NO">No</option>`;
-  div.appendChild(select);
+  // 1. Selector Asistencia
+  const selectAsistencia = document.createElement("select");
+  selectAsistencia.className = "asistencia";
+  selectAsistencia.innerHTML = `<option value="">-</option><option value="SI">✅ ¡Contad conmigo! 🥳</option><option value="NO">❌ No puedo ir 😞</option>`;
+  div.appendChild(selectAsistencia);
 
-  // Campo de alérgenos
+  // 2. Selector BUS
+  const selectBus = document.createElement("select");
+  selectBus.className = "bus";
+  selectBus.innerHTML = `<option value="NO">🚌❌ No necesito autobús</option><option value="SI">🚌✅ Necesito autobús desde Medina</option>`;
+  div.appendChild(selectBus);
+
+  // 3. Inputs de texto
   const alerg = document.createElement("input");
   alerg.type = "text";
   alerg.placeholder = "Alérgenos 💊";
   alerg.className = "alergenos";
 
-  // Campo de preferencias de barra libre
   const prefBarra = document.createElement("input");
   prefBarra.type = "text";
-  prefBarra.placeholder = "Preferencias barra libre 🍹";
+  prefBarra.placeholder = "Barra libre 🍹";
   prefBarra.className = "barra";
 
-  // Mostrar campos solo si el invitado asiste
-  select.addEventListener("change", () => {
-    const visible = select.value === "SI";
+  selectAsistencia.addEventListener("change", () => {
+    const si = selectAsistencia.value === "SI";
+    
+    // Añadimos o quitamos la clase visible
+    [selectBus, alerg, prefBarra].forEach(el => {
+      if (si) el.classList.add("visible");
+      else el.classList.remove("visible");
+    });
 
-    alerg.classList.toggle("visible", visible);
-    prefBarra.classList.toggle("visible", visible);
-
-    if (!visible) {
+    if (!si) {
       alerg.value = "";
       prefBarra.value = "";
+      selectBus.value = "NO";
     }
-
     actualizarEstadoBoton();
   });
 
   div.appendChild(alerg);
   div.appendChild(prefBarra);
-
   lista.appendChild(div);
 }
 

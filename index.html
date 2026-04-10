@@ -118,9 +118,15 @@
         Una cosa importante: en la sección <a href="asistencia.html" style="text-decoration: none; color: inherit;"><strong>asistencia</strong></a> puedes confirmar si vas a la boda o no. ¡Confírmanos lo antes posible por favor!<br><br>
         Disfruta la web y nos vemos muy pronto, ¡mil besos!
       </div>
+		<button id="replayBtn" style="background: none; border: 1px solid #ccc; padding: 10px; font-family: 'Playfair Display', sans-serif; cursor: pointer; border-radius: 5px; color: #666;">
+			🎥 Volver a ver vídeo
+		</button>
     </div>
   </div>
+  
 </main>
+
+
 
 <footer>
   <div class="container">
@@ -136,26 +142,42 @@
     const intro = document.getElementById('intro-video');
     const video = document.getElementById('introPlayer');
     const image = document.getElementById('heroImage');
+    const replayBtn = document.getElementById('replayBtn');
 
-    if (!seen) {
+    // Función para mostrar el vídeo
+    const showIntro = () => {
       intro.style.display = 'block';
+      intro.classList.remove('fade-out');
+      video.currentTime = 0;
       video.play();
+    };
 
-      const finishIntro = () => {
-        intro.classList.add('fade-out');
+    const finishIntro = () => {
+      intro.classList.add('fade-out');
+      setTimeout(() => {
+        intro.style.display = 'none';
+        image.classList.add('visible');
+        localStorage.setItem('introSeen', 'true');
+      }, 1200);
+    };
 
-        setTimeout(() => {
-          intro.style.display = 'none';
-          image.classList.add('visible');
-          localStorage.setItem('introSeen', 'true');
-        }, 1200);
-      };
-
-      video.addEventListener('ended', finishIntro);
-      intro.addEventListener('click', finishIntro);
+    // Lógica inicial
+    if (!seen) {
+      showIntro();
     } else {
       image.classList.add('visible');
     }
+
+    // Eventos del vídeo
+    video.addEventListener('ended', finishIntro);
+    intro.addEventListener('click', finishIntro);
+
+    // Evento del botón "Volver a ver"
+    replayBtn.addEventListener('click', () => {
+      localStorage.removeItem('introSeen'); // Borramos el rastro
+	  window.scrollTo(0, 0); // Forzamos el scroll hacia arriba
+      location.reload(); // Recargamos la página para que empiece de cero
+    });
   })();
 </script>
 

@@ -170,13 +170,13 @@
 
     <!-- BOTONES DE CALENDARIO -->
 <div id="seccionCorreo" class="hidden" style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px;">
-  <p style="margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 1.1rem; text-align: center;">
+  <p style="margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 1rem; color: #555; text-align: center;">
     Si quieres recibir el recordatorio en tu email, escríbelo aquí:
   </p>
   
   <div id="listaCorreo">
     <div class="inv-row" style="justify-content: center; align-items: center;">
-      <span style="flex: 0 0 auto; margin-right: 10px;">Tu Email:</span>
+      <span style="color: #555; flex: 0 0 auto; margin-right: 10px;">Tu Email:</span>
       <input type="text" id="emailUsuario" placeholder="ejemplo@correo.com" class="email-clon-alergenos">
       <button id="btnEnviarCorreo" class="btn" style="margin-left: 15px; height: 45px;">Enviar</button>
     </div>
@@ -515,7 +515,7 @@ function pintarFilaConfirmado(inv) {
   const asistira = (estadoAsistencia === "SI" || estadoAsistencia === "ASISTIRE");
   
   // Nombre: Negro, Negrita, más grande
-  let contenido = `<div style="font-weight: 700; font-size: 1.5rem; color: #000; margin-bottom: 15px;">${inv.nombre} ${inv.apellido}</div>`;
+  let contenido = `<div style="font-weight: 700; font-size: 1.3rem; color: #555; margin-bottom: 15px;">${inv.nombre} ${inv.apellido}</div>`;
 
   if (asistira) {
     const necesitaBus = (inv.bus === "SI" || inv.bus === "si");
@@ -524,14 +524,14 @@ function pintarFilaConfirmado(inv) {
     const textoBarra = (inv.barra && inv.barra.trim() !== "") ? inv.barra : "Sin preferencia";
 
     contenido += `
-      <div style="font-size: 1.2rem; color: #555; display: flex; flex-direction: column; gap: 8px; align-items: center;">
-        <div><span style="font-size: 1.4rem;">✅</span> Asistiré</div>
-        <div><span style="font-size: 1.4rem;">🚌</span> Bus: ${textoBus}</div>
-        <div><span style="font-size: 1.4rem;">💊</span> Alérgenos: ${textoAlergenos}</div>
-        <div><span style="font-size: 1.4rem;">🍹</span> Barra libre: ${textoBarra}</div>
+      <div style="font-size: 1rem; color: #555; display: flex; flex-direction: column; gap: 6px; align-items: center;">
+        <div><span style="font-size: 1rem;">✅</span> Asistiré</div>
+        <div><span style="font-size: 1rem;">🚌</span> Bus: ${textoBus}</div>
+        <div><span style="font-size: 1rem;">💊</span> Alérgenos: ${textoAlergenos}</div>
+        <div><span style="font-size: 1rem;">🍹</span> Barra libre: ${textoBarra}</div>
       </div>`;
   } else {
-    contenido += `<div style="font-size: 1.2rem; color: #555;">❌ No podré asistir</div>`;
+    contenido += `<div style="font-size: 1rem; color: #555;">❌ No podré asistir</div>`;
   }
 
   div.innerHTML = contenido;

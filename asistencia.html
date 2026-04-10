@@ -158,14 +158,14 @@
 
     <p id="mensajeError" class="hidden"></p>
 
-    <div id="resultado" class="hidden">
-      <p id="mensajeGrupo" class="hidden"></p>
-      <form id="alergenosForm" class="hidden">
-        <div id="listaInvitados"></div>
-        <button type="submit" id="enviar" class="hidden"></button>
-      </form>
-    </div>
-
+<div id="resultado" class="hidden">
+  <p id="mensajeGrupo" class="hidden"></p>
+  <div id="listaInvitados"></div> 
+  
+  <form id="alergenosForm" class="hidden">
+    <button type="submit" id="enviar" class="hidden"></button>
+  </form>
+</div>
     <div id="mensajeFinal" class="hidden"></div>
 
     <!-- BOTONES DE CALENDARIO -->
@@ -182,11 +182,9 @@
     </div>
   </div>
   
-  <p id="msgCorreo" style="margin-top:15px; font-size: 0.9rem; font-weight:600; text-align: center;"></p>
-</div>
-  
-  <p id="msgCorreo" style="margin-top:15px; font-size: 0.9rem; font-weight:600;"></p>
-</div>
+<p id="msgCorreo" style="margin-top:15px; font-size: 0.9rem; font-weight:600; text-align: center;"></p>
+    </div>
+  </div>
 	
   </div>
 </main>
@@ -200,8 +198,9 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxl1KqxfZzUkBlv2XvRLe-5Fu7oSsRFmHAd6Xe0BhhO4cd627x-rpqP7sh6uAxKjTYJ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw64ZTPDjr1LuHS8kOmkLgm5lUWWA85T2_wJ8Qg6YxxMbKKALMnkb2PKY_EsgKFVXDD/exec";
 let invitados = [];
+let nombreParaElSaludo = "";
 
 async function cargarInvitados() {
   try {
@@ -286,14 +285,19 @@ buscarBtn.addEventListener("click", () => {
   // CASO: INVITADO INDIVIDUAL
   if (!invitado.grupo) {
     if (invitado.confirmado === "SI" || invitado.confirmado === "NO") {
-      document.querySelector(".intro").textContent = "";
-      mostrarError("Ya hemos recibido tu respuesta. Si necesitas hacer cambios ponte en contacto con los novios.");
-      pintarFilaConfirmado(invitado);
-      
-      // CAMBIO: Si ya confirmó que SI, mostramos el correo directamente
-      if (invitado.confirmado === "SI") mostrarSeccionCorreo(); 
-      return;
-    }
+  document.querySelector(".intro").textContent = "";
+  
+  if (invitado.confirmado === "SI") {
+    mostrarError("Ya hemos recibido tu respuesta. ¡Nos vemos pronto!");
+    pintarFilaConfirmado(invitado);
+    mostrarSeccionCorreo(); 
+  } else {
+    // Si ya confirmó que NO, mensaje amable y NO mostramos correo
+    mostrarError("Gracias por avisarnos. Si cambias de idea, contacta con nosotros.");
+    pintarFilaConfirmado(invitado);
+  }
+  return;
+}
     document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
     pintarFila(invitado, false);
   } 
@@ -305,7 +309,7 @@ buscarBtn.addEventListener("click", () => {
     // Si TODO el grupo ha confirmado ya
     if (miembrosPendientes.length === 0) {
       document.querySelector(".intro").textContent = "";
-      mostrarError("Todos los miembros de tu grupo ya han confirmado.");
+      mostrarError("Todos los miembros de tu grupo ya han enviado una respuesta. Si deseas cambiar algo por favor ponte en contacto con los novios.");
       grupoCompleto.forEach(miembro => pintarFilaConfirmado(miembro));
       
       // CAMBIO: Si alguien del grupo confirmó que SI, mostramos el correo
@@ -377,10 +381,15 @@ filas.forEach(fila => {
     return;
   }
 
+if (datosParaEnviar.length > 0) {
+    nombreParaElSaludo = datosParaEnviar[0].nombre;
+    console.log("Nombre capturado para el correo:", nombreParaElSaludo);
+}
+
   enviarBtn.disabled = true;
   enviarBtn.textContent = "Enviando...";
 
-  try {
+try {
     const formData = new FormData();
     formData.append("confirmados", JSON.stringify(datosParaEnviar));
 
@@ -391,34 +400,40 @@ filas.forEach(fila => {
 
     if (!response.ok) throw new Error("Error en el servidor");
 
-    // Ocultamos elementos del formulario
+    // 1. Limpiamos la pantalla
     form.classList.add("hidden");
     const intro = document.querySelector(".intro");
     if (intro) intro.classList.add("hidden");
     mensajeError.classList.add("hidden");
     mensajeGrupo.classList.add("hidden");
-    resultado.classList.add("hidden");
-
-    // CONSTRUCCIÓN DEL MENSAJE DINÁMICO
-    let textoResumen = "¡Gracias por confirmar tu asistencia!";
     
-    if (nombresConfirmados.length > 0 || nombresNoAsistiran.length > 0) {
-      textoResumen += "\n\nSe ha actualizado el estado de:";
-      if (nombresConfirmados.length > 0) {
-        textoResumen += "\n✅ Confirmados: " + nombresConfirmados.join(", ");
-      }
-      if (nombresNoAsistiran.length > 0) {
-        textoResumen += "\n❌ No asistirán: " + nombresNoAsistiran.join(", ");
-      }
+    lista.innerHTML = ""; 
+    resultado.classList.remove("hidden");
+
+    // 2. MOSTRAR RESUMEN INMEDIATO (Lo que acabas de enviar)
+    mensajeFinal.innerText = "¡Se ha actualizado el estado de asistencia!";
+    mensajeFinal.classList.remove("hidden");
+    mensajeFinal.style.textAlign = "center";
+    mensajeFinal.style.marginBottom = "20px";
+    mensajeFinal.style.fontWeight = "700";
+
+    // Pintamos las tarjetas de confirmación para cada persona enviada
+    datosParaEnviar.forEach(invitado => {
+      pintarFilaConfirmado(invitado); 
+    });
+
+    // 3. Lógica del correo: Si alguien del envío asistirá, mostramos la sección de email
+    if (nombresConfirmados.length > 0) {
+      mostrarSeccionCorreo(); 
+    } else {
+      // Si nadie asiste, mostramos un mensaje de despedida extra
+      const p = document.createElement("p");
+      p.style.textAlign = "center";
+      p.textContent = "Gracias por avisarnos, ¡te echaremos de menos!";
+      lista.appendChild(p);
     }
 
-    mensajeFinal.innerText = textoResumen; // Usamos innerText para los saltos de línea
-    mensajeFinal.classList.remove("hidden");
-
-    // Mostramos la sección para enviar el correo recordatorio
-    mostrarSeccionCorreo(); 
-    
-    // Actualizamos la lista local desde la base de datos
+    // 4. Actualizamos la lista interna para futuras búsquedas
     await cargarInvitados();
 
   } catch (err) {
@@ -447,7 +462,7 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   // 1. Selector Asistencia
   const selectAsistencia = document.createElement("select");
   selectAsistencia.className = "asistencia";
-  selectAsistencia.innerHTML = `<option value="">-</option><option value="SI">✅ ¡Contad conmigo! 🥳</option><option value="NO">❌ No puedo ir 😞</option>`;
+  selectAsistencia.innerHTML = `<option value="">-</option><option value="SI">✅ ¡Contad conmigo!</option><option value="NO">❌ No podré ir</option>`;
   div.appendChild(selectAsistencia);
 
   // 2. Selector BUS
@@ -492,11 +507,35 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
 function pintarFilaConfirmado(inv) {
   const div = document.createElement("div");
   div.className = "inv-confirmado";
-  const asistira = inv.confirmado === "SI";
-  const icono = asistira ? "✅ Asistiré" : "❌ No podré asistir";
-  const alerg = (asistira && inv.alergenos) ? ` — Alérgenos: ${inv.alergenos}` : "";
-  div.innerHTML = `<strong>${inv.nombre} ${inv.apellido}</strong> — ${icono}${alerg}`;
-  lista.appendChild(div);
+  div.style.textAlign = "center";
+  div.style.marginBottom = "30px";
+  div.style.fontFamily = "'Playfair Display', serif";
+
+  const estadoAsistencia = (inv.confirmado || inv.asistencia || "").toUpperCase();
+  const asistira = (estadoAsistencia === "SI" || estadoAsistencia === "ASISTIRE");
+  
+  // Nombre: Negro, Negrita, más grande
+  let contenido = `<div style="font-weight: 700; font-size: 1.5rem; color: #000; margin-bottom: 15px;">${inv.nombre} ${inv.apellido}</div>`;
+
+  if (asistira) {
+    const necesitaBus = (inv.bus === "SI" || inv.bus === "si");
+    const textoBus = necesitaBus ? "Sí" : "No";
+    const textoAlergenos = (inv.alergenos && inv.alergenos.trim() !== "") ? inv.alergenos : "Sin alérgenos";
+    const textoBarra = (inv.barra && inv.barra.trim() !== "") ? inv.barra : "Sin preferencia";
+
+    contenido += `
+      <div style="font-size: 1.2rem; color: #555; display: flex; flex-direction: column; gap: 8px; align-items: center;">
+        <div><span style="font-size: 1.4rem;">✅</span> Asistiré</div>
+        <div><span style="font-size: 1.4rem;">🚌</span> Bus: ${textoBus}</div>
+        <div><span style="font-size: 1.4rem;">💊</span> Alérgenos: ${textoAlergenos}</div>
+        <div><span style="font-size: 1.4rem;">🍹</span> Barra libre: ${textoBarra}</div>
+      </div>`;
+  } else {
+    contenido += `<div style="font-size: 1.2rem; color: #555;">❌ No podré asistir</div>`;
+  }
+
+  div.innerHTML = contenido;
+  document.getElementById("listaInvitados").appendChild(div); 
 }
 
 function resetUI() {
@@ -509,6 +548,11 @@ function resetUI() {
   mensajeGrupo.classList.add("hidden");
   // Eliminamos la línea de 'calendars' porque ya no existe ese ID
   document.getElementById("seccionCorreo").classList.add("hidden"); 
+  document.getElementById("msgCorreo").textContent = ""; // Limpia el texto de "Enviado con éxito"
+  document.getElementById("emailUsuario").value = "";    // Limpia el email anterior
+  document.getElementById("btnEnviarCorreo").classList.remove("hidden"); // Muestra el botón de nuevo
+  document.getElementById("btnEnviarCorreo").disabled = false;
+  document.getElementById("btnEnviarCorreo").textContent = "Enviar";
 }
 
 function actualizarEstadoBoton() {
@@ -532,10 +576,19 @@ const navLinks = document.querySelector(".nav-links");
 menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));
 
 // Manejo del botón de enviar correo
+// Manejo del botón de enviar correo - ACTUALIZADO
 const btnCorreo = document.getElementById("btnEnviarCorreo");
 btnCorreo.addEventListener("click", async () => {
   const email = document.getElementById("emailUsuario").value;
   const msgCorreo = document.getElementById("msgCorreo");
+  const tarjetas = document.querySelectorAll(".inv-confirmado");
+  
+  let resumenTexto = "";
+  if (tarjetas.length > 0) {
+    resumenTexto = Array.from(tarjetas)
+      .map(div => div.innerText)
+      .join("\n\n---\n\n");
+  }
 
   if (!email || !email.includes("@")) {
     msgCorreo.textContent = "Por favor, introduce un correo válido.";
@@ -549,19 +602,37 @@ btnCorreo.addEventListener("click", async () => {
     const formData = new FormData();
     formData.append("accion", "enviarEmailConCalendario");
     formData.append("destinatario", email);
+    formData.append("resumenAsistencia", resumenTexto);
+    
+    // SEGURIDAD: Si por algún motivo la variable está vacía, intentamos rescatar 
+    // el nombre de la primera tarjeta visible antes de enviar.
+    if (!nombreParaElSaludo && tarjetas.length > 0) {
+        // Extrae el nombre del primer bloque de texto (Irene Dufour por ejemplo)
+        nombreParaElSaludo = tarjetas[0].querySelector("div").innerText.split(" ")[0];
+    }
+    
+    // Enviamos el nombre (y lo vemos en la consola F12 para depurar)
+    console.log("Nombre enviado al script:", nombreParaElSaludo);
+    formData.append("nombreUsuario", nombreParaElSaludo || ""); 
 
-    // Reutilizamos tu URL de Google Apps Script
-    await fetch(WEB_APP_URL, { method: "POST", body: formData });
+    const response = await fetch(WEB_APP_URL, { method: "POST", body: formData });
+    const resData = await response.json();
 
-    msgCorreo.style.color = "green";
-    msgCorreo.textContent = "¡Correo enviado con éxito!";
-    btnCorreo.classList.add("hidden");
+    if (resData.ok) {
+      msgCorreo.style.color = "green";
+      msgCorreo.textContent = "¡Correo enviado con éxito!";
+      btnCorreo.classList.add("hidden");
+    } else {
+      throw new Error(resData.message);
+    }
   } catch (e) {
+    console.error(e);
+    msgCorreo.style.color = "red";
     msgCorreo.textContent = "Error al enviar el correo.";
     btnCorreo.disabled = false;
+    btnCorreo.textContent = "✉ Enviar calendario por email";
   }
 });
-
 // Función para mostrar la sección de correo (llámala en vez de mostrarBotonesCalendario)
 function mostrarSeccionCorreo() {
   document.getElementById("seccionCorreo").classList.remove("hidden");

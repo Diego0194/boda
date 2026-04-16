@@ -67,7 +67,7 @@
 .inv-row .visible { display: block !important; }
 
 /* Botones con estilo original */
-#enviar, #btnEnviarCorreo {
+#enviar {
   background-color: #b74d4d;
   color: white;
   padding: 12px 25px;
@@ -78,6 +78,19 @@
   cursor: pointer;
   margin-top: 10px;
 }
+
+#btnEnviarCorreo {
+  background-color: gray;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
 
 #enviar:disabled {
   background-color: #ccc;
@@ -198,7 +211,7 @@
 </footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw64ZTPDjr1LuHS8kOmkLgm5lUWWA85T2_wJ8Qg6YxxMbKKALMnkb2PKY_EsgKFVXDD/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxf33pieP_w3ydUPC01L3vcpqnfyPm5XLNLqCUpGF75WyT0sI6uSkHU3BYgDT0E5InL/exec";
 let invitados = [];
 let nombreParaElSaludo = "";
 
@@ -334,46 +347,39 @@ buscarBtn.addEventListener("click", () => {
     if (yaConfirmados.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
   }
 
-  enviarBtn.textContent = "✉ Enviar";
+  enviarBtn.textContent = "✉ Enviar confirmación";
   enviarBtn.classList.remove("hidden");
 });
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
-  // Solo buscamos las filas que están dentro de la lista de invitados para no confundir con el email
   const listaInvitados = document.getElementById("listaInvitados");
   const filas = listaInvitados.querySelectorAll(".inv-row");
   
   const datosParaEnviar = [];
-  let nombresConfirmados = [];
-  let nombresNoAsistiran = [];
+  let algunAsistira = false;
+  let grupoID = null;
 
-filas.forEach(fila => {
-    const nombreCompleto = fila.querySelector("span").textContent.trim();
+  filas.forEach(fila => {
+    // CAMBIO CLAVE: Leemos los atributos guardados, no el texto visual
+    const nombre = fila.getAttribute("data-nombre-original");
+    const apellido = fila.getAttribute("data-apellido-original");
+    
+    // Si no existen (porque es una fila de "ya confirmado"), saltamos o buscamos otra vía
+    if (!nombre) return; 
+
     const asistencia = fila.querySelector(".asistencia").value;
     const alergenos = fila.querySelector(".alergenos").value.trim();
     const barra = fila.querySelector(".barra")?.value.trim() || "";
-    const bus = fila.querySelector(".bus")?.value || "NO"; // Recoger valor del bus
+    const bus = fila.querySelector(".bus")?.value || "NO";
 
     if (asistencia === "") return;
 
-    const partes = nombreCompleto.split(" ");
-    datosParaEnviar.push({ 
-      nombre: partes[0], 
-      apellido: partes.slice(1).join(" "), 
-      asistencia, 
-      alergenos,
-      barra,
-      bus
-    });
+    const original = invitados.find(inv => inv.nombre === nombre && inv.apellido === apellido);
+    if (original && original.grupo) grupoID = original.grupo;
 
-    // Clasificamos para el mensaje de éxito local
-    if (asistencia === "SI") {
-      nombresConfirmados.push(nombreCompleto);
-    } else {
-      nombresNoAsistiran.push(nombreCompleto);
-    }
+    datosParaEnviar.push({ nombre, apellido, asistencia, alergenos, barra, bus });
+    if (asistencia === "SI") algunAsistira = true;
   });
 
   if (!datosParaEnviar.length) {
@@ -381,65 +387,51 @@ filas.forEach(fila => {
     return;
   }
 
-if (datosParaEnviar.length > 0) {
-    nombreParaElSaludo = datosParaEnviar[0].nombre;
-    console.log("Nombre capturado para el correo:", nombreParaElSaludo);
-}
-
+  nombreParaElSaludo = datosParaEnviar[0].nombre;
   enviarBtn.disabled = true;
   enviarBtn.textContent = "Enviando...";
 
-try {
+  try {
     const formData = new FormData();
     formData.append("confirmados", JSON.stringify(datosParaEnviar));
 
-    const response = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: formData
-    });
-
+    const response = await fetch(WEB_APP_URL, { method: "POST", body: formData });
     if (!response.ok) throw new Error("Error en el servidor");
 
-    // 1. Limpiamos la pantalla
+    // --- PROCESO DE ACTUALIZACIÓN POST-ENVÍO ---
+    
+    // 1. Limpiamos formularios
     form.classList.add("hidden");
-    const intro = document.querySelector(".intro");
-    if (intro) intro.classList.add("hidden");
+    if (document.querySelector(".intro")) document.querySelector(".intro").classList.add("hidden");
     mensajeError.classList.add("hidden");
     mensajeGrupo.classList.add("hidden");
-    
     lista.innerHTML = ""; 
-    resultado.classList.remove("hidden");
 
-    // 2. MOSTRAR RESUMEN INMEDIATO (Lo que acabas de enviar)
-    mensajeFinal.innerText = "¡Se ha actualizado el estado de asistencia!";
-    mensajeFinal.classList.remove("hidden");
-    mensajeFinal.style.textAlign = "center";
-    mensajeFinal.style.marginBottom = "20px";
-    mensajeFinal.style.fontWeight = "700";
-
-    // Pintamos las tarjetas de confirmación para cada persona enviada
-    datosParaEnviar.forEach(invitado => {
-      pintarFilaConfirmado(invitado); 
-    });
-
-    // 3. Lógica del correo: Si alguien del envío asistirá, mostramos la sección de email
-    if (nombresConfirmados.length > 0) {
-      mostrarSeccionCorreo(); 
-    } else {
-      // Si nadie asiste, mostramos un mensaje de despedida extra
-      const p = document.createElement("p");
-      p.style.textAlign = "center";
-      p.textContent = "Gracias por avisarnos, ¡te echaremos de menos!";
-      lista.appendChild(p);
-    }
-
-    // 4. Actualizamos la lista interna para futuras búsquedas
+    // 2. Forzamos la recarga de la base de datos (Google Sheets)
     await cargarInvitados();
 
+    // 3. Mostramos el resumen de TODO el grupo (los recién enviados + los que ya estaban)
+    if (grupoID) {
+      const grupoActualizado = invitados.filter(i => i.grupo === grupoID);
+      grupoActualizado.forEach(miembro => {
+        if (miembro.confirmado) pintarFilaConfirmado(miembro);
+      });
+      // Si alguien del grupo (nuevo o viejo) asiste, mostramos correo
+      if (grupoActualizado.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
+    } else {
+      // Caso individual
+      datosParaEnviar.forEach(inv => pintarFilaConfirmado(inv));
+      if (algunAsistira) mostrarSeccionCorreo();
+    }
+
+    mensajeFinal.classList.remove("hidden");
+    mensajeFinal.textContent = "¡Muchas gracias! Tu respuesta se ha guardado correctamente.";
+
   } catch (err) {
+    console.error(err);
     mostrarError("Error al enviar la confirmación. Por favor, inténtalo de nuevo.");
     enviarBtn.disabled = false;
-    enviarBtn.textContent = "Confirmar asistencia";
+    enviarBtn.textContent = "✉ Enviar";
   }
 });
 
@@ -454,6 +446,10 @@ function normalizarTexto(txt) {
 function pintarFila(inv, esGrupo, esBuscado = false) {
   const div = document.createElement("div");
   div.className = "inv-row";
+  
+  // GUARDAMOS EL NOMBRE Y APELLIDO REALES EN ATRIBUTOS DATA
+  div.setAttribute("data-nombre-original", inv.nombre);
+  div.setAttribute("data-apellido-original", inv.apellido);
 
   const span = document.createElement("span");
   span.textContent = `${inv.nombre} ${inv.apellido}`;
@@ -511,27 +507,27 @@ function pintarFilaConfirmado(inv) {
   div.style.marginBottom = "30px";
   div.style.fontFamily = "'Playfair Display', serif";
 
+  // Normalizamos el valor de asistencia (puede venir como 'asistencia' o 'confirmado')
   const estadoAsistencia = (inv.confirmado || inv.asistencia || "").toUpperCase();
   const asistira = (estadoAsistencia === "SI" || estadoAsistencia === "ASISTIRE");
   
-  // Nombre: Negro, Negrita, más grande
-  let contenido = `<div style="font-weight: 700; font-size: 1.3rem; color: #555; margin-bottom: 15px;">${inv.nombre} ${inv.apellido}</div>`;
+  let contenido = `<div style="font-weight: 700; font-size: 1.3rem; color: #000; margin-bottom: 10px;">${inv.nombre} ${inv.apellido}</div>`;
 
   if (asistira) {
     const necesitaBus = (inv.bus === "SI" || inv.bus === "si");
     const textoBus = necesitaBus ? "Sí" : "No";
-    const textoAlergenos = (inv.alergenos && inv.alergenos.trim() !== "") ? inv.alergenos : "Sin alérgenos";
+    const textoAlergenos = (inv.alergenos && inv.alergenos.trim() !== "") ? inv.alergenos : "Ninguno";
     const textoBarra = (inv.barra && inv.barra.trim() !== "") ? inv.barra : "Sin preferencia";
 
     contenido += `
-      <div style="font-size: 1rem; color: #555; display: flex; flex-direction: column; gap: 6px; align-items: center;">
-        <div><span style="font-size: 1rem;">✅</span> Asistiré</div>
-        <div><span style="font-size: 1rem;">🚌</span> Bus: ${textoBus}</div>
-        <div><span style="font-size: 1rem;">💊</span> Alérgenos: ${textoAlergenos}</div>
-        <div><span style="font-size: 1rem;">🍹</span> Barra libre: ${textoBarra}</div>
+      <div style="font-size: 1rem; color: #555; display: flex; flex-direction: column; gap: 4px; align-items: center;">
+        <div>✅ Asistirá</div>
+        <div>🚌 Bus: ${textoBus}</div>
+        <div>💊 Alérgenos: ${textoAlergenos}</div>
+        <div>🍹 Barra libre: ${textoBarra}</div>
       </div>`;
   } else {
-    contenido += `<div style="font-size: 1rem; color: #555;">❌ No podré asistir</div>`;
+    contenido += `<div style="font-size: 1rem; color: #b74d4d; font-weight: 600;">❌ No podrá asistir</div>`;
   }
 
   div.innerHTML = contenido;
@@ -552,7 +548,7 @@ function resetUI() {
   document.getElementById("emailUsuario").value = "";    // Limpia el email anterior
   document.getElementById("btnEnviarCorreo").classList.remove("hidden"); // Muestra el botón de nuevo
   document.getElementById("btnEnviarCorreo").disabled = false;
-  document.getElementById("btnEnviarCorreo").textContent = "Enviar";
+  document.getElementById("btnEnviarCorreo").textContent = "Enviar recordatorio";
 }
 
 function actualizarEstadoBoton() {

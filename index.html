@@ -60,11 +60,23 @@
     .fade-in-image.visible {
       opacity: 1;
     }
+	
+/* --- Estilos para la lluvia de pétalos --- */
+    #petalCanvas {
+      position: fixed; /* Mantiene el canvas fijo en la pantalla */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Permite que los clics pasen a través del canvas */
+      z-index: 10000; /* Asegura que los pétalos estén por encima de todo */
+      background: transparent; /* Fondo transparente */
+    }
   </style>
 </head>
 
 <body>
-
+<canvas id="petalCanvas"></canvas>
 <header>
   <div class="container header-flex">
     <div class="brand">
@@ -120,9 +132,9 @@
       <div class="intro">
         ¡Que sí! ¡Que nos casamos! 💍<br><br>
         ¡Estamos super felices! Nos sentimos en las nubes y queremos compartir contigo todo nuestro amor. Por eso estamos preparando una boda que hará historia y en la que te lo pasarás genial.<br><br>
-        Mientras llega el gran día hemos creado esta web con un montón de secciones para que estés al día de todo y para compartir nuestra historia de amor.<br><br>
+        Mientras llega el gran día hemos creado esta web con muchísimo cariño y con un montón de secciones para que estés al día de todo y para compartir nuestra historia de amor.<br><br>
         Una cosa importante: en la sección <a href="asistencia.html" style="text-decoration: none; color: inherit;"><strong>asistencia</strong></a> puedes confirmar si vas a la boda o no. ¡Confírmanos lo antes posible por favor!<br><br>
-        Disfruta la web y nos vemos muy pronto, ¡mil besos!
+        Disfruta la web y nos vemos muy pronto, ¡te queremos! ❤️
       </div>
 		<button id="replayBtn" style="background: none; border: 1px solid #ccc; padding: 10px; font-family: 'Playfair Display', sans-serif; cursor: pointer; border-radius: 5px; color: #666;">
 			🎥 Volver a ver vídeo
@@ -191,6 +203,114 @@ const finishIntro = () => {
       location.reload(); // Recargamos la página para que empiece de cero
     });
   })();
+</script>
+
+<!-- --- Motor de JavaScript para la lluvia de pétalos --- -->
+<script>
+(function() {
+  const canvas = document.getElementById('petalCanvas');
+  const ctx = canvas.getContext('2d');
+  let petals = [];
+  const numberOfPetals = 75; // ¡Ajusta este número para más o menos pétalos!
+
+  // Función para redimensionar el canvas
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  // Clase Petal para crear cada pétalo individual
+  class Petal {
+    constructor() {
+      this.init();
+    }
+
+    init() {
+      // Posición inicial aleatoria por encima de la pantalla
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height * -1; // Comienza fuera de la vista
+      this.z = Math.random() * 0.5 + 0.5; // Efecto de profundidad
+
+      // Tamaño aleatorio
+      this.size = Math.random() * 10 + 5; 
+      
+      // Velocidad aleatoria
+      this.speed = (Math.random() * 2 + 1) * this.z; // Los pétalos "más lejanos" (menor z) se mueven más lento
+
+      // Ángulo y oscilación aleatorios para el giro
+      this.angle = Math.random() * 360;
+      this.spinSpeed = Math.random() * 2 - 1; // Velocidad de giro
+
+      // Variación de opacidad
+      this.opacity = Math.random() * 0.5 + 0.3; // Opacidad entre 0.3 y 0.8
+    }
+
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle * Math.PI / 180);
+      
+      // Dibujar el pétalo blanco (un óvalo simple)
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.size / 2, this.size, 0, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+      ctx.fill();
+      
+      ctx.restore();
+    }
+
+    update() {
+      // Mover el pétalo hacia abajo
+      this.y += this.speed;
+      
+      // Rotar el pétalo
+      this.angle += this.spinSpeed;
+
+      // Movimiento lateral suave (viento)
+      this.x += Math.sin(this.y / 30) * 0.5;
+
+      // Si el pétalo sale de la pantalla por abajo, reubicarlo arriba
+      if (this.y > canvas.height + this.size) {
+        this.init(); // Reiniciar el pétalo
+      }
+    }
+  }
+
+  // Crear los pétalos iniciales
+  function createPetals() {
+    for (let i = 0; i < numberOfPetals; i++) {
+      petals.push(new Petal());
+    }
+  }
+
+  // Función principal de animación
+function animate() {
+    const intro = document.getElementById('intro-video');
+    
+    // Si el video existe y su display NO es 'none', detenemos el dibujo
+    if (intro && intro.style.display !== 'none') {
+      requestAnimationFrame(animate);
+      return; 
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < petals.length; i++) {
+      petals[i].update();
+      petals[i].draw();
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  // Event Listeners
+  window.addEventListener('resize', resizeCanvas);
+
+  // Inicialización
+  resizeCanvas();
+  createPetals();
+  animate();
+})();
 </script>
 
 </body>

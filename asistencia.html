@@ -80,7 +80,7 @@
 }
 
 #btnEnviarCorreo {
-  background-color: gray;
+  background-color: gray; /* Color por defecto (inválido) */
   color: white;
   padding: 12px 25px;
   border-radius: 10px;
@@ -89,8 +89,20 @@
   font-size: 1.1rem;
   cursor: pointer;
   margin-top: 10px;
+  transition: background-color 0.3s ease; /* Para que el cambio de color sea suave */
 }
 
+/* Cuando el botón esté habilitado (correo válido) */
+#btnEnviarCorreo.valido {
+  background-color: #b74d4d; /* Color granate */
+}
+
+/* Estilo visual cuando está desactivado */
+#btnEnviarCorreo:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 
 #enviar:disabled {
   background-color: #ccc;
@@ -161,7 +173,7 @@
   <div class="page-container" style="margin-bottom: 100px;">
 
     <h2>Confirma tu asistencia</h2>
-    <div class="intro">Introduce tu nombre y apellido para confirmar tu asistencia</div>
+    <div class="intro">Empieza a introducir tu nombre y apellido y selecciónate en el desplegable para confirmar tu asistencia</div>
 
     <input id="nombre" placeholder="Nombre y Apellido">
     <ul id="autocomplete" class="hidden"></ul>
@@ -347,7 +359,7 @@ buscarBtn.addEventListener("click", () => {
     if (yaConfirmados.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
   }
 
-  enviarBtn.textContent = "✉ Enviar confirmación";
+  enviarBtn.textContent = "✉ Enviar respuesta";
   enviarBtn.classList.remove("hidden");
 });
 
@@ -360,12 +372,10 @@ form.addEventListener("submit", async (e) => {
   let algunAsistira = false;
   let grupoID = null;
 
+  // 1. Recopilación de datos
   filas.forEach(fila => {
-    // CAMBIO CLAVE: Leemos los atributos guardados, no el texto visual
     const nombre = fila.getAttribute("data-nombre-original");
     const apellido = fila.getAttribute("data-apellido-original");
-    
-    // Si no existen (porque es una fila de "ya confirmado"), saltamos o buscamos otra vía
     if (!nombre) return; 
 
     const asistencia = fila.querySelector(".asistencia").value;
@@ -387,45 +397,42 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
+  // 2. Preparación visual inmediata
   nombreParaElSaludo = datosParaEnviar[0].nombre;
   enviarBtn.disabled = true;
-  enviarBtn.textContent = "Enviando...";
+  enviarBtn.textContent = "Guardando...";
 
   try {
     const formData = new FormData();
     formData.append("confirmados", JSON.stringify(datosParaEnviar));
 
+    // 3. Enviamos los datos (esperamos respuesta del servidor)
     const response = await fetch(WEB_APP_URL, { method: "POST", body: formData });
     if (!response.ok) throw new Error("Error en el servidor");
 
-    // --- PROCESO DE ACTUALIZACIÓN POST-ENVÍO ---
+    // --- MEJORA: UI INSTANTÁNEA ---
     
-    // 1. Limpiamos formularios
+    // Ocultamos el formulario y mensajes previos de inmediato
     form.classList.add("hidden");
     if (document.querySelector(".intro")) document.querySelector(".intro").classList.add("hidden");
     mensajeError.classList.add("hidden");
     mensajeGrupo.classList.add("hidden");
-    lista.innerHTML = ""; 
-
-    // 2. Forzamos la recarga de la base de datos (Google Sheets)
-    await cargarInvitados();
-
-    // 3. Mostramos el resumen de TODO el grupo (los recién enviados + los que ya estaban)
-    if (grupoID) {
-      const grupoActualizado = invitados.filter(i => i.grupo === grupoID);
-      grupoActualizado.forEach(miembro => {
-        if (miembro.confirmado) pintarFilaConfirmado(miembro);
-      });
-      // Si alguien del grupo (nuevo o viejo) asiste, mostramos correo
-      if (grupoActualizado.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
-    } else {
-      // Caso individual
-      datosParaEnviar.forEach(inv => pintarFilaConfirmado(inv));
-      if (algunAsistira) mostrarSeccionCorreo();
-    }
-
+    
+    // Mostramos el mensaje de éxito YA, sin esperar a la recarga de la lista
     mensajeFinal.classList.remove("hidden");
     mensajeFinal.textContent = "¡Muchas gracias! Tu respuesta se ha guardado correctamente.";
+
+    // Pintamos visualmente lo que el usuario acaba de enviar (sin esperar a Sheets)
+    lista.innerHTML = ""; 
+    datosParaEnviar.forEach(inv => pintarFilaConfirmado(inv));
+    
+    // Si asisten, mostramos la sección de correo ya mismo
+    if (algunAsistira) mostrarSeccionCorreo();
+
+    // 4. RECARGA SILENCIOSA (En segundo plano)
+    // Esto actualiza la variable 'invitados' local por si el usuario busca a otra persona
+    // sin que bloquee la vista actual.
+    cargarInvitados();
 
   } catch (err) {
     console.error(err);
@@ -542,14 +549,35 @@ function resetUI() {
   enviarBtn.classList.add("hidden");
   mensajeFinal.classList.add("hidden");
   mensajeGrupo.classList.add("hidden");
-  // Eliminamos la línea de 'calendars' porque ya no existe ese ID
+  
   document.getElementById("seccionCorreo").classList.add("hidden"); 
-  document.getElementById("msgCorreo").textContent = ""; // Limpia el texto de "Enviado con éxito"
-  document.getElementById("emailUsuario").value = "";    // Limpia el email anterior
-  document.getElementById("btnEnviarCorreo").classList.remove("hidden"); // Muestra el botón de nuevo
-  document.getElementById("btnEnviarCorreo").disabled = false;
-  document.getElementById("btnEnviarCorreo").textContent = "Enviar recordatorio";
+  document.getElementById("msgCorreo").textContent = ""; 
+  
+  // Reset del input y el botón de correo
+  const inputEmail = document.getElementById("emailUsuario");
+  const btnCorreo = document.getElementById("btnEnviarCorreo");
+  inputEmail.value = "";    
+  btnCorreo.classList.remove("hidden"); 
+  btnCorreo.classList.remove("valido"); // Quita el color granate
+  btnCorreo.disabled = true;            // Bloquea el botón
+  btnCorreo.textContent = "Enviar recordatorio";
 }
+
+document.getElementById("emailUsuario").addEventListener("input", function() {
+  const email = this.value;
+  const btnCorreo = document.getElementById("btnEnviarCorreo");
+  
+  // Regex que busca: texto + @ + texto + . + texto (mínimo 2 letras al final)
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  if (regexEmail.test(email)) {
+    btnCorreo.disabled = false;
+    btnCorreo.classList.add("valido");
+  } else {
+    btnCorreo.disabled = true;
+    btnCorreo.classList.remove("valido");
+  }
+});
 
 function actualizarEstadoBoton() {
   const selects = document.querySelectorAll(".inv-row select.asistencia");
@@ -571,8 +599,6 @@ const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
 menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));
 
-// Manejo del botón de enviar correo
-// Manejo del botón de enviar correo - ACTUALIZADO
 const btnCorreo = document.getElementById("btnEnviarCorreo");
 btnCorreo.addEventListener("click", async () => {
   const email = document.getElementById("emailUsuario").value;
@@ -586,11 +612,7 @@ btnCorreo.addEventListener("click", async () => {
       .join("\n\n---\n\n");
   }
 
-  if (!email || !email.includes("@")) {
-    msgCorreo.textContent = "Por favor, introduce un correo válido.";
-    return;
-  }
-
+  // Ya no necesitamos el if de validación aquí porque el botón está bloqueado si no es válido
   btnCorreo.disabled = true;
   btnCorreo.textContent = "Enviando...";
 
@@ -600,15 +622,10 @@ btnCorreo.addEventListener("click", async () => {
     formData.append("destinatario", email);
     formData.append("resumenAsistencia", resumenTexto);
     
-    // SEGURIDAD: Si por algún motivo la variable está vacía, intentamos rescatar 
-    // el nombre de la primera tarjeta visible antes de enviar.
     if (!nombreParaElSaludo && tarjetas.length > 0) {
-        // Extrae el nombre del primer bloque de texto (Irene Dufour por ejemplo)
         nombreParaElSaludo = tarjetas[0].querySelector("div").innerText.split(" ")[0];
     }
     
-    // Enviamos el nombre (y lo vemos en la consola F12 para depurar)
-    console.log("Nombre enviado al script:", nombreParaElSaludo);
     formData.append("nombreUsuario", nombreParaElSaludo || ""); 
 
     const response = await fetch(WEB_APP_URL, { method: "POST", body: formData });
@@ -626,7 +643,7 @@ btnCorreo.addEventListener("click", async () => {
     msgCorreo.style.color = "red";
     msgCorreo.textContent = "Error al enviar el correo.";
     btnCorreo.disabled = false;
-    btnCorreo.textContent = "✉ Enviar calendario por email";
+    btnCorreo.textContent = "Enviar recordatorio";
   }
 });
 // Función para mostrar la sección de correo (llámala en vez de mostrarBotonesCalendario)

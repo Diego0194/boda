@@ -9,16 +9,15 @@
   <link rel="icon" type="image/png" href="media/favicon.png">
 </head>
 <body>
+
 <header>
   <div class="container header-flex">
-	<div class="brand">
-	  <a href="index.html" style="text-decoration: none; color: inherit;">
-		<h1>F&D</h1>
-	  </a>
-	  <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
-	</div>
-
-    <!-- Botón menú móvil -->
+    <div class="brand">
+      <a href="index.html" style="text-decoration: none; color: inherit;">
+        <h1>F&D</h1>
+      </a>
+      <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
+    </div>
     <button class="menu-toggle" aria-label="Abrir menú">☰</button>
   </div>
 
@@ -38,23 +37,113 @@
 <main class="container">
     <div class="page-content">
       <h2>Comparte tus fotos del gran día</h2>
-      <div class="intro">
-        Nos encantaría tener todas las fotos de nuestros invitados para guardar los mejores recuerdos de nuestra boda. 
-        Este es un espacio donde todos podemos compartir fotos del día, y también subiremos aquí las fotos que tomen los fotógrafos profesionales.
+      <div class="intro" style="margin-bottom: 20px;">
+        <p>Nos encantaría tener todas las fotos originales para el recuerdo.</p>
+        <p><strong>Nota importante:</strong> El sistema detectará y rechazará fotos enviadas por WhatsApp para asegurar la máxima calidad de impresión. Por favor, selecciona solo archivos originales de tu galería.</p>
       </div>
-      <a href="https://drive.google.com/drive/folders/1WOPgd_Rt1AyOe7b87yJhCWySf35DyGOq?usp=sharing" class="upload-link" target="_blank">
-        Ver/Subir fotos
-      </a>
-	</div>
-  </main>
+
+      <div class="upload-container" style="text-align: center; margin: 40px 0; border: 2px dashed #ccc; padding: 40px; border-radius: 10px;">
+        <input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime" style="display: none;">
+        <label for="foto-input" class="upload-link" style="cursor: pointer; padding: 15px 30px; background: #333; color: #fff; border-radius: 5px; font-weight: bold; display: inline-block;">
+          📷 Seleccionar fotos o vídeos originales
+        </label>
+        <div id="status-messages" style="margin-top: 30px; font-size: 0.9em; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;"></div>
+      </div>
+    </div>
+</main>
 
 <footer>
   <div class="container">
     <p>Creado con cariño — Fátima & Diego • 5 Septiembre 2026<br>Contacto: 656573103 (Diego), 670935370 (Fátima).</p>
   </div>
 </footer>
-  
+
+<script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.js"></script>
 <script src="main.js"></script>
+
+<script>
+// URL de tu Google Apps Script
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWX2PvywFKWg2ezk0iBlEsf3NPo45bdfM1tTevv1X2i9oiBzRzG3cjPHzUo_gkQoMs/exec";
+
+document.getElementById('foto-input').addEventListener('change', async function(e) {
+    const files = e.target.files;
+    const status = document.getElementById('status-messages');
+    
+    if (files.length === 0) return;
+    
+    status.innerHTML = '<strong>Iniciando proceso...</strong><hr>'; 
+
+    for (let file of files) {
+        try {
+            // 1. Leer metadatos (Equivalente a ExifTool)
+            const tags = await ExifReader.load(file);
+            
+            // Buscamos fecha original (DateTimeOriginal para fotos, CreationDate para vídeos)
+            const fechaOriginal = tags['DateTimeOriginal']?.description || tags['CreationDate']?.description;
+
+            // 2. Filtro de WhatsApp: Si no hay metadatos de fecha, rechazamos
+            if (!fechaOriginal) {
+                appendStatus(file.name, "⚠️ Rechazada: No se detecta fecha original (¿Es de WhatsApp?).", "red");
+                continue;
+            }
+
+            // 3. Renombrado (Lógica de tu PowerShell: YYYY-MM-DD_HH-mm-ss)
+            const extension = file.name.split('.').pop().toLowerCase();
+            const nuevoNombre = fechaOriginal.replace(/:/g, '-').replace(/\s/g, '_') + '.' + extension;
+            
+            appendStatus(file.name, `⏳ Subiendo como ${nuevoNombre}...`, "#555");
+
+            // 4. Subida real a Google Drive
+            await subirArchivo(file, nuevoNombre);
+            
+        } catch (error) {
+            appendStatus(file.name, "❌ Error al procesar el archivo.", "red");
+            console.error(error);
+        }
+    }
+});
+
+async function subirArchivo(file, nuevoNombre) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async function() {
+            try {
+                const base64 = reader.result.split(',')[1];
+                
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors", // Google Apps Script requiere no-cors o manejar OPTIONS
+                    body: JSON.stringify({
+                        base64: base64,
+                        type: file.type,
+                        name: nuevoNombre
+                    })
+                });
+
+                // Con 'no-cors' no podemos leer la respuesta JSON, 
+                // pero si no hay error de red, asumimos éxito.
+                appendStatus(nuevoNombre, "✅ ¡Subida completada!", "green");
+                resolve();
+
+            } catch (e) {
+                appendStatus(nuevoNombre, "❌ Error en la conexión con Drive.", "red");
+                reject(e);
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function appendStatus(fileName, message, color) {
+    const status = document.getElementById('status-messages');
+    const div = document.createElement('div');
+    div.style.color = color;
+    div.style.padding = "8px";
+    div.style.borderBottom = "1px solid #eee";
+    div.innerHTML = `<strong>${fileName}</strong>: ${message}`;
+    status.appendChild(div);
+}
+</script>
 
 </body>
 </html>

@@ -66,6 +66,24 @@
       overflow: hidden;
     }
     #progress-bar { width: 0%; height: 12px; background-color: #5cb85c; }
+	
+	/* Spinner de carga */
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #5cb85c; /* Color verde como tu barra */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  display: none; /* Oculto por defecto */
+  margin: 10px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+	
   </style>
 </head>
 <body>
@@ -73,11 +91,25 @@
 <header>
   <div class="container header-flex">
     <div class="brand">
-      <a href="index.html" style="text-decoration: none; color: inherit;"><h1>F&D</h1></a>
+      <a href="index.html" style="text-decoration: none; color: inherit;">
+        <h1>F&D</h1>
+      </a>
       <p class="lead">5 de septiembre de 2026 — Espinosa de los Monteros, Burgos</p>
     </div>
     <button class="menu-toggle" aria-label="Abrir menú">☰</button>
   </div>
+
+  <nav class="nav-links">
+    <a href="index.html">👋 Bienvenidos</a>
+    <a href="nosotros.html">❤️ Nosotros</a>
+    <a href="programa.html">📆 Programa</a>
+    <a href="asistencia.html">✅ Confirma asistencia</a>
+    <a href="direccion.html">🌍 Dirección</a>
+    <a href="informacion.html">📌 Información útil</a>
+    <a href="regalos.html">🎁 Lista de regalos</a>
+    <a href="fotos.html" class="active">📷 Fotos de la boda</a>
+    <a href="foro.html">💬 Foro</a>
+  </nav>
 </header>
 
 <main class="container">
@@ -99,11 +131,11 @@
             📷 Seleccionar fotos o vídeos
           </label>
           
-          <div id="progress-area" class="progress-wrapper">
-            <div id="progress-bar"></div>
-          </div>
-          <p id="progress-text" style="font-size: 0.85em; margin-top: 8px;"></p>
-        </div>
+		<div id="progress-area" class="progress-wrapper">
+		  <div id="progress-bar"></div>
+		  <div id="loader-circle" class="loader"></div>
+		</div>
+		<p id="progress-text" style="font-size: 0.85em; margin-top: 8px;"></p>
 
         <a href="https://drive.google.com/drive/folders/1WOPgd_Rt1AyOe7b87yJhCWySf35DyGOq?usp=sharing" class="upload-link" target="_blank">
           Ver fotos
@@ -118,8 +150,10 @@
 <script src="main.js"></script>
 
 <script>
-// Manteniendo tu lógica de subida y renombrado basada en RenombrarVideos.ps1
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWX2PvywFKWg2ezk0iBlEsf3NPo45bdfM1tTevv1X2i9oiBzRzG3cjPHzUo_gkQoMs/exec";
+
+// Configuración de velocidad
+const CONCURRENCIA_MAXIMA = 3; // Sube 3 fotos a la vez (valor seguro para Google Script)
 
 document.getElementById('foto-input').addEventListener('change', async function(e) {
     const files = Array.from(e.target.files);
@@ -127,16 +161,19 @@ document.getElementById('foto-input').addEventListener('change', async function(
     const progressBar = document.getElementById('progress-bar');
     const progressArea = document.getElementById('progress-area');
     const progressText = document.getElementById('progress-text');
+    const loader = document.getElementById('loader-circle');
     
     if (files.length === 0) return;
 
     status.innerHTML = '';
     progressArea.style.display = 'block';
+    loader.style.display = 'block';
     
-    let totalSize = 0;
-    let uploadedSize = 0;
+    let uploadedCount = 0;
     const validFiles = [];
 
+    // 1. Filtrado rápido de metadatos (esto suele ser instantáneo)
+    progressText.innerText = "Analizando archivos...";
     for (let file of files) {
         try {
             const tags = await ExifReader.load(file);
@@ -146,23 +183,57 @@ document.getElementById('foto-input').addEventListener('change', async function(
                 appendStatus(file.name, "⚠️ No es original (WhatsApp)", "#d9534f");
             } else {
                 const extension = file.name.split('.').pop().toLowerCase();
-                // Formato exacto: YYYY-MM-DD_HH-mm-ss
                 const nuevoNombre = fechaOriginal.replace(/:/g, '-').replace(/\s/g, '_') + '.' + extension;
                 validFiles.push({ file, nuevoNombre });
-                totalSize += file.size;
             }
         } catch (err) {
             appendStatus(file.name, "❌ Error metadatos", "#d9534f");
         }
     }
 
-    for (let item of validFiles) {
-        progressText.innerText = `Subiendo: ${item.nuevoNombre}...`;
-        await subirArchivo(item.file, item.nuevoNombre);
-        uploadedSize += item.file.size;
-        const percent = Math.round((uploadedSize / totalSize) * 100);
-        progressBar.style.width = percent + '%';
+    if (validFiles.length === 0) {
+        loader.style.display = 'none';
+        progressText.innerText = "No se han encontrado fotos válidas.";
+        return;
     }
+
+    // 2. Subida en paralelo (La clave de la velocidad)
+    const ejecutarSubidas = async () => {
+        const cola = [...validFiles];
+        const activos = [];
+
+        async function procesarSiguiente() {
+            if (cola.length === 0) return;
+            
+            const item = cola.shift();
+            const promesaSubida = subirArchivo(item.file, item.nuevoNombre).then(() => {
+                uploadedCount++;
+                const percent = Math.round((uploadedCount / validFiles.length) * 100);
+                progressBar.style.width = percent + '%';
+                progressText.innerText = `Subiendo fotos... (${uploadedCount}/${validFiles.length})`;
+            });
+
+            activos.push(promesaSubida);
+            await promesaSubida;
+            // Cuando una termina, sacamos la promesa de la lista y buscamos la siguiente
+            activos.splice(activos.indexOf(promesaSubida), 1);
+            await procesarSiguiente();
+        }
+
+        // Lanzamos las primeras subidas en paralelo según la CONCURRENCIA_MAXIMA
+        const promesasIniciales = [];
+        for (let i = 0; i < Math.min(CONCURRENCIA_MAXIMA, cola.length); i++) {
+            promesasIniciales.push(procesarSiguiente());
+        }
+        await Promise.all(promesasIniciales);
+    };
+
+    await ejecutarSubidas();
+
+    // --- FIN DE SUBIDA ---
+    loader.style.display = 'none';
+    progressText.innerHTML = "<strong>¡Gracias por mandarnos tus fotos!</strong><br>Entra en el link de abajo si quieres ver el resto :)";
+    progressText.style.textAlign = "center";
 });
 
 async function subirArchivo(file, nuevoNombre) {

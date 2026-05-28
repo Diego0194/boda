@@ -152,7 +152,60 @@
     line-height: 1.6;
     width: 90%;
     font-family: 'Playfair Display', serif;
-	font-size: 12px
+    font-size: 12px;
+}
+
+/* --- SOLUCIÓN DEFENSA DESPLEGABLE CORTE Y ANCHO --- */
+/* --- SOLUCIÓN DEFENSA DESPLEGABLE CORTE Y ANCHO MOVIL --- */
+#autocomplete {
+  list-style: none;
+  padding: 0;
+  
+  /* 🟢 Forzamos el mismo ancho adaptativo exacto que tiene tu input */
+  width: 90%;                  
+  max-width: 350px;             /* El max-width real que limita tus elementos del formulario */
+  box-sizing: border-box;       
+  
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  
+  /* 🟢 Alineación perfecta basada en el mismo comportamiento del input */
+  position: relative;
+  margin: 4px auto -370px auto; 
+  z-index: 99999 !important;
+
+  /* Desplazable activo */
+  max-height: 370px;             
+  overflow-y: auto !important; 
+  overflow-x: hidden;        
+  isolation: isolate; 
+}
+
+#autocomplete li {
+  padding: 12px 15px;
+  cursor: pointer;
+  font-size: 15px;
+  font-family: 'Playfair Display', serif;
+  color: #333333;
+  text-align: center;
+  border-bottom: 1px solid #f5f5f5;
+  transition: background 0.2s ease;
+}
+
+#autocomplete li:last-child {
+  border-bottom: none;
+}
+
+#autocomplete li:hover,
+#autocomplete li:active {
+  background: #fdf5f5;
+}
+
+/* Anulamos la guillotina visual del contenedor del buscador */
+.buscador-modulo {
+    overflow: visible !important;
 }
 
 </style>
@@ -180,8 +233,8 @@
   </nav>
 </header>
 
-<main class="page-wrapper">
-  <div class="page-container" style="margin-bottom: 100px;">
+<main class="page-wrapper" style="padding-bottom: 400px;">
+  <div class="page-container" style="position: relative;">
 
     <h2>Confirma tu asistencia</h2>
     <div class="nota">Hemos diseñado una boda muy íntima y personal. Al tener el aforo muy limitado, las invitaciones son nominativas y no podemos incluir acompañantes que no hayan sido invitados previamente por nosotros. ¡Gracias por entenderlo y por ayudarnos a crear el ambiente que soñamos!.</div>
@@ -256,7 +309,9 @@ const autocomplete = document.getElementById("autocomplete");
 const nombreInput = document.getElementById("nombre");
 const buscarBtn = document.getElementById("buscar");
 
-// AUTOCOMPLETADO
+// ==========================================
+// 🟢 AUTOCOMPLETADO UNIFICADO (HASTA 8 NOMBRES)
+// ==========================================
 nombreInput.addEventListener("input", () => {
   const texto = normalizarTexto(nombreInput.value);
 
@@ -274,7 +329,8 @@ nombreInput.addEventListener("input", () => {
     return;
   }
 
-  sugerencias.slice(0, 5).forEach(inv => {
+  // Aquí forzamos los 8 nombres de forma limpia y única
+  sugerencias.forEach(inv => {
     const li = document.createElement("li");
     li.textContent = `${inv.nombre} ${inv.apellido}`;
 
@@ -319,45 +375,42 @@ buscarBtn.addEventListener("click", () => {
   form.classList.remove("hidden");
   nombreInput.classList.add("hidden");
 
-if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
+  if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
 
-// CASO: INVITADO INDIVIDUAL
+  // CASO: INVITADO INDIVIDUAL
   if (!invitado.grupo) {
     if (invitado.confirmado === "SI" || invitado.confirmado === "NO") {
       document.querySelector(".intro").textContent = "";
-      if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden"); // <-- AÑADE ESTA LÍNEA AQUÍ TAMBIÉN
+      if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
   
-  if (invitado.confirmado === "SI") {
-    mostrarError("Ya hemos recibido tu respuesta. ¡Nos vemos pronto!");
-    pintarFilaConfirmado(invitado);
-    mostrarSeccionCorreo(); 
-  } else {
-    // Si ya confirmó que NO, mensaje amable y NO mostramos correo
-    mostrarError("Gracias por avisarnos. Si cambias de idea, contacta con nosotros.");
-    pintarFilaConfirmado(invitado);
-  }
-  return;
-}
+      if (invitado.confirmado === "SI") {
+        mostrarError("Ya hemos recibido tu respuesta. ¡Nos vemos pronto!");
+        pintarFilaConfirmado(invitado);
+        mostrarSeccionCorreo(); 
+      } else {
+        mostrarError("Gracias por avisarnos. Si cambias de idea, contacta con nosotros.");
+        pintarFilaConfirmado(invitado);
+      }
+      return;
+    }
     document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
     pintarFila(invitado, false);
   } 
   // CASO: INVITADO EN GRUPO
   else {
     const grupoCompleto = invitados.filter(i => i.grupo === invitado.grupo);
-    const miembrosPendientes = grupoCompleto.filter(i => i.confirmado === "" || i.confirmado === null);
+    const miembrosPendientes = groupCompleto = grupoCompleto.filter(i => i.confirmado === "" || i.confirmado === null);
 
-// Si TODO el grupo ha confirmado ya
+    // Si TODO el grupo ha confirmado ya
     if (miembrosPendientes.length === 0) {
       document.querySelector(".intro").textContent = "";
-      if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden"); // <-- Y ESTA LÍNEA AQUÍ
+      if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
       mostrarError("Todos los miembros de tu grupo ya han enviado una respuesta...");
       
-      // CAMBIO: Si alguien del grupo confirmó que SI, mostramos el correo
       if (grupoCompleto.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
       return;
     }
 
-    // Si hay gente pendiente en el grupo
     document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
     mensajeGrupo.textContent = "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
     mensajeGrupo.classList.remove("hidden");
@@ -370,7 +423,6 @@ if (document.querySelector(".nota")) document.querySelector(".nota").classList.a
     const yaConfirmados = grupoCompleto.filter(i => i.confirmado);
     yaConfirmados.forEach(miembro => pintarFilaConfirmado(miembro));
 
-    // CAMBIO: Si ya hay alguien confirmado como "SI" en el grupo aunque falten otros
     if (yaConfirmados.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
   }
 
@@ -380,14 +432,11 @@ if (document.querySelector(".nota")) document.querySelector(".nota").classList.a
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const listaInvitados = document.getElementById("listaInvitados");
-  const filas = listaInvitados.querySelectorAll(".inv-row");
+  const filas = lista.querySelectorAll(".inv-row");
   
   const datosParaEnviar = [];
   let algunAsistira = false;
-  let grupoID = null;
 
-  // 1. Recopilación de datos
   filas.forEach(fila => {
     const nombre = fila.getAttribute("data-nombre-original");
     const apellido = fila.getAttribute("data-apellido-original");
@@ -400,9 +449,6 @@ form.addEventListener("submit", async (e) => {
 
     if (asistencia === "") return;
 
-    const original = invitados.find(inv => inv.nombre === nombre && inv.apellido === apellido);
-    if (original && original.grupo) grupoID = original.grupo;
-
     datosParaEnviar.push({ nombre, apellido, asistencia, alergenos, barra, bus });
     if (asistencia === "SI") algunAsistira = true;
   });
@@ -412,7 +458,6 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  // 2. Preparación visual inmediata
   nombreParaElSaludo = datosParaEnviar[0].nombre;
   enviarBtn.disabled = true;
   enviarBtn.textContent = "Guardando...";
@@ -421,40 +466,30 @@ form.addEventListener("submit", async (e) => {
     const formData = new FormData();
     formData.append("confirmados", JSON.stringify(datosParaEnviar));
 
-    // 3. Enviamos los datos (esperamos respuesta del servidor)
     const response = await fetch(WEB_APP_URL, { method: "POST", body: formData });
     if (!response.ok) throw new Error("Error en el servidor");
 
-    // --- MEJORA: UI INSTANTÁNEA ---
-    
-    // Ocultamos el formulario y mensajes previos de inmediato
-	form.classList.add("hidden");
+    form.classList.add("hidden");
     if (document.querySelector(".intro")) document.querySelector(".intro").classList.add("hidden");
-    if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden"); // <-- AÑADE ESTA LÍNEA
+    if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
     mensajeError.classList.add("hidden");
     mensajeGrupo.classList.add("hidden");
     
-    // Mostramos el mensaje de éxito YA, sin esperar a la recarga de la lista
     mensajeFinal.classList.remove("hidden");
     mensajeFinal.textContent = "¡Muchas gracias! Tu respuesta se ha guardado correctamente.";
 
-    // Pintamos visualmente lo que el usuario acaba de enviar (sin esperar a Sheets)
     lista.innerHTML = ""; 
     datosParaEnviar.forEach(inv => pintarFilaConfirmado(inv));
     
-    // Si asisten, mostramos la sección de correo ya mismo
     if (algunAsistira) mostrarSeccionCorreo();
 
-    // 4. RECARGA SILENCIOSA (En segundo plano)
-    // Esto actualiza la variable 'invitados' local por si el usuario busca a otra persona
-    // sin que bloquee la vista actual.
     cargarInvitados();
 
   } catch (err) {
     console.error(err);
     mostrarError("Error al enviar la confirmación. Por favor, inténtalo de nuevo.");
     enviarBtn.disabled = false;
-    enviarBtn.textContent = "✉ Enviar";
+    enviarBtn.textContent = "✉ Enviar respuesta";
   }
 });
 
@@ -470,7 +505,6 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   const div = document.createElement("div");
   div.className = "inv-row";
   
-  // GUARDAMOS EL NOMBRE Y APELLIDO REALES EN ATRIBUTOS DATA
   div.setAttribute("data-nombre-original", inv.nombre);
   div.setAttribute("data-apellido-original", inv.apellido);
 
@@ -478,19 +512,16 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   span.textContent = `${inv.nombre} ${inv.apellido}`;
   div.appendChild(span);
 
-  // 1. Selector Asistencia
   const selectAsistencia = document.createElement("select");
   selectAsistencia.className = "asistencia";
   selectAsistencia.innerHTML = `<option value="">-</option><option value="SI">✅ ¡Contad conmigo!</option><option value="NO">❌ No podré ir</option>`;
   div.appendChild(selectAsistencia);
 
-  // 2. Selector BUS
   const selectBus = document.createElement("select");
   selectBus.className = "bus";
   selectBus.innerHTML = `<option value="NO">❌ No necesito autobús 🚌</option><option value="SI">✅ Necesito autobús desde Medina 🚌</option>`;
   div.appendChild(selectBus);
 
-  // 3. Inputs de texto
   const alerg = document.createElement("input");
   alerg.type = "text";
   alerg.placeholder = "Alérgenos 💊";
@@ -504,7 +535,6 @@ function pintarFila(inv, esGrupo, esBuscado = false) {
   selectAsistencia.addEventListener("change", () => {
     const si = selectAsistencia.value === "SI";
     
-    // Añadimos o quitamos la clase visible
     [selectBus, alerg, prefBarra].forEach(el => {
       if (si) el.classList.add("visible");
       else el.classList.remove("visible");
@@ -530,7 +560,6 @@ function pintarFilaConfirmado(inv) {
   div.style.marginBottom = "30px";
   div.style.fontFamily = "'Playfair Display', serif";
 
-  // Normalizamos el valor de asistencia (puede venir como 'asistencia' o 'confirmado')
   const estadoAsistencia = (inv.confirmado || inv.asistencia || "").toUpperCase();
   const asistira = (estadoAsistencia === "SI" || estadoAsistencia === "ASISTIRE");
   
@@ -569,21 +598,18 @@ function resetUI() {
   document.getElementById("seccionCorreo").classList.add("hidden"); 
   document.getElementById("msgCorreo").textContent = ""; 
   
-  // Reset del input y el botón de correo
   const inputEmail = document.getElementById("emailUsuario");
   const btnCorreo = document.getElementById("btnEnviarCorreo");
   inputEmail.value = "";    
   btnCorreo.classList.remove("hidden"); 
-  btnCorreo.classList.remove("valido"); // Quita el color granate
-  btnCorreo.disabled = true;            // Bloquea el botón
+  btnCorreo.classList.remove("valido");
+  btnCorreo.disabled = true;            
   btnCorreo.textContent = "Enviar recordatorio";
 }
 
 document.getElementById("emailUsuario").addEventListener("input", function() {
   const email = this.value;
   const btnCorreo = document.getElementById("btnEnviarCorreo");
-  
-  // Regex que busca: texto + @ + texto + . + texto (mínimo 2 letras al final)
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
   if (regexEmail.test(email)) {
@@ -628,7 +654,6 @@ btnCorreo.addEventListener("click", async () => {
       .join("\n\n---\n\n");
   }
 
-  // Ya no necesitamos el if de validación aquí porque el botón está bloqueado si no es válido
   btnCorreo.disabled = true;
   btnCorreo.textContent = "Enviando...";
 
@@ -662,11 +687,10 @@ btnCorreo.addEventListener("click", async () => {
     btnCorreo.textContent = "Enviar recordatorio";
   }
 });
-// Función para mostrar la sección de correo (llámala en vez de mostrarBotonesCalendario)
+
 function mostrarSeccionCorreo() {
   document.getElementById("seccionCorreo").classList.remove("hidden");
 }
-
 </script>
 
 </body>

@@ -595,41 +595,7 @@ input[type="text"]:focus {
   outline: none;
 }
 
-#autocomplete {
-  list-style: none;
-}
 
-#autocomplete {
-  list-style: none;
-  margin: 4px auto 0 auto; /* espacio arriba y centrado */
-  padding: 0;
-  width: 100%;
-  max-width: 400px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-}
-
-#autocomplete li {
-  padding: 2px 2px;
-  cursor: pointer;
-  font-size: 14px;
-  border-bottom: 1px solid #eee;
-  transition: background 0.2s ease;
-}
-
-#autocomplete li:last-child {
-  border-bottom: none;
-}
-
-#autocomplete li:hover {
-  background: #f9f9f9;
-}
 
 #mensajeError,
 #mensajeGrupo,

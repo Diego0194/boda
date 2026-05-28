@@ -144,6 +144,17 @@
     width: 90%;
     font-family: 'Playfair Display', serif;
 }
+
+.nota {
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+    text-align: center;
+    line-height: 1.6;
+    width: 90%;
+    font-family: 'Playfair Display', serif;
+	font-size: 12px
+}
+
 </style>
 
 <body>
@@ -173,7 +184,8 @@
   <div class="page-container" style="margin-bottom: 100px;">
 
     <h2>Confirma tu asistencia</h2>
-    <div class="intro">Empieza a introducir tu nombre y apellido y selecciónate en el desplegable para confirmar tu asistencia</div>
+    <div class="nota">Hemos diseñado una boda muy íntima y personal. Al tener el aforo muy limitado, las invitaciones son nominativas y no podemos incluir acompañantes que no hayan sido invitados previamente por nosotros. ¡Gracias por entenderlo y por ayudarnos a crear el ambiente que soñamos!.</div>
+	<div class="intro">Empieza a introducir tu nombre y apellido y selecciónate en el desplegable para confirmar tu asistencia</div>
 
     <input id="nombre" placeholder="Nombre y Apellido">
     <ul id="autocomplete" class="hidden"></ul>
@@ -307,10 +319,13 @@ buscarBtn.addEventListener("click", () => {
   form.classList.remove("hidden");
   nombreInput.classList.add("hidden");
 
-  // CASO: INVITADO INDIVIDUAL
+if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
+
+// CASO: INVITADO INDIVIDUAL
   if (!invitado.grupo) {
     if (invitado.confirmado === "SI" || invitado.confirmado === "NO") {
-  document.querySelector(".intro").textContent = "";
+      document.querySelector(".intro").textContent = "";
+      if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden"); // <-- AÑADE ESTA LÍNEA AQUÍ TAMBIÉN
   
   if (invitado.confirmado === "SI") {
     mostrarError("Ya hemos recibido tu respuesta. ¡Nos vemos pronto!");
@@ -331,11 +346,11 @@ buscarBtn.addEventListener("click", () => {
     const grupoCompleto = invitados.filter(i => i.grupo === invitado.grupo);
     const miembrosPendientes = grupoCompleto.filter(i => i.confirmado === "" || i.confirmado === null);
 
-    // Si TODO el grupo ha confirmado ya
+// Si TODO el grupo ha confirmado ya
     if (miembrosPendientes.length === 0) {
       document.querySelector(".intro").textContent = "";
-      mostrarError("Todos los miembros de tu grupo ya han enviado una respuesta. Si deseas cambiar algo por favor ponte en contacto con los novios.");
-      grupoCompleto.forEach(miembro => pintarFilaConfirmado(miembro));
+      if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden"); // <-- Y ESTA LÍNEA AQUÍ
+      mostrarError("Todos los miembros de tu grupo ya han enviado una respuesta...");
       
       // CAMBIO: Si alguien del grupo confirmó que SI, mostramos el correo
       if (grupoCompleto.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
@@ -413,8 +428,9 @@ form.addEventListener("submit", async (e) => {
     // --- MEJORA: UI INSTANTÁNEA ---
     
     // Ocultamos el formulario y mensajes previos de inmediato
-    form.classList.add("hidden");
+	form.classList.add("hidden");
     if (document.querySelector(".intro")) document.querySelector(".intro").classList.add("hidden");
+    if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden"); // <-- AÑADE ESTA LÍNEA
     mensajeError.classList.add("hidden");
     mensajeGrupo.classList.add("hidden");
     

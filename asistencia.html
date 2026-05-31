@@ -208,6 +208,35 @@
     overflow: visible !important;
 }
 
+/* Estilos específicos para el buscador (que es un input común) */
+#nombre {
+  display: block;
+  margin: 0 auto 20px auto;
+  height: 45px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  color: #555555;
+  padding: 0 15px;
+  box-sizing: border-box;
+  background-color: white;
+  width: 90%;
+  max-width: 350px;
+}
+
+/* 🔄 NUEVOS ESTILOS PARA LA APARICIÓN SECUENCIAL */
+.hidden-fade {
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none; /* Evita interacciones mientras está oculto */
+}
+
+.fade-in {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
 </style>
 
 <body>
@@ -237,10 +266,10 @@
   <div class="page-container" style="position: relative;">
 
     <h2>Confirma tu asistencia</h2>
-    <div class="nota">Hemos diseñado una boda muy íntima y personal. Al tener el aforo muy limitado, las invitaciones son nominativas y no podemos incluir acompañantes que no hayan sido invitados previamente por nosotros. ¡Gracias por entenderlo y por ayudarnos a crear el ambiente que soñamos!.</div>
-	<div class="intro">Empieza a introducir tu nombre y apellido y selecciónate en el desplegable para confirmar tu asistencia</div>
+    <div id="fade-nota" class="nota hidden-fade">Hemos diseñado una boda muy íntima y personal. Al tener el aforo muy limitado, las invitaciones son nominativas y no podemos incluir acompañantes que no hayan sido invitados previamente por nosotros. ¡Gracias por entenderlo y por ayudarnos a crear el ambiente que soñamos!.</div>
+	<div id="fade-intro" class="intro hidden-fade">Empieza a introducir tu nombre y apellido y selecciónate en el desplegable para confirmar tu asistencia</div>
 
-    <input id="nombre" placeholder="Nombre y Apellido">
+    <input id="nombre" class="hidden-fade" placeholder="Nombre y Apellido">
     <ul id="autocomplete" class="hidden"></ul>
 
     <!-- Botón oculto (Opción A) -->
@@ -373,15 +402,15 @@ buscarBtn.addEventListener("click", () => {
 
   resultado.classList.remove("hidden");
   form.classList.remove("hidden");
-  nombreInput.classList.add("hidden");
+  nombreInput.style.display = "none"; // Cambiado a .style.display para que respete las clases de opacidad previas
 
-  if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
+  if (document.getElementById("fade-nota")) document.getElementById("fade-nota").style.display = "none";
 
   // CASO: INVITADO INDIVIDUAL
   if (!invitado.grupo) {
     if (invitado.confirmado === "SI" || invitado.confirmado === "NO") {
-      document.querySelector(".intro").textContent = "";
-      if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
+      document.getElementById("fade-intro").textContent = "";
+      if (document.getElementById("fade-nota")) document.getElementById("fade-nota").style.display = "none";
   
       if (invitado.confirmado === "SI") {
         mostrarError("Ya hemos recibido tu respuesta. ¡Nos vemos pronto!");
@@ -393,25 +422,25 @@ buscarBtn.addEventListener("click", () => {
       }
       return;
     }
-    document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
+    document.getElementById("fade-intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
     pintarFila(invitado, false);
   } 
   // CASO: INVITADO EN GRUPO
   else {
     const grupoCompleto = invitados.filter(i => i.grupo === invitado.grupo);
-    const miembrosPendientes = groupCompleto = grupoCompleto.filter(i => i.confirmado === "" || i.confirmado === null);
+    const miembrosPendientes = grupoCompleto.filter(i => i.confirmado === "" || i.confirmado === null);
 
     // Si TODO el grupo ha confirmado ya
     if (miembrosPendientes.length === 0) {
-      document.querySelector(".intro").textContent = "";
-      if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
+      document.getElementById("fade-intro").textContent = "";
+      if (document.getElementById("fade-nota")) document.getElementById("fade-nota").style.display = "none";
       mostrarError("Todos los miembros de tu grupo ya han enviado una respuesta...");
       
       if (grupoCompleto.some(m => m.confirmado === "SI")) mostrarSeccionCorreo();
       return;
     }
 
-    document.querySelector(".intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
+    document.getElementById("fade-intro").textContent = "Introduce alérgenos, lo que no puede faltar en la barra libre, si necesitas un bus desde Medina de Pomar y selecciona Enviar para confirmar tu asistencia";
     mensajeGrupo.textContent = "¿Quieres confirmar sólo tu asistencia o la de alguien más de tu grupo?";
     mensajeGrupo.classList.remove("hidden");
 
@@ -470,8 +499,8 @@ form.addEventListener("submit", async (e) => {
     if (!response.ok) throw new Error("Error en el servidor");
 
     form.classList.add("hidden");
-    if (document.querySelector(".intro")) document.querySelector(".intro").classList.add("hidden");
-    if (document.querySelector(".nota")) document.querySelector(".nota").classList.add("hidden");
+    if (document.getElementById("fade-intro")) document.getElementById("fade-intro").style.display = "none";
+    if (document.getElementById("fade-nota")) document.getElementById("fade-nota").style.display = "none";
     mensajeError.classList.add("hidden");
     mensajeGrupo.classList.add("hidden");
     
@@ -635,6 +664,22 @@ function mostrarError(msg) {
 document.addEventListener("DOMContentLoaded", () => {
   cargarInvitados();
   resetUI();
+
+  // 🔄 CONTROLADOR DE TIMINGS PARA LA APARICIÓN SECUENCIAL
+  // 1. Mostrar la nota aclaratoria tras 600ms
+  setTimeout(() => {
+    document.getElementById("fade-nota").classList.add("fade-in");
+  }, 600);
+
+  // 2. Mostrar la frase de instrucciones tras 1600ms (1 segundo después)
+  setTimeout(() => {
+    document.getElementById("fade-intro").classList.add("fade-in");
+  }, 1600);
+
+  // 3. Mostrar el buscador de texto tras 2600ms (otro segundo después)
+  setTimeout(() => {
+    document.getElementById("nombre").classList.add("fade-in");
+  }, 2600);
 });
 
 const menuToggle = document.querySelector(".menu-toggle");

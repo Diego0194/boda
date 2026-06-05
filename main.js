@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Fade-in inmediato al cargar para evitar el parpadeo (FOUC)
   if (mainContent) {
-    // Usamos requestAnimationFrame para asegurar que el navegador ya ha aplicado el CSS base
     requestAnimationFrame(() => {
       mainContent.classList.add('page-enter');
     });
@@ -29,14 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const targetPage = this.getAttribute('href');
 
-      // Si ya estamos en la página de destino o es un enlace vacío, no hacemos nada
       if (!targetPage || window.location.pathname.split('/').pop() === targetPage) return;
 
       if (mainContent) {
         mainContent.classList.remove('page-enter');
         mainContent.classList.add('page-leave');
 
-        // Seguridad: si la transición CSS falla o no se dispara, forzamos la redirección tras 400ms
         const timeoutSeguridad = setTimeout(() => {
           window.location.href = targetPage;
         }, 400);
@@ -51,19 +48,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   
+  // ==========================================================================
+  // LÓGICA DE LA CUENTA ATRÁS (Añadido)
+  // ==========================================================================
+  const countdownElement = document.getElementById("countdown");
+  
+  if (countdownElement) {
+    // Definimos la fecha de la boda: 5 de Septiembre de 2026
+    const weddingDate = new Date("September 5, 2026 00:00:00").getTime();
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const timeLeft = weddingDate - now;
+
+      if (timeLeft < 0) {
+        countdownElement.innerHTML = "<div class='countdown-finished'>¡Llegó el gran día! 💍</div>";
+        return;
+      }
+
+      // Cálculos de tiempo
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+// Inyección del HTML estructurado (Versión más grande)
+    countdownElement.innerHTML = `
+      <div class="countdown-container" style="display: flex; gap: 0px; justify-content: center; font-family: 'Playfair Display', serif; margin-top: 0px; color: white;">
+        <div class="countdown-item" style="text-align: center; min-width: 75px;">
+          <strong style="font-size: 2rem; display: block; font-weight: 700; line-height: 1.1;">${days}</strong>
+          <span style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Días</span>
+        </div>
+        <div class="countdown-item" style="text-align: center; min-width: 75px;">
+          <strong style="font-size: 2rem; display: block; font-weight: 700; line-height: 1.1;">${hours}</strong>
+          <span style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Horas</span>
+        </div>
+        <div class="countdown-item" style="text-align: center; min-width: 75px;">
+          <strong style="font-size: 2rem; display: block; font-weight: 700; line-height: 1.1;">${minutes}</strong>
+          <span style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Min</span>
+        </div>
+        <div class="countdown-item" style="text-align: center; min-width: 75px;">
+          <strong style="font-size: 2rem; display: block; font-weight: 700; line-height: 1.1;">${seconds}</strong>
+          <span style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Seg</span>
+        </div>
+      </div>
+    `;
+    };
+
+    // Ejecutamos inmediatamente para evitar el delay de 1s de JavaScript
+    updateCountdown();
+    // Actualizamos cada segundo
+    setInterval(updateCountdown, 1000);
+  }
+  
   // Manejo especial para la tarjeta de 2026 (Giro + Fuegos artificiales)
   const polaroid2026 = document.getElementById('polaroid-2026');
   
   if (polaroid2026) {
     polaroid2026.addEventListener('click', () => {
-      // Hace que la tarjeta gire alternando la clase 'flipped'
       polaroid2026.classList.toggle('flipped');
       
-      // Si se ha girado (tiene la clase flipped), encendemos los fuegos artificiales
       if (polaroid2026.classList.contains('flipped')) {
         window.initFireworks();
       } else {
-        // Opcional: si la vuelven a girar para ver la foto, apagamos los fuegos
         window.stopFireworks();
       }
     });
@@ -73,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (tarjeta2018) {
     tarjeta2018.addEventListener('click', () => {
       tarjeta2018.classList.remove('polaroid-hint');
-    }, { once: true }); // Solo se ejecuta la primera vez
+    }, { once: true });
   }
 });
 
@@ -89,7 +136,6 @@ window.addEventListener('pageshow', (event) => {
       });
     }
     
-    // Resetear el menú móvil por si acaso
     const toggle = document.querySelector('.menu-toggle');
     const nav = document.querySelector('.nav-links');
     if (toggle && nav) {
@@ -110,9 +156,7 @@ function random(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-// Hacemos la función global asignándola a 'window' para poder llamarla desde el HTML
 window.initFireworks = function() {
-  // Si ya están activos o no existe el canvas, no hacemos nada
   canvas = document.getElementById("fireworks");
   if (!canvas || fireworksActive) return;
 
@@ -129,14 +173,12 @@ window.initFireworks = function() {
   fireworksActive = true;
   animateFireworks();
 
-  // Lanzar fuegos artificiales automáticamente de forma intermitente
   fireworksInterval = setInterval(() => {
     if (document.hidden) return;
     createFirework(random(canvas.width * 0.2, canvas.width * 0.8), random(canvas.height * 0.2, canvas.height * 0.5));
   }, 1500);
 };
 
-// Función opcional para detenerlos si se cambia de tarjeta o estado
 window.stopFireworks = function() {
   fireworksActive = false;
   if (fireworksInterval) clearInterval(fireworksInterval);
@@ -163,7 +205,6 @@ function animateFireworks() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Recorremos al revés para poder eliminar elementos con splice sin saltarnos índices
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.x += p.vx;
@@ -183,4 +224,4 @@ function animateFireworks() {
 
   ctx.globalAlpha = 1;
   requestAnimationFrame(animateFireworks);
-} // <-- Aquí se eliminó la llave extra que rompía el código
+}

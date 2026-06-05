@@ -75,21 +75,21 @@ document.addEventListener('DOMContentLoaded', () => {
 // Inyección del HTML estructurado (Versión más grande)
     countdownElement.innerHTML = `
       <div class="countdown-container" style="display: flex; gap: 0px; justify-content: center; font-family: 'Playfair Display', serif; margin-top: 0px; color: white;">
-        <div class="countdown-item" style="text-align: center; min-width: 50px;">
-          <strong style="font-size: 1.5rem; display: block; font-weight: 700; line-height: 1.1;">${days}</strong>
-          <span style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Días</span>
+        <div class="countdown-item" style="text-align: center; min-width: 40px;">
+          <strong style="font-size: 1rem; display: block; font-weight: 700; line-height: 1.1;">${days}</strong>
+          <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Días</span>
         </div>
-        <div class="countdown-item" style="text-align: center; min-width: 50px;">
-          <strong style="font-size: 1.5rem; display: block; font-weight: 700; line-height: 1.1;">${hours}</strong>
-          <span style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Horas</span>
+        <div class="countdown-item" style="text-align: center; min-width: 40px;">
+          <strong style="font-size: 1rem; display: block; font-weight: 700; line-height: 1.1;">${hours}</strong>
+          <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Horas</span>
         </div>
-        <div class="countdown-item" style="text-align: center; min-width: 50px;">
-          <strong style="font-size: 1.5rem; display: block; font-weight: 700; line-height: 1.1;">${minutes}</strong>
-          <span style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Min</span>
+        <div class="countdown-item" style="text-align: center; min-width: 40px;">
+          <strong style="font-size: 1rem; display: block; font-weight: 700; line-height: 1.1;">${minutes}</strong>
+          <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Min</span>
         </div>
-        <div class="countdown-item" style="text-align: center; min-width: 50px;">
-          <strong style="font-size: 1.5rem; display: block; font-weight: 700; line-height: 1.1;">${seconds}</strong>
-          <span style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Seg</span>
+        <div class="countdown-item" style="text-align: center; min-width: 40px;">
+          <strong style="font-size: 1rem; display: block; font-weight: 700; line-height: 1.1;">${seconds}</strong>
+          <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Seg</span>
         </div>
       </div>
     `;

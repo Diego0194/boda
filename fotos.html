@@ -8,85 +8,201 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="media/favicon.png">
   <style>
-    /* Reducción de márgenes generales */
-    .action-container {
+    :root {
+      --bg-color: #f7f7f9;
+      --card-bg: #ffffff;
+      --text-main: #1d1d1f;
+      --accent: #b85c5c;
+      --gray-light: #e5e5ea;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      padding-bottom: 100px;
+    }
+
+    /* Ajustes para respetar el menú superior tradicional */
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--gray-light);
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+    
+    .progress-fixed {
+      display: block;
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      z-index: 1000;
+      padding: 10px 20px;
+      box-sizing: border-box;
+    }
+    .progress-bar-bg { background: var(--gray-light); height: 4px; border-radius: 2px; overflow: hidden; margin-top: 4px;}
+    .progress-bar-fill { width: 0%; height: 100%; background: #34c759; transition: width 0.3s; }
+    .progress-status { font-size: 11px; text-align: center; color: var(--text-main); font-weight: 600; }
+
+    .moment-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px;
+      margin: 20px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .moment-header {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      gap: 15px; /* Espacio reducido entre el cuadro y el botón inferior */
-      margin: 10px 0; /* Espacio superior e inferior reducido */
+      margin-bottom: 12px;
     }
-
-    .upload-zone {
-      border: 2px dashed #ccc;
-      padding: 20px; /* Reducido de 40px */
-      border-radius: 10px;
-      background: #fafafa;
-      width: 100%;
-      max-width: 600px;
-      text-align: center;
+    .moment-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
     }
-
-    h2 { margin-bottom: 10px; } /* Menos espacio bajo el título */
-    .intro { margin-bottom: 15px; } /* Menos espacio bajo el texto */
-    .whatsapp-note { font-size: 0.9em; margin-top: 5px; color: #555; }
-
-    /* Estilos de botones */
-    .btn-input-label {
-      padding: 12px 25px; 
-      background: #333; 
-      color: #fff; 
-      border-radius: 5px; 
-      font-weight: bold;
+    .btn-see-all {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      font-family: "Playfair Display", sans-serif;
-      display: inline-block;
-      min-width: 250px;
     }
 
-    .view-link {
-      padding: 12px 25px; 
-      background: #b85c5c; 
-      color: #fff !important; 
-      border-radius: 8px; 
-      font-weight: bold;
-      text-decoration: none;
-      font-family: "Playfair Display", sans-serif;
-      display: inline-block;
-      min-width: 250px;
-      text-align: center;
+    .moment-preview-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scroll-behavior: smooth;
+      min-height: 75px;
+    }
+    .moment-preview-row::-webkit-scrollbar { display: none; }
+    
+    .preview-thumb {
+      width: 75px;
+      height: 75px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      background: var(--gray-light);
+      overflow: hidden;
+      position: relative;
+    }
+    .preview-thumb img, .preview-thumb video { width: 100%; height: 100%; object-fit: cover; }
+    
+    .empty-state {
+      font-size: 13px;
+      color: #86868b;
+      font-style: italic;
+      padding: 10px 0;
     }
 
-    .progress-wrapper {
+    .grid-view-overlay {
       display: none;
-      margin-top: 15px;
-      width: 100%;
-      background-color: #eee;
-      border-radius: 10px;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg-color);
+      z-index: 500;
+      overflow-y: auto;
+      padding-top: 70px;
+    }
+    .grid-view-header {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--gray-light);
+      padding: 15px 20px;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 510;
+    }
+    .grid-view-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+    .btn-close-grid { background: var(--gray-light); border: none; padding: 6px 14px; border-radius: 15px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 4px;
+    }
+    .gallery-item {
+      aspect-ratio: 1 / 1;
+      position: relative;
+      background: var(--gray-light);
       overflow: hidden;
     }
-    #progress-bar { width: 0%; height: 12px; background-color: #5cb85c; }
-	
-	/* Spinner de carga */
-.loader {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #5cb85c; /* Color verde como tu barra */
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  display: none; /* Oculto por defecto */
-  margin: 10px auto;
-}
+    .gallery-item img, .gallery-item video { width: 100%; height: 100%; object-fit: cover; }
+    
+    .item-status {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white; font-size: 14px;
+      font-weight: 600;
+    }
+    .item-status.done { display: none; }
+    .item-status.error { background: rgba(217, 83, 79, 0.7); }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-	
+    h2 { margin-bottom: 10px; }
+    .intro { 
+      margin-bottom: 15px; 
+      font-family: 'Playfair Display', serif; 
+    }
+    .whatsapp-note { font-size: 0.9em; margin-top: 5px; color: #555; }
+
+    .floating-upload-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) scale(1);
+      width: 60px;
+      height: 60px;
+      background: #b74d4d;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 600;
+      animation: popInCentrado 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s both;
+      transition: transform 0.2s;
+    }
+    
+    .floating-upload-btn:active { transform: translateX(-50%) scale(0.92); }
+
+    @keyframes popInCentrado {
+      0% {
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+      }
+      70% {
+        transform: translateX(-50%) scale(1.3);
+      }
+      100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
+
+<div class="progress-fixed" id="progress-area">
+  <div class="progress-status" id="progress-text">Sincronizando con Google Drive...</div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
+</div>
 
 <header>
   <div class="container header-flex">
@@ -113,9 +229,8 @@
 </header>
 
 <main class="container">
-    <div class="page-content" style="padding-top: 10px;">
-      <h2 style="text-align: center;">Comparte tus fotos del gran día</h2>
-      
+  <div class="page-content" style="padding-top: 20px;">
+    <h2 style="text-align: center; font-family: 'Playfair Display', serif;">Comparte tus fotos del gran día</h2>
       <div class="intro" style="text-align: center;">
         <p style="margin-bottom: 5px;">Nos encantaría tener todas las fotos y vídeos para el recuerdo. Aquí compartiremos también las fotos y vídeos de nuestros fotógrafos para que podáis descargar las que queráis.</p>
         <p class="whatsapp-note">
@@ -123,91 +238,255 @@
           Por favor, sube sólo las fotos/vídeos originales de tu galería.
         </p>
       </div>
+  </div>
 
-      <div class="action-container">
-        <div class="upload-zone">
-          <input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime" style="display: none;">
-          <label for="foto-input" class="btn-input-label">
-            📷 Seleccionar fotos o vídeos
-          </label>
-          
-		<div id="progress-area" class="progress-wrapper">
-		  <div id="progress-bar"></div>
-		  <div id="loader-circle" class="loader"></div>
-		</div>
-		<p id="progress-text" style="font-size: 0.85em; margin-top: 8px;"></p>
-
-        <a href="https://drive.google.com/drive/folders/1WOPgd_Rt1AyOe7b87yJhCWySf35DyGOq?usp=sharing" class="upload-link" target="_blank">
-          Ver fotos
-        </a>
-
-        <div id="status-messages" style="width: 100%; max-width: 500px; font-size: 0.8em; margin-top: 10px;"></div>
+  <div id="moments-wrapper">
+    <div class="moment-card" id="card-previas">
+      <div class="moment-header">
+        <div class="moment-title">🌅 Previa (Antes 13:00)</div>
+        <button class="btn-see-all" onclick="abrirCuadricula('previas', '🌅 Previa')">Ver todo ↗</button>
+      </div>
+      <div class="moment-preview-row" id="row-previas">
+        <div class="empty-state">Buscando fotos en Drive...</div>
       </div>
     </div>
+
+    <div class="moment-card" id="card-ceremonia">
+      <div class="moment-header">
+        <div class="moment-title">⛪ Ceremonia (13:00 - 14:00)</div>
+        <button class="btn-see-all" onclick="abrirCuadricula('ceremonia', '⛪ Ceremonia')">Ver todo ↗</button>
+      </div>
+      <div class="moment-preview-row" id="row-ceremonia">
+        <div class="empty-state">Buscando fotos en Drive...</div>
+      </div>
+    </div>
+
+    <div class="moment-card" id="card-coctel">
+      <div class="moment-header">
+        <div class="moment-title">🍸 Cóctel (14:00 - 16:30)</div>
+        <button class="btn-see-all" onclick="abrirCuadricula('coctel', '🍸 Cóctel')">Ver todo ↗</button>
+      </div>
+      <div class="moment-preview-row" id="row-coctel">
+        <div class="empty-state">Buscando fotos en Drive...</div>
+      </div>
+    </div>
+
+    <div class="moment-card" id="card-comida">
+      <div class="moment-header">
+        <div class="moment-title">🍽️ Comida (16:30 - 18:00)</div>
+        <button class="btn-see-all" onclick="abrirCuadricula('comida', '🍽️ Comida')">Ver todo ↗</button>
+      </div>
+      <div class="moment-preview-row" id="row-comida">
+        <div class="empty-state">Buscando fotos en Drive...</div>
+      </div>
+    </div>
+
+    <div class="moment-card" id="card-fiesta">
+      <div class="moment-header">
+        <div class="moment-title">🎉 Fiesta (A partir de 18:00)</div>
+        <button class="btn-see-all" onclick="abrirCuadricula('fiesta', '🎉 Fiesta')">Ver todo ↗</button>
+      </div>
+      <div class="moment-preview-row" id="row-fiesta">
+        <div class="empty-state">Buscando fotos en Drive...</div>
+      </div>
+    </div>
+  </div>
 </main>
+
+<div class="grid-view-overlay" id="grid-view-overlay">
+  <div class="grid-view-header">
+    <div class="grid-view-title" id="grid-view-title">Momento</div>
+    <button class="btn-close-grid" onclick="cerrarCuadricula()">Cerrar</button>
+  </div>
+  <div class="gallery-grid" id="main-gallery-grid"></div>
+</div>
+
+<input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime" style="display: none;">
+<label for="foto-input" class="floating-upload-btn" title="Subir fotos o vídeos">+</label>
 
 <script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.js"></script>
 <script src="main.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWX2PvywFKWg2ezk0iBlEsf3NPo45bdfM1tTevv1X2i9oiBzRzG3cjPHzUo_gkQoMs/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwReVZOq-7NStVVJMPZL5JBEKan02wtFYk2qWbNwtI4qPbuXSWoU5OKZ1U2kCWMYeBf/exec";
+const CONCURRENCIA_MAXIMA = 3;
 
-// Configuración de velocidad
-const CONCURRENCIA_MAXIMA = 3; // Sube 3 fotos a la vez (valor seguro para Google Script)
+const CARPETAS_DRIVE = {
+    previas: "1kEWzhbmt0MefZPPDv_gff2xFqZQbu56W",
+    ceremonia: "1YrD1618fWqTtY2upifHUtrzsrYYkGIoG",
+    coctel: "1N64y54W9ZDufToxNgor0KnZ1jnVNfLYj",
+    comida: "1o_SwNQuJ_qk6exQNcwd-5jnUyow0P9XI",
+    fiesta: "1Q_udT2oQbsHddvRvjLNZi_qWAJ-vL3Bs"
+};
+
+let datosGaleria = { previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [] };
+let seccionActiva = null;
+let subidasEnCurso = 0;
+
+window.addEventListener('beforeunload', (e) => {
+    if (subidasEnCurso > 0) {
+        e.preventDefault();
+        return "Hay fotos subiéndose. Si cierras la página ahora, se cancelará la carga.";
+    }
+});
+
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const respuesta = await fetch(SCRIPT_URL);
+        const data = await respuesta.json();
+        
+        datosGaleria = data;
+        
+        Object.keys(CARPETAS_DRIVE).forEach(seccion => {
+            actualizarFilaMiniaturas(seccion);
+        });
+        
+        document.getElementById('progress-area').style.display = 'none';
+    } catch (err) {
+        document.getElementById('progress-text').innerText = "Galería lista para recibir fotos.";
+        setTimeout(() => document.getElementById('progress-area').style.display = 'none', 3000);
+        
+        Object.keys(CARPETAS_DRIVE).forEach(seccion => {
+            actualizarFilaMiniaturas(seccion);
+        });
+    }
+});
+
+function abrirCuadricula(seccion, titulo) {
+    seccionActiva = seccion;
+    document.getElementById('grid-view-title').innerText = titulo;
+    document.getElementById('grid-view-overlay').style.display = 'block';
+    renderizarCuadriculaCompleta();
+}
+
+function cerrarCuadricula() {
+    document.getElementById('grid-view-overlay').style.display = 'none';
+    seccionActiva = null;
+}
+
+function renderizarCuadriculaCompleta() {
+    const grid = document.getElementById('main-gallery-grid');
+    grid.innerHTML = '';
+    
+    if (!seccionActiva) return;
+    
+    datosGaleria[seccionActiva].forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        
+        let mediaTag = item.type.includes('video') 
+            ? `<video src="${item.url}" muted autoplay loop playsinline></video>`
+            : `<img src="${item.url}">`;
+            
+        let textoEstado = item.status === 'pending' ? '0%' : item.status === 'error' ? '❌' : '';
+        
+        div.innerHTML = `${mediaTag}<div class="item-status ${item.status}" id="status-grid-${item.id}">${textoEstado}</div>`;
+        grid.appendChild(div);
+    });
+}
 
 document.getElementById('foto-input').addEventListener('change', async function(e) {
     const files = Array.from(e.target.files);
-    const status = document.getElementById('status-messages');
-    const progressBar = document.getElementById('progress-bar');
-    const progressArea = document.getElementById('progress-area');
-    const progressText = document.getElementById('progress-text');
-    const loader = document.getElementById('loader-circle');
-    
     if (files.length === 0) return;
 
-    status.innerHTML = '';
-    progressArea.style.display = 'block';
-    loader.style.display = 'block';
+    const progressArea = document.getElementById('progress-area');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
     
+    progressArea.style.display = 'block';
+    progressText.innerText = "Analizando archivos...";
+
     let uploadedCount = 0;
     const validFiles = [];
+    const FECHA_BODA_LIMITE = new Date('2026-09-05T13:00:00');
+    let archivosRechazados = 0;
 
-    // 1. Filtrado rápido de metadatos (esto suele ser instantáneo)
-    progressText.innerText = "Analizando archivos...";
     for (let file of files) {
+        let fechaUso = new Date(file.lastModified);
+        let tieneMetadatosValidos = false;
+        let tags = null;
+        
         try {
-            const tags = await ExifReader.load(file);
-            const fechaOriginal = tags['DateTimeOriginal']?.description || tags['CreationDate']?.description;
+            tags = await ExifReader.load(file);
+        } catch (err) { }
 
-            if (!fechaOriginal) {
-                appendStatus(file.name, "⚠️ No es original (WhatsApp)", "#d9534f");
-            } else {
-                const extension = file.name.split('.').pop().toLowerCase();
-                const nuevoNombre = fechaOriginal.replace(/:/g, '-').replace(/\s/g, '_') + '.' + extension;
-                validFiles.push({ file, nuevoNombre });
+        // --- EVALUACIÓN DE VÍDEOS ---
+        if (file.type.includes('video')) {
+            const esNombreWhatsApp = file.name.toLowerCase().includes('whatsapp');
+            if (!esNombreWhatsApp) {
+                tieneMetadatosValidos = true;
             }
-        } catch (err) {
-            appendStatus(file.name, "❌ Error metadatos", "#d9534f");
+        } 
+        // --- EVALUACIÓN DE FOTOS ---
+        else {
+            if (tags && (tags['Make'] || tags['Model'] || tags['Software'] || tags['DateTimeOriginal'])) {
+                tieneMetadatosValidos = true;
+            }
         }
+
+        if (tags) {
+            const fechaOriginalStr = tags['DateTimeOriginal']?.description || tags['CreationDate']?.description;
+            if (fechaOriginalStr) {
+                const partes = fechaOriginalStr.split(" ");
+                const fechaPartes = partes[0].replace(/:/g, "-");
+                fechaUso = new Date(`${fechaPartes}T${partes[1]}`);
+            }
+        }
+
+        if (!tieneMetadatosValidos) {
+            archivosRechazados++;
+            continue; 
+        }
+
+        let seccion = "fiesta";
+        if (fechaUso < FECHA_BODA_LIMITE) {
+            seccion = "previas";
+        } else {
+            const horas = fechaUso.getHours() + (fechaUso.getMinutes() / 60);
+            if (horas >= 13.0 && horas < 14.0) seccion = "ceremonia";
+            else if (horas >= 14.0 && horas < 16.5) seccion = "coctel";
+            else if (horas >= 16.5 && horas < 18.0) seccion = "comida";
+            else seccion = "fiesta";
+        }
+
+        const extension = file.name.split('.').pop().toLowerCase();
+        const timestampName = fechaUso.toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/:/g, '-') + '.' + extension;
+
+        const localURL = URL.createObjectURL(file);
+        const itemId = 'file-' + Math.random().toString(36).substr(2, 9);
+        
+        const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending' };
+        datosGaleria[seccion].unshift(nuevoItem); 
+
+        actualizarFilaMiniaturas(seccion);
+        validFiles.push({ file, nuevoNombre: timestampName, itemId, seccion });
     }
 
     if (validFiles.length === 0) {
-        loader.style.display = 'none';
-        progressText.innerText = "No se han encontrado fotos válidas.";
+        progressText.innerText = `⚠️ No se subió nada. Por favor, selecciona fotos o vídeos originales.`;
+        setTimeout(() => { progressArea.style.display = 'none'; }, 5000);
         return;
     }
 
-    // 2. Subida en paralelo (La clave de la velocidad)
+    if (seccionActiva) renderizarCuadriculaCompleta();
+
+    if (archivosRechazados > 0) {
+        progressText.innerText = `Subiendo... (${archivosRechazados} filtrados por calidad/WhatsApp)`;
+        await new Promise(r => setTimeout(r, 2000)); 
+    }
+
     const ejecutarSubidas = async () => {
         const cola = [...validFiles];
         const activos = [];
+        subidasEnCurso = validFiles.length;
 
         async function procesarSiguiente() {
             if (cola.length === 0) return;
             
             const item = cola.shift();
-            const promesaSubida = subirArchivo(item.file, item.nuevoNombre).then(() => {
+            const promesaSubida = subirArchivo(item.file, item.nuevoNombre, item.itemId, item.seccion).then(() => {
                 uploadedCount++;
+                subidasEnCurso--;
                 const percent = Math.round((uploadedCount / validFiles.length) * 100);
                 progressBar.style.width = percent + '%';
                 progressText.innerText = `Subiendo fotos... (${uploadedCount}/${validFiles.length})`;
@@ -215,12 +494,10 @@ document.getElementById('foto-input').addEventListener('change', async function(
 
             activos.push(promesaSubida);
             await promesaSubida;
-            // Cuando una termina, sacamos la promesa de la lista y buscamos la siguiente
             activos.splice(activos.indexOf(promesaSubida), 1);
             await procesarSiguiente();
         }
 
-        // Lanzamos las primeras subidas en paralelo según la CONCURRENCIA_MAXIMA
         const promesasIniciales = [];
         for (let i = 0; i < Math.min(CONCURRENCIA_MAXIMA, cola.length); i++) {
             promesasIniciales.push(procesarSiguiente());
@@ -229,42 +506,131 @@ document.getElementById('foto-input').addEventListener('change', async function(
     };
 
     await ejecutarSubidas();
-
-    // --- FIN DE SUBIDA ---
-    loader.style.display = 'none';
-    progressText.innerHTML = "<strong>¡Gracias por mandarnos tus fotos!</strong><br>Entra en el link de abajo si quieres ver el resto :)";
-    progressText.style.textAlign = "center";
+    subidasEnCurso = 0;
+    setTimeout(() => { progressArea.style.display = 'none'; progressBar.style.width = '0%'; }, 3000);
 });
 
-async function subirArchivo(file, nuevoNombre) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = async function() {
-            try {
-                const base64 = reader.result.split(',')[1];
-                await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    body: JSON.stringify({ base64: base64, type: file.type, name: nuevoNombre })
-                });
-                appendStatus(nuevoNombre, "✅ OK", "#5cb85c");
-            } catch (e) {
-                appendStatus(nuevoNombre, "❌ Error", "#d9534f");
-            }
-            resolve();
-        };
-        reader.readAsDataURL(file);
+function actualizarFilaMiniaturas(seccion) {
+    const row = document.getElementById(`row-${seccion}`);
+    row.innerHTML = '';
+    
+    if (!datosGaleria[seccion] || datosGaleria[seccion].length === 0) {
+        row.innerHTML = `<div class="empty-state">Aún no hay fotos en este momento</div>`;
+        return;
+    }
+
+    datosGaleria[seccion].slice(0, 10).forEach(item => {
+        const thumb = document.createElement('div');
+        thumb.className = 'preview-thumb';
+        
+        let mediaTag = item.type.includes('video') 
+            ? `<video src="${item.url}" muted></video>`
+            : `<img src="${item.url}">`;
+            
+        thumb.innerHTML = mediaTag;
+        row.appendChild(thumb);
     });
 }
 
-function appendStatus(fileName, message, color) {
-    const status = document.getElementById('status-messages');
-    const div = document.createElement('div');
-    div.style.color = color;
-    div.style.borderBottom = "1px solid #eee";
-    div.style.padding = "3px 0";
-    div.innerHTML = `<strong>${fileName}</strong>: ${message}`;
-    status.appendChild(div);
+async function subirArchivo(file, nuevoNombre, itemId, seccion) {
+    return new Promise(async (resolve) => {
+        let accessToken = "";
+        try {
+            const resToken = await fetch(`${SCRIPT_URL}?get_token=true`);
+            const dataToken = await resToken.json();
+            accessToken = dataToken.token;
+        } catch (err) {
+            marcarErrorVisual(itemId, seccion);
+            return resolve();
+        }
+
+        const folderId = CARPETAS_DRIVE[seccion];
+        const boundary = "-------314159265358979323846";
+        const delimiter = `\r\n--${boundary}\r\n`;
+        const close_delim = `\r\n--${boundary}--`;
+
+        const metadata = {
+            name: nuevoNombre,
+            mimeType: file.type,
+            parents: [folderId]
+        };
+
+        const reader = new FileReader();
+        reader.onerror = () => { marcarErrorVisual(itemId, seccion); resolve(); };
+        
+        reader.onload = function() {
+            const arrayBuffer = reader.result;
+            const head = `${delimiter}Content-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}${delimiter}Content-Type: ${file.type}\r\nContent-Transfer-Encoding: binary\r\n\r\n`;
+            
+            const sToBuffer = (str) => {
+                const buf = new ArrayBuffer(str.length);
+                const bufView = new Uint8Array(buf);
+                for (let i = 0; i < str.length; i++) bufView[i] = str.charCodeAt(i);
+                return buf;
+            };
+
+            const headBuffer = sToBuffer(head);
+            const tailBuffer = sToBuffer(close_delim);
+
+            const finalBuffer = new Uint8Array(headBuffer.byteLength + arrayBuffer.byteLength + tailBuffer.byteLength);
+            finalBuffer.set(new Uint8Array(headBuffer), 0);
+            finalBuffer.set(new Uint8Array(arrayBuffer), headBuffer.byteLength);
+            finalBuffer.set(new Uint8Array(tailBuffer), headBuffer.byteLength + arrayBuffer.byteLength);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`, true);
+            xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
+            xhr.setRequestHeader("Content-Type", `multipart/related; boundary=${boundary}`);
+
+            xhr.upload.addEventListener("progress", function(e) {
+                if (e.lengthComputable) {
+                    const porcentajeReal = Math.round((e.loaded / e.total) * 100);
+                    const elGridStatus = document.getElementById(`status-grid-${itemId}`);
+                    if (elGridStatus) {
+                        elGridStatus.innerText = (porcentajeReal >= 100 ? 99 : porcentajeReal) + "%";
+                    }
+                }
+            });
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    let statusResult = 'done';
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        const elGridStatus = document.getElementById(`status-grid-${itemId}`);
+                        if (elGridStatus) elGridStatus.innerText = "100%";
+                    } else {
+                        statusResult = 'error';
+                    }
+
+                    const obj = datosGaleria[seccion].find(i => i.id === itemId);
+                    if (obj) obj.status = statusResult;
+
+                    setTimeout(() => {
+                        const elGrid = document.getElementById(`status-grid-${itemId}`);
+                        if (elGrid) {
+                            elGrid.className = `item-status ${statusResult}`;
+                            elGrid.innerText = statusResult === 'error' ? '❌' : '';
+                        }
+                        resolve();
+                    }, 500);
+                }
+            };
+
+            xhr.send(finalBuffer.buffer);
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+function marcarErrorVisual(itemId, seccion) {
+    const obj = datosGaleria[seccion].find(i => i.id === itemId);
+    if (obj) obj.status = 'error';
+    const elGrid = document.getElementById(`status-grid-${itemId}`);
+    if (elGrid) {
+        elGrid.className = `item-status error`;
+        elGrid.innerText = '❌';
+    }
 }
 </script>
 </body>

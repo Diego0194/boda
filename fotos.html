@@ -33,7 +33,7 @@
     .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
     
     .progress-fixed {
-      display: block;
+      display: none; /* Oculto por defecto hasta que se valide la clave */
       position: fixed;
       top: 0; left: 0; width: 100%;
       background: rgba(255,255,255,0.95);
@@ -45,6 +45,62 @@
     .progress-bar-bg { background: var(--gray-light); height: 4px; border-radius: 2px; overflow: hidden; margin-top: 4px;}
     .progress-bar-fill { width: 0%; height: 100%; background: #34c759; transition: width 0.3s; }
     .progress-status { font-size: 11px; text-align: center; color: var(--text-main); font-weight: 600; }
+
+    /* Estilos del Bloqueo por Contraseña con Playfair Display */
+    .password-gate-container {
+      max-width: 400px;
+      margin: 40px auto;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+    }
+    .password-gate-container p {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .password-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .password-input {
+      padding: 12px;
+      border: 1px solid var(--gray-light);
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+      font-family: 'Playfair Display', serif;
+      transition: border-color 0.2s;
+    }
+    .password-input:focus {
+      border-color: var(--accent);
+    }
+    .btn-unlock {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+      transition: background 0.2s;
+    }
+    .btn-unlock:hover {
+      opacity: 0.9;
+    }
+    .error-msg {
+      color: #d9534f;
+      font-size: 14px;
+      margin-top: 8px;
+      display: none;
+    }
 
     .moment-card {
       background: var(--card-bg);
@@ -64,10 +120,25 @@
       font-size: 18px;
       font-weight: 700;
     }
+    
+    /* Contenedor para agrupar los botones de acción del momento */
+    .moment-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
     .btn-see-all {
       background: none;
       border: none;
       color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-download-all {
+      background: none;
+      border: none;
+      color: gray;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -136,6 +207,7 @@
       position: relative;
       background: var(--gray-light);
       overflow: hidden;
+      cursor: pointer;
     }
     .gallery-item img, .gallery-item video { width: 100%; height: 100%; object-fit: cover; }
     
@@ -183,17 +255,93 @@
     .floating-upload-btn:active { transform: translateX(-50%) scale(0.92); }
 
     @keyframes popInCentrado {
-      0% {
-        transform: translateX(-50%) scale(0);
-        opacity: 0;
-      }
-      70% {
-        transform: translateX(-50%) scale(1.3);
-      }
-      100% {
-        transform: translateX(-50%) scale(1);
-        opacity: 1;
-      }
+      0% { transform: translateX(-50%) scale(0); opacity: 0; }
+      70% { transform: translateX(-50%) scale(1.3); }
+      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+
+    /* Etiqueta flotante optimizada para el emoji 🎞️ */
+    .video-indicator {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1;
+      z-index: 400;
+      pointer-events: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    }
+
+    /* Estilos para el visor de fotos a pantalla completa (Lightbox) */
+    .lightbox-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox-content-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+    .lightbox-media {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+      z-index: 2050;
+    }
+    .lightbox-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2100;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .lightbox-nav-btn:hover { background: rgba(255, 255, 255, 0.4); }
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+    
+    /* Texto de pista "Toca fuera para volver" con estilo de píldora redondeada */
+    .lightbox-close-hint {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.85);
+      color: #1d1d1f;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      pointer-events: none;
+      font-family: 'Inter', sans-serif;
+      z-index: 2100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
   </style>
 </head>
@@ -240,56 +388,87 @@
       </div>
   </div>
 
-  <div id="moments-wrapper">
-    <div class="moment-card" id="card-previas">
-      <div class="moment-header">
-        <div class="moment-title">🌅 Previa (Antes 13:00)</div>
-        <button class="btn-see-all" onclick="abrirCuadricula('previas', '🌅 Previa')">Ver todo ↗</button>
+  <!-- Formulario de acceso por contraseña -->
+  <div class="password-gate-container" id="password-gate">
+    <p>Introduce la contraseña para poder acceder a las fotos del evento.</p>
+    <div class="password-form">
+      <input type="password" id="wedding-password" class="password-input" placeholder="Contraseña">
+      <button class="btn-unlock" onclick="verificarContrasena()">Acceder a la galería</button>
+    </div>
+    <div class="error-msg" id="password-error">Contraseña incorrecta. Inténtalo de nuevo.</div>
+  </div>
+
+  <!-- Contenedor protegido oculto inicialmente -->
+  <div id="protected-content" style="display: none;">
+    <div id="moments-wrapper">
+      <div class="moment-card" id="card-previas">
+        <div class="moment-header">
+          <div class="moment-title">🌅 Previa (Antes 13:00)</div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('previas')">Descargar</button>
+            <button class="btn-see-all" onclick="abrirCuadricula('previas', '🌅 Previa')">Ver todo ↗</button>
+          </div>
+        </div>
+        <div class="moment-preview-row" id="row-previas">
+          <div class="empty-state">Buscando fotos en Drive...</div>
+        </div>
       </div>
-      <div class="moment-preview-row" id="row-previas">
-        <div class="empty-state">Buscando fotos en Drive...</div>
+
+      <div class="moment-card" id="card-ceremonia">
+        <div class="moment-header">
+          <div class="moment-title">💐 Ceremonia (13:00 - 14:00)</div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('ceremonia')">Descargar</button>
+            <button class="btn-see-all" onclick="abrirCuadricula('ceremonia', '⛪ Ceremonia')">Ver todo ↗</button>
+          </div>
+        </div>
+        <div class="moment-preview-row" id="row-ceremonia">
+          <div class="empty-state">Buscando fotos en Drive...</div>
+        </div>
+      </div>
+
+      <div class="moment-card" id="card-coctel">
+        <div class="moment-header">
+          <div class="moment-title">🍸 Cóctel (14:00 - 16:30)</div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('coctel')">Descargar</button>
+            <button class="btn-see-all" onclick="abrirCuadricula('coctel', '🍸 Cóctel')">Ver todo ↗</button>
+          </div>
+        </div>
+        <div class="moment-preview-row" id="row-coctel">
+          <div class="empty-state">Buscando fotos en Drive...</div>
+        </div>
+      </div>
+
+      <div class="moment-card" id="card-comida">
+        <div class="moment-header">
+          <div class="moment-title">🍽️ Comida (16:30 - 18:00)</div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('comida')">Descargar</button>
+            <button class="btn-see-all" onclick="abrirCuadricula('comida', '🍽️ Comida')">Ver todo ↗</button>
+          </div>
+        </div>
+        <div class="moment-preview-row" id="row-comida">
+          <div class="empty-state">Buscando fotos en Drive...</div>
+        </div>
+      </div>
+
+      <div class="moment-card" id="card-fiesta">
+        <div class="moment-header">
+          <div class="moment-title">🎉 Fiesta (A partir de 18:00)</div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('fiesta')">Descargar</button>
+            <button class="btn-see-all" onclick="abrirCuadricula('fiesta', '🎉 Fiesta')">Ver todo ↗</button>
+          </div>
+        </div>
+        <div class="moment-preview-row" id="row-fiesta">
+          <div class="empty-state">Buscando fotos en Drive...</div>
+        </div>
       </div>
     </div>
 
-    <div class="moment-card" id="card-ceremonia">
-      <div class="moment-header">
-        <div class="moment-title">⛪ Ceremonia (13:00 - 14:00)</div>
-        <button class="btn-see-all" onclick="abrirCuadricula('ceremonia', '⛪ Ceremonia')">Ver todo ↗</button>
-      </div>
-      <div class="moment-preview-row" id="row-ceremonia">
-        <div class="empty-state">Buscando fotos en Drive...</div>
-      </div>
-    </div>
-
-    <div class="moment-card" id="card-coctel">
-      <div class="moment-header">
-        <div class="moment-title">🍸 Cóctel (14:00 - 16:30)</div>
-        <button class="btn-see-all" onclick="abrirCuadricula('coctel', '🍸 Cóctel')">Ver todo ↗</button>
-      </div>
-      <div class="moment-preview-row" id="row-coctel">
-        <div class="empty-state">Buscando fotos en Drive...</div>
-      </div>
-    </div>
-
-    <div class="moment-card" id="card-comida">
-      <div class="moment-header">
-        <div class="moment-title">🍽️ Comida (16:30 - 18:00)</div>
-        <button class="btn-see-all" onclick="abrirCuadricula('comida', '🍽️ Comida')">Ver todo ↗</button>
-      </div>
-      <div class="moment-preview-row" id="row-comida">
-        <div class="empty-state">Buscando fotos en Drive...</div>
-      </div>
-    </div>
-
-    <div class="moment-card" id="card-fiesta">
-      <div class="moment-header">
-        <div class="moment-title">🎉 Fiesta (A partir de 18:00)</div>
-        <button class="btn-see-all" onclick="abrirCuadricula('fiesta', '🎉 Fiesta')">Ver todo ↗</button>
-      </div>
-      <div class="moment-preview-row" id="row-fiesta">
-        <div class="empty-state">Buscando fotos en Drive...</div>
-      </div>
-    </div>
+    <input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime" style="display: none;">
+    <label for="foto-input" class="floating-upload-btn" title="Subir fotos o vídeos">+</label>
   </div>
 </main>
 
@@ -301,13 +480,42 @@
   <div class="gallery-grid" id="main-gallery-grid"></div>
 </div>
 
-<input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime" style="display: none;">
-<label for="foto-input" class="floating-upload-btn" title="Subir fotos o vídeos">+</label>
+<!-- Elemento del visor Lightbox a pantalla completa -->
+<div class="lightbox-overlay" id="lightbox-overlay" onclick="cerrarLightbox(event)">
+  <div class="lightbox-content-container">
+    <span class="lightbox-close-hint">Toca fuera para volver</span>
+    <button class="lightbox-nav-btn lightbox-prev" onclick="navegarLightbox(-1, event)">‹</button>
+    <div id="lightbox-media-box" style="width: 100%; display: flex; justify-content: center; align-items: center;"></div>
+    <button class="lightbox-nav-btn lightbox-next" onclick="navegarLightbox(1, event)">›</button>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.js"></script>
 <script src="main.js"></script>
 
 <script>
+// --- CONFIGURACIÓN DE SEGURIDAD ---
+const CONTRASEÑA_CORRECTA = "05-09-2026"; 
+
+function verificarContrasena() {
+    const inputVal = document.getElementById('wedding-password').value;
+    const errorMsg = document.getElementById('password-error');
+    
+    if (inputVal === CONTRASEÑA_CORRECTA) {
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('protected-content').style.display = 'block';
+        inicializarGaleria();
+    } else {
+        errorMsg.style.display = 'block';
+    }
+}
+
+document.getElementById('wedding-password').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        verificarContrasena();
+    }
+});
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwReVZOq-7NStVVJMPZL5JBEKan02wtFYk2qWbNwtI4qPbuXSWoU5OKZ1U2kCWMYeBf/exec";
 const CONCURRENCIA_MAXIMA = 3;
 
@@ -322,6 +530,7 @@ const CARPETAS_DRIVE = {
 let datosGaleria = { previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [] };
 let seccionActiva = null;
 let subidasEnCurso = 0;
+let indiceLightboxActivo = -1;
 
 window.addEventListener('beforeunload', (e) => {
     if (subidasEnCurso > 0) {
@@ -330,27 +539,29 @@ window.addEventListener('beforeunload', (e) => {
     }
 });
 
-window.addEventListener('DOMContentLoaded', async () => {
+async function inicializarGaleria() {
+    const progressArea = document.getElementById('progress-area');
+    progressArea.style.display = 'block';
+    
     try {
         const respuesta = await fetch(SCRIPT_URL);
         const data = await respuesta.json();
-        
         datosGaleria = data;
         
         Object.keys(CARPETAS_DRIVE).forEach(seccion => {
             actualizarFilaMiniaturas(seccion);
         });
         
-        document.getElementById('progress-area').style.display = 'none';
+        progressArea.style.display = 'none';
     } catch (err) {
         document.getElementById('progress-text').innerText = "Galería lista para recibir fotos.";
-        setTimeout(() => document.getElementById('progress-area').style.display = 'none', 3000);
+        setTimeout(() => progressArea.style.display = 'none', 3000);
         
         Object.keys(CARPETAS_DRIVE).forEach(seccion => {
             actualizarFilaMiniaturas(seccion);
         });
     }
-});
+}
 
 function abrirCuadricula(seccion, titulo) {
     seccionActiva = seccion;
@@ -364,154 +575,104 @@ function cerrarCuadricula() {
     seccionActiva = null;
 }
 
+function descargarCarpeta(seccion) {
+    const folderId = CARPETAS_DRIVE[seccion];
+    if (!folderId) return;
+    const urlDrive = `https://drive.google.com/drive/folders/${folderId}?usp=sharing`;
+    window.open(urlDrive, '_blank');
+}
+
 function renderizarCuadriculaCompleta() {
     const grid = document.getElementById('main-gallery-grid');
     grid.innerHTML = '';
     
     if (!seccionActiva) return;
     
-    datosGaleria[seccionActiva].forEach(item => {
+    datosGaleria[seccionActiva].forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'gallery-item';
+        div.onclick = () => abrirLightbox(index);
         
-        let mediaTag = item.type.includes('video') 
-            ? `<video src="${item.url}" muted autoplay loop playsinline></video>`
-            : `<img src="${item.url}">`;
+        let mediaTag = '';
+        let videoIndicator = '';
+        
+        if (item.type.includes('video')) {
+            mediaTag = `<video src="${item.url}" muted autoplay loop playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
+            videoIndicator = `<span class="video-indicator">🎞️</span>`;
+        } else {
+            mediaTag = `<img src="${item.url}">`;
+        }
             
         let textoEstado = item.status === 'pending' ? '0%' : item.status === 'error' ? '❌' : '';
         
-        div.innerHTML = `${mediaTag}<div class="item-status ${item.status}" id="status-grid-${item.id}">${textoEstado}</div>`;
+        div.innerHTML = `${mediaTag}${videoIndicator}<div class="item-status ${item.status}" id="status-grid-${item.id}">${textoEstado}</div>`;
         grid.appendChild(div);
     });
 }
 
-document.getElementById('foto-input').addEventListener('change', async function(e) {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-
-    const progressArea = document.getElementById('progress-area');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
+function mostrarElementoLightbox() {
+    const box = document.getElementById('lightbox-media-box');
+    box.innerHTML = ''; 
     
-    progressArea.style.display = 'block';
-    progressText.innerText = "Analizando archivos...";
-
-    let uploadedCount = 0;
-    const validFiles = [];
-    const FECHA_BODA_LIMITE = new Date('2026-09-05T13:00:00');
-    let archivosRechazados = 0;
-
-    for (let file of files) {
-        let fechaUso = new Date(file.lastModified);
-        let tieneMetadatosValidos = false;
-        let tags = null;
+    const item = datosGaleria[seccionActiva][indiceLightboxActivo];
+    
+    if (item.type.includes('video')) {
+        let videoUrl = item.url;
+        const matchId = item.url.match(/id=([^&]+)/);
+        if (matchId && matchId[1]) {
+            videoUrl = `https://drive.google.com/file/d/${matchId[1]}/preview`;
+        }
         
-        try {
-            tags = await ExifReader.load(file);
-        } catch (err) { }
-
-        // --- EVALUACIÓN DE VÍDEOS ---
-        if (file.type.includes('video')) {
-            const esNombreWhatsApp = file.name.toLowerCase().includes('whatsapp');
-            if (!esNombreWhatsApp) {
-                tieneMetadatosValidos = true;
-            }
-        } 
-        // --- EVALUACIÓN DE FOTOS ---
-        else {
-            if (tags && (tags['Make'] || tags['Model'] || tags['Software'] || tags['DateTimeOriginal'])) {
-                tieneMetadatosValidos = true;
-            }
-        }
-
-        if (tags) {
-            const fechaOriginalStr = tags['DateTimeOriginal']?.description || tags['CreationDate']?.description;
-            if (fechaOriginalStr) {
-                const partes = fechaOriginalStr.split(" ");
-                const fechaPartes = partes[0].replace(/:/g, "-");
-                fechaUso = new Date(`${fechaPartes}T${partes[1]}`);
-            }
-        }
-
-        if (!tieneMetadatosValidos) {
-            archivosRechazados++;
-            continue; 
-        }
-
-        let seccion = "fiesta";
-        if (fechaUso < FECHA_BODA_LIMITE) {
-            seccion = "previas";
-        } else {
-            const horas = fechaUso.getHours() + (fechaUso.getMinutes() / 60);
-            if (horas >= 13.0 && horas < 14.0) seccion = "ceremonia";
-            else if (horas >= 14.0 && horas < 16.5) seccion = "coctel";
-            else if (horas >= 16.5 && horas < 18.0) seccion = "comida";
-            else seccion = "fiesta";
-        }
-
-        const extension = file.name.split('.').pop().toLowerCase();
-        const timestampName = fechaUso.toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/:/g, '-') + '.' + extension;
-
-        const localURL = URL.createObjectURL(file);
-        const itemId = 'file-' + Math.random().toString(36).substr(2, 9);
+        const iframe = document.createElement('iframe');
+        iframe.src = videoUrl;
+        iframe.className = 'lightbox-media';
+        iframe.style.width = '100%';
+        iframe.style.height = '80vh';
+        iframe.style.border = 'none';
+        iframe.allow = 'autoplay';
         
-        const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending' };
-        datosGaleria[seccion].unshift(nuevoItem); 
-
-        actualizarFilaMiniaturas(seccion);
-        validFiles.push({ file, nuevoNombre: timestampName, itemId, seccion });
+        box.appendChild(iframe);
+    } else {
+        const img = document.createElement('img');
+        img.src = item.url;
+        img.className = 'lightbox-media';
+        box.appendChild(img);
     }
+}
 
-    if (validFiles.length === 0) {
-        progressText.innerText = `⚠️ No se subió nada. Por favor, selecciona fotos o vídeos originales.`;
-        setTimeout(() => { progressArea.style.display = 'none'; }, 5000);
-        return;
+function abrirLightbox(index) {
+    if (!seccionActiva || !datosGaleria[seccionActiva][index]) return;
+    indiceLightboxActivo = index;
+    document.getElementById('lightbox-overlay').style.display = 'flex';
+    mostrarElementoLightbox();
+}
+
+function cerrarLightbox(event) {
+    const objetivosCierre = ['lightbox-overlay', 'lightbox-content-container', 'lightbox-media-box'];
+    if (objetivosCierre.includes(event.target.id) || objetivosCierre.includes(event.target.className)) {
+        document.getElementById('lightbox-overlay').style.display = 'none';
+        document.getElementById('lightbox-media-box').innerHTML = ''; 
+        indiceLightboxActivo = -1;
     }
+}
 
-    if (seccionActiva) renderizarCuadriculaCompleta();
-
-    if (archivosRechazados > 0) {
-        progressText.innerText = `Subiendo... (${archivosRechazados} filtrados por calidad/WhatsApp)`;
-        await new Promise(r => setTimeout(r, 2000)); 
-    }
-
-    const ejecutarSubidas = async () => {
-        const cola = [...validFiles];
-        const activos = [];
-        subidasEnCurso = validFiles.length;
-
-        async function procesarSiguiente() {
-            if (cola.length === 0) return;
-            
-            const item = cola.shift();
-            const promesaSubida = subirArchivo(item.file, item.nuevoNombre, item.itemId, item.seccion).then(() => {
-                uploadedCount++;
-                subidasEnCurso--;
-                const percent = Math.round((uploadedCount / validFiles.length) * 100);
-                progressBar.style.width = percent + '%';
-                progressText.innerText = `Subiendo fotos... (${uploadedCount}/${validFiles.length})`;
-            });
-
-            activos.push(promesaSubida);
-            await promesaSubida;
-            activos.splice(activos.indexOf(promesaSubida), 1);
-            await procesarSiguiente();
-        }
-
-        const promesasIniciales = [];
-        for (let i = 0; i < Math.min(CONCURRENCIA_MAXIMA, cola.length); i++) {
-            promesasIniciales.push(procesarSiguiente());
-        }
-        await Promise.all(promesasIniciales);
-    };
-
-    await ejecutarSubidas();
-    subidasEnCurso = 0;
-    setTimeout(() => { progressArea.style.display = 'none'; progressBar.style.width = '0%'; }, 3000);
-});
+function navegarLightbox(direccion, event) {
+    event.stopPropagation(); 
+    if (!seccionActiva) return;
+    
+    const totalElementos = datosGaleria[seccionActiva].length;
+    let nuevoIndice = indiceLightboxActivo + direccion;
+    
+    if (nuevoIndice >= totalElementos) nuevoIndice = 0;
+    if (nuevoIndice < 0) nuevoIndice = totalElementos - 1;
+    
+    indiceLightboxActivo = nuevoIndice;
+    mostrarElementoLightbox();
+}
 
 function actualizarFilaMiniaturas(seccion) {
     const row = document.getElementById(`row-${seccion}`);
+    if (!row) return;
     row.innerHTML = '';
     
     if (!datosGaleria[seccion] || datosGaleria[seccion].length === 0) {
@@ -519,18 +680,162 @@ function actualizarFilaMiniaturas(seccion) {
         return;
     }
 
+    const titulosSeccion = {
+        previas: '🌅 Previa',
+        ceremonia: '💐 Ceremonia',
+        coctel: '🍸 Cóctel',
+        comida: '🍽️ Comida',
+        fiesta: '🎉 Fiesta'
+    };
+
     datosGaleria[seccion].slice(0, 10).forEach(item => {
         const thumb = document.createElement('div');
         thumb.className = 'preview-thumb';
+        thumb.style.cursor = 'pointer';
+        thumb.onclick = () => abrirCuadricula(seccion, titulosSeccion[seccion]);
         
-        let mediaTag = item.type.includes('video') 
-            ? `<video src="${item.url}" muted></video>`
-            : `<img src="${item.url}">`;
+        let mediaTag = '';
+        let videoIndicator = '';
+        
+        if (item.type.includes('video')) {
+            mediaTag = `<video src="${item.url}" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
+            videoIndicator = `<span class="video-indicator">🎞️</span>`;
+        } else {
+            mediaTag = `<img src="${item.url}">`;
+        }
             
-        thumb.innerHTML = mediaTag;
+        thumb.innerHTML = `${mediaTag}${videoIndicator}`;
         row.appendChild(thumb);
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const fotoInput = document.getElementById('foto-input');
+    if(fotoInput) {
+        fotoInput.addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            const progressArea = document.getElementById('progress-area');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            progressArea.style.display = 'block';
+            progressText.innerText = "Analizando archivos...";
+
+            let uploadedCount = 0;
+            const validFiles = [];
+            const FECHA_BODA_LIMITE = new Date('2026-09-05T13:00:00');
+            let archivosRechazados = 0;
+
+            for (let file of files) {
+                let fechaUso = new Date(file.lastModified);
+                let tieneMetadatosValidos = false;
+                let tags = null;
+                
+                try {
+                    tags = await ExifReader.load(file);
+                } catch (err) { }
+
+                if (file.type.includes('video')) {
+                    const esNombreWhatsApp = file.name.toLowerCase().includes('whatsapp');
+                    if (!esNombreWhatsApp) {
+                        tieneMetadatosValidos = true;
+                    }
+                } 
+                else {
+                    if (tags && (tags['Make'] || tags['Model'] || tags['Software'] || tags['DateTimeOriginal'])) {
+                        tieneMetadatosValidos = true;
+                    }
+                }
+
+                if (tags) {
+                    const fechaOriginalStr = tags['DateTimeOriginal']?.description || tags['CreationDate']?.description;
+                    if (fechaOriginalStr) {
+                        const partes = fechaOriginalStr.split(" ");
+                        const fechaPartes = partes[0].replace(/:/g, "-");
+                        fechaUso = new Date(`${fechaPartes}T${partes[1]}`);
+                    }
+                }
+
+                if (!tieneMetadatosValidos) {
+                    archivosRechazados++;
+                    continue; 
+                }
+
+                let seccion = "fiesta";
+                if (fechaUso < FECHA_BODA_LIMITE) {
+                    seccion = "previas";
+                } else {
+                    const horas = fechaUso.getHours() + (fechaUso.getMinutes() / 60);
+                    if (horas >= 13.0 && horas < 14.0) seccion = "ceremonia";
+                    else if (horas >= 14.0 && horas < 16.5) seccion = "coctel";
+                    else if (horas >= 16.5 && horas < 18.0) seccion = "comida";
+                    else seccion = "fiesta";
+                }
+
+                const extension = file.name.split('.').pop().toLowerCase();
+                const timestampName = fechaUso.toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/:/g, '-') + '.' + extension;
+
+                const localURL = URL.createObjectURL(file);
+                const itemId = 'file-' + Math.random().toString(36).substr(2, 9);
+                
+                const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending' };
+                datosGaleria[seccion].unshift(nuevoItem); 
+
+                actualizarFilaMiniaturas(seccion);
+                validFiles.push({ file, nuevoNombre: timestampName, itemId, seccion });
+            }
+
+            if (validFiles.length === 0) {
+                progressText.innerText = `⚠️ No se subió nada. Por favor, selecciona fotos o vídeos originales.`;
+                setTimeout(() => { progressArea.style.display = 'none'; }, 5000);
+                return;
+            }
+
+            if (seccionActiva) renderizarCuadriculaCompleta();
+
+            if (archivosRechazados > 0) {
+                progressText.innerText = `Subiendo... (${archivosRechazados} filtrados por calidad/WhatsApp)`;
+                await new Promise(r => setTimeout(r, 2000)); 
+            }
+
+            const ejecutarSubidas = async () => {
+                const cola = [...validFiles];
+                const activos = [];
+                subidasEnCurso = validFiles.length;
+
+                async function procesarSiguiente() {
+                    if (cola.length === 0) return;
+                    
+                    const item = cola.shift();
+                    const promesaSubida = subirArchivo(item.file, item.nuevoNombre, item.itemId, item.seccion).then(() => {
+                        uploadedCount++;
+                        subidasEnCurso--;
+                        const percent = Math.round((uploadedCount / validFiles.length) * 100);
+                        progressBar.style.width = percent + '%';
+                        progressText.innerText = `Subiendo fotos... (${uploadedCount}/${validFiles.length})`;
+                    });
+
+                    activos.push(promesaSubida);
+                    await promesaSubida;
+                    activos.splice(activos.indexOf(promesaSubida), 1);
+                    await procesarSiguiente();
+                }
+
+                const promesasIniciales = [];
+                for (let i = 0; i < Math.min(CONCURRENCIA_MAXIMA, cola.length); i++) {
+                    promesasIniciales.push(procesarSiguiente());
+                }
+                await Promise.all(promesasIniciales);
+            };
+
+            await ejecutarSubidas();
+            subidasEnCurso = 0;
+            setTimeout(() => { progressArea.style.display = 'none'; progressBar.style.width = '0%'; }, 3000);
+        });
+    }
+});
 
 async function subirArchivo(file, nuevoNombre, itemId, seccion) {
     return new Promise(async (resolve) => {

@@ -347,14 +347,41 @@
   
   let fotosMeme = []; 
   let fotoActivaId = null;
-  let miVotoActual = localStorage.getItem('votoMemeFID') || null;
+
+  // --- Funciones para manejar Cookies robustas en móviles ---
+  function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+  }
+
+  function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  }
+
+  function eraseCookie(name) {   
+    document.cookie = name + '=; Max-Age=-0; path=/';
+  }
+
+  let miVotoActual = getCookie('votoMemeFID') || null;
 
   window.onload = async () => {
     try {
       const response = await fetch(`${SCRIPT_URL}?action=get_memes`);
       const data = await response.json();
       
-      fotosMeme = data; 
+      fotosMeme = Array.isArray(data) ? data : []; 
       renderizarGaleria(); 
     } catch (error) {
       console.error("Error cargando fotos de Drive", error);
@@ -364,9 +391,22 @@
 
   function renderizarGaleria() {
     const grid = document.getElementById('meme-gallery');
+    if (!grid) return;
     grid.innerHTML = '';
     
+    // Ordenar de mayor a menor número de votos
     fotosMeme.sort((a, b) => b.votos - a.votos);
+
+    // Calcular los puestos reales teniendo en cuenta empates (Competition Ranking / Standard Competition Ranking)
+    let puestos = [];
+    let puestoActual = 1;
+    
+    for (let i = 0; i < fotosMeme.length; i++) {
+      if (i > 0 && fotosMeme[i].votos < fotosMeme[i - 1].votos) {
+        puestoActual = i + 1; // Si tiene menos votos que la anterior, el puesto salta al índice real + 1
+      }
+      puestos.push(puestoActual);
+    }
 
     fotosMeme.forEach((foto, index) => {
       const div = document.createElement('div');
@@ -376,17 +416,18 @@
       
       let rankHtml = '';
       let rankClass = '';
+      const puesto = puestos[index];
       
       if (foto.votos > 0) {
-        if (index === 0) {
-          rankHtml = '<div class="rank-badge gold">👑 1º</div>';
+        if (puesto === 1) {
+          rankHtml = `<div class="rank-badge gold">👑 ${puesto}º</div>`;
           rankClass = 'is-first';
-        } else if (index === 1) {
-          rankHtml = '<div class="rank-badge silver">🥈 2º</div>';
-        } else if (index === 2) {
-          rankHtml = '<div class="rank-badge bronze">🥉 3º</div>';
+        } else if (puesto === 2) {
+          rankHtml = `<div class="rank-badge silver">🥈 ${puesto}º</div>`;
+        } else if (puesto === 3) {
+          rankHtml = `<div class="rank-badge bronze">🥉 ${puesto}º</div>`;
         } else {
-          rankHtml = `<div class="rank-badge basic">#${index + 1}</div>`;
+          rankHtml = `<div class="rank-badge basic">#${puesto}</div>`;
         }
       }
 
@@ -456,14 +497,14 @@
         if (esRetirarVoto) {
           actualizarVotosLocal(fotoActivaId, -1);
           miVotoActual = null;
-          localStorage.removeItem('votoMemeFID');
+          eraseCookie('votoMemeFID');
         } else {
           if (miVotoActual) {
             actualizarVotosLocal(miVotoActual, -1);
           }
           actualizarVotosLocal(fotoActivaId, 1);
           miVotoActual = fotoActivaId;
-          localStorage.setItem('votoMemeFID', fotoActivaId);
+          setCookie('votoMemeFID', fotoActivaId, 365);
         }
       } else {
         console.error("Error en el servidor:", data.error);

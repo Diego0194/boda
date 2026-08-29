@@ -377,6 +377,15 @@
   let miVotoActual = getCookie('votoMemeFID') || null;
 
   window.onload = async () => {
+    await cargarMemes();
+    
+    // Actualizar automáticamente cada 30 segundos en segundo plano
+    setInterval(async () => {
+      await cargarMemes(true); // true para modo silencioso (sin molestar si hay modales abiertos)
+    }, 5000);
+  };
+
+  async function cargarMemes(silencioso = false) {
     try {
       const response = await fetch(`${SCRIPT_URL}?action=get_memes`);
       const data = await response.json();
@@ -384,10 +393,12 @@
       fotosMeme = Array.isArray(data) ? data : []; 
       renderizarGaleria(); 
     } catch (error) {
-      console.error("Error cargando fotos de Drive", error);
-      document.getElementById('meme-gallery').innerHTML = "<p style='text-align:center; color:#a4b0be;'>Error al cargar las fotos. Actualiza la página.</p>";
+      if (!silencioso) {
+        console.error("Error cargando fotos de Drive", error);
+        document.getElementById('meme-gallery').innerHTML = "<p style='text-align:center; color:#a4b0be;'>Error al cargar las fotos. Actualiza la página.</p>";
+      }
     }
-  };
+  }
 
   function renderizarGaleria() {
     const grid = document.getElementById('meme-gallery');
@@ -397,13 +408,13 @@
     // Ordenar de mayor a menor número de votos
     fotosMeme.sort((a, b) => b.votos - a.votos);
 
-    // Calcular los puestos reales teniendo en cuenta empates (Competition Ranking / Standard Competition Ranking)
+    // Calcular los puestos reales teniendo en cuenta empates
     let puestos = [];
     let puestoActual = 1;
     
     for (let i = 0; i < fotosMeme.length; i++) {
       if (i > 0 && fotosMeme[i].votos < fotosMeme[i - 1].votos) {
-        puestoActual = i + 1; // Si tiene menos votos que la anterior, el puesto salta al índice real + 1
+        puestoActual = i + 1; 
       }
       puestos.push(puestoActual);
     }

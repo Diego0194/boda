@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>¡EL MEME DE ORO! — Gran Concurso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f1015;
+      --card-bg: #181a20;
+      --text-main: #f3f4f6;
+      --accent: #ff4757;
+      --accent-glow: rgba(255, 71, 87, 0.4);
+      --gray-border: #2f3542;
+      --gold: #ffd700;
+      --gold-dark: #e1b12c;
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      padding-bottom: 100px;
+    }
+
+    header {
+      background: #14151a;
+      border-bottom: 3px solid var(--accent);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    
+    header h1 {
+      font-weight: 900;
+      margin: 0;
+      color: #fff;
+      font-size: 26px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    header h1 span {
+      color: var(--accent);
+    }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+    
+    .contest-banner {
+      background: linear-gradient(135deg, #1e2029, #131418);
+      color: white;
+      padding: 30px 20px;
+      border-radius: 16px;
+      margin: 25px 0;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      position: relative;
+      overflow: hidden;
+      border: 2px solid var(--gray-border);
+    }
+    
+    .contest-banner::before {
+      content: '🔥';
+      position: absolute;
+      font-size: 130px;
+      opacity: 0.05;
+      top: -30px;
+      right: -20px;
+      transform: rotate(15deg);
+    }
+
+    .contest-banner h2 { 
+      font-weight: 900; 
+      margin: 0 0 10px 0; 
+      color: var(--gold);
+      font-size: 28px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    }
+    
+    .contest-banner p {
+      margin: 0;
+      font-size: 14px;
+      color: #a4b0be;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      padding: 10px 0;
+      align-items: start;
+    }
+    
+    .gallery-item {
+      aspect-ratio: 1 / 1;
+      position: relative;
+      background: var(--card-bg);
+      border-radius: 14px;
+      overflow: visible;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+      border: 2px solid var(--gray-border);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+    
+    .item-image-wrapper {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .rank-badge {
+      position: absolute;
+      top: -12px;
+      left: -12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 900;
+      font-size: 13px;
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      color: #000;
+    }
+    
+    .rank-badge.gold { 
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark)); 
+      font-size: 15px; 
+      padding: 7px 14px; 
+      transform: scale(1.1);
+      border: 2px solid #fff;
+      color: #000;
+    }
+    .rank-badge.silver { 
+      background: linear-gradient(135deg, #dfe4ea, #747d8c); 
+      border: 2px solid #fff;
+    }
+    .rank-badge.bronze { 
+      background: linear-gradient(135deg, #e67e22, #d35400); 
+      border: 2px solid #fff;
+      color: #fff;
+    }
+    .rank-badge.basic { 
+      background: #2f3542; 
+      color: #fff;
+      font-size: 11px; 
+      top: 8px; 
+      left: 8px; 
+      border-radius: 8px; 
+      padding: 4px 8px;
+    }
+
+    .is-first {
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+    }
+
+    .vote-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(15, 16, 21, 0.85);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid var(--gray-border);
+    }
+    
+    .vote-badge.voted-by-me {
+      background: var(--accent);
+      border-color: #ff6b81;
+    }
+
+    /* Botón flotante corregido ópticamente al centro */
+	.floating-upload-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(3px); /* Ajusta este número si quieres subirlo o bajarlo más */
+      width: 75px;
+      height: 75px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      box-shadow: 0 8px 25px var(--accent-glow);
+      cursor: pointer;
+      z-index: 600;
+      border: 3px solid #fff;
+      transition: transform 0.2s, background 0.2s;
+    }
+    
+    .floating-upload-btn:active { transform: translateX(-50%) scale(0.92); }
+    .floating-upload-btn:hover { background: #ff6b81; }
+
+    .lightbox-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 11, 15, 0.95);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      backdrop-filter: blur(8px);
+    }
+    
+    .lightbox-media {
+      max-width: 90%;
+      max-height: 70vh;
+      object-fit: contain;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+      border-radius: 12px;
+      border: 2px solid var(--gray-border);
+    }
+    
+    .lightbox-actions {
+      margin-top: 25px;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      z-index: 2100;
+    }
+    
+    .btn-vote {
+      background: linear-gradient(135deg, var(--accent), #ff6b81);
+      color: white;
+      border: none;
+      padding: 15px 32px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px var(--accent-glow);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    
+    .btn-vote:active { transform: scale(0.95); }
+    
+    .btn-vote.active { 
+      background: #2f3542; 
+      color: #a4b0be;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.5); 
+    }
+    
+    .btn-vote:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: scale(1);
+    }
+    
+    .btn-close-lightbox {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid var(--gray-border);
+      padding: 15px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .btn-close-lightbox:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .progress-fixed {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: rgba(20, 21, 26, 0.95);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      z-index: 3000;
+      padding: 12px 20px;
+      box-sizing: border-box;
+      border-bottom: 2px solid var(--accent);
+    }
+    .progress-bar-bg { background: var(--gray-border); height: 6px; border-radius: 3px; overflow: hidden; margin-top: 6px;}
+    .progress-bar-fill { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
+    .progress-status { font-size: 12px; text-align: center; color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;}
+  </style>
+</head>
+<body>
+
+<div class="progress-fixed" id="progress-area">
+  <div class="progress-status" id="progress-text">Subiendo meme...</div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
+</div>
+
+<header>
+  <h1>Meme<span>Battle</span></h1>
+</header>
+
+<main class="container">
+  <div class="contest-banner">
+    <h2>🏆 El Gran Concurso</h2>
+    <p>1. Clava la cara del meme que te tocó.<br>2. Sube tu foto directo al ring.<br>3. ¡Vota por el mejor y hazle ganar!</p>
+  </div>
+
+  <div class="gallery-grid" id="meme-gallery">
+    <!-- Las fotos cargan por JS -->
+  </div>
+
+  <input type="file" id="foto-input" accept="image/*" capture="environment" style="display: none;">
+  <label for="foto-input" class="floating-upload-btn" title="Subir Meme">📸</label>
+</main>
+
+<div class="lightbox-overlay" id="lightbox-overlay">
+  <img id="lightbox-img" class="lightbox-media" src="">
+  <div class="lightbox-actions">
+    <button class="btn-close-lightbox" id="btn-close-lightbox" onclick="cerrarLightbox()">Volver</button>
+    <button id="btn-vote-action" class="btn-vote" onclick="gestionarVoto()">🔥 Votar</button>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjH3-LOIzFH7WV0FmRP21XqK2tZgoVuAo7KCPfsdA15XMDf8gkkSVXRdOpsFNmBLJN/exec";
+  const CARPETA_MEMES_ID = "1xe_Dbjfpj2TxATBnQdqeeisvTucsxZW-";
+  
+  let fotosMeme = []; 
+  let fotoActivaId = null;
+  let miVotoActual = localStorage.getItem('votoMemeFID') || null;
+
+  window.onload = async () => {
+    try {
+      const response = await fetch(`${SCRIPT_URL}?action=get_memes`);
+      const data = await response.json();
+      
+      fotosMeme = data; 
+      renderizarGaleria(); 
+    } catch (error) {
+      console.error("Error cargando fotos de Drive", error);
+      document.getElementById('meme-gallery').innerHTML = "<p style='text-align:center; color:#a4b0be;'>Error al cargar las fotos. Actualiza la página.</p>";
+    }
+  };
+
+  function renderizarGaleria() {
+    const grid = document.getElementById('meme-gallery');
+    grid.innerHTML = '';
+    
+    fotosMeme.sort((a, b) => b.votos - a.votos);
+
+    fotosMeme.forEach((foto, index) => {
+      const div = document.createElement('div');
+      
+      const isMyVote = (miVotoActual === foto.id);
+      const badgeClass = isMyVote ? 'vote-badge voted-by-me' : 'vote-badge';
+      
+      let rankHtml = '';
+      let rankClass = '';
+      
+      if (foto.votos > 0) {
+        if (index === 0) {
+          rankHtml = '<div class="rank-badge gold">👑 1º</div>';
+          rankClass = 'is-first';
+        } else if (index === 1) {
+          rankHtml = '<div class="rank-badge silver">🥈 2º</div>';
+        } else if (index === 2) {
+          rankHtml = '<div class="rank-badge bronze">🥉 3º</div>';
+        } else {
+          rankHtml = `<div class="rank-badge basic">#${index + 1}</div>`;
+        }
+      }
+
+      div.className = `gallery-item ${rankClass}`;
+      div.onclick = () => abrirLightbox(foto);
+      
+      div.innerHTML = `
+        ${rankHtml}
+        <div class="item-image-wrapper">
+          <img src="${foto.url}" loading="lazy" onerror="this.src='https://via.placeholder.com/150?text=Cargando...'">
+        </div>
+        <div class="${badgeClass}">🔥 ${foto.votos}</div>
+      `;
+      grid.appendChild(div);
+    });
+  }
+
+  function abrirLightbox(foto) {
+    fotoActivaId = foto.id;
+    document.getElementById('lightbox-img').src = foto.url;
+    
+    const btnVote = document.getElementById('btn-vote-action');
+    if (miVotoActual === foto.id) {
+      btnVote.innerHTML = "Retirar Voto";
+      btnVote.classList.add('active');
+    } else {
+      btnVote.innerHTML = "🔥 ¡Votar a este!";
+      btnVote.classList.remove('active');
+    }
+    
+    document.getElementById('lightbox-overlay').style.display = 'flex';
+  }
+
+  function cerrarLightbox() {
+    document.getElementById('lightbox-overlay').style.display = 'none';
+    fotoActivaId = null;
+  }
+
+  async function gestionarVoto() {
+    if (!fotoActivaId) return;
+
+    const btnVote = document.getElementById('btn-vote-action');
+    const btnClose = document.getElementById('btn-close-lightbox');
+    
+    btnVote.disabled = true;
+    btnClose.disabled = true;
+    btnVote.innerHTML = "⏳ Guardando...";
+
+    let idVotoNuevo = '';
+    let idVotoAnterior = '';
+    const esRetirarVoto = (miVotoActual === fotoActivaId);
+
+    if (esRetirarVoto) {
+      idVotoAnterior = fotoActivaId;
+      idVotoNuevo = 'NINGUNO'; 
+    } else {
+      idVotoAnterior = miVotoActual ? miVotoActual : '';
+      idVotoNuevo = fotoActivaId;
+    }
+
+    try {
+      const urlVoto = `${SCRIPT_URL}?action=vote&id=${idVotoNuevo}&previousId=${idVotoAnterior}`;
+      const respuesta = await fetch(urlVoto);
+      const data = await respuesta.json();
+      
+      if (data.success) {
+        if (esRetirarVoto) {
+          actualizarVotosLocal(fotoActivaId, -1);
+          miVotoActual = null;
+          localStorage.removeItem('votoMemeFID');
+        } else {
+          if (miVotoActual) {
+            actualizarVotosLocal(miVotoActual, -1);
+          }
+          actualizarVotosLocal(fotoActivaId, 1);
+          miVotoActual = fotoActivaId;
+          localStorage.setItem('votoMemeFID', fotoActivaId);
+        }
+      } else {
+        console.error("Error en el servidor:", data.error);
+        alert("Hubo un error de conexión con Drive. Inténtalo de nuevo.");
+      }
+    } catch (error) {
+      console.error("Error de red:", error);
+      alert("Comprueba tu conexión e inténtalo de nuevo.");
+    }
+
+    btnVote.disabled = false;
+    btnClose.disabled = false;
+    cerrarLightbox();
+    renderizarGaleria();
+  }
+
+  function actualizarVotosLocal(id, cantidad) {
+    const foto = fotosMeme.find(f => f.id === id);
+    if (foto) foto.votos += cantidad;
+  }
+
+  document.getElementById('foto-input').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const progressArea = document.getElementById('progress-area');
+    const progressBar = document.getElementById('progress-bar');
+    progressArea.style.display = 'block';
+    progressBar.style.width = '30%';
+
+    const tempId = 'temp-' + Math.random().toString(36).substr(2, 9);
+    const localURL = URL.createObjectURL(file);
+    
+    fotosMeme.push({ id: tempId, url: localURL, votos: 0 });
+    renderizarGaleria();
+
+    try {
+      setTimeout(() => {
+        progressBar.style.width = '100%';
+        setTimeout(() => { progressArea.style.display = 'none'; progressBar.style.width = '0%'; }, 1000);
+      }, 1500);
+
+    } catch (error) {
+      console.error("Error subiendo meme:", error);
+      alert("Hubo un error subiendo la foto.");
+      progressArea.style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>

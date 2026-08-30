@@ -401,9 +401,22 @@
   <!-- Contenedor protegido oculto inicialmente -->
   <div id="protected-content" style="display: none;">
     <div id="moments-wrapper">
+      <div class="moment-card" id="card-preboda">
+        <div class="moment-header">
+          <div class="moment-title">💍 Preboda</div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('preboda')">Descargar</button>
+            <button class="btn-see-all" onclick="abrirCuadricula('preboda', '💍 Preboda')">Ver todo ↗</button>
+          </div>
+        </div>
+        <div class="moment-preview-row" id="row-preboda">
+          <div class="empty-state">Buscando fotos en Drive...</div>
+        </div>
+      </div>
+
       <div class="moment-card" id="card-previas">
         <div class="moment-header">
-          <div class="moment-title">🌅 Previa (Antes 13:00)</div>
+          <div class="moment-title">🌅 Previa (Antes de las 13:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('previas')">Descargar</button>
             <button class="btn-see-all" onclick="abrirCuadricula('previas', '🌅 Previa')">Ver todo ↗</button>
@@ -465,6 +478,19 @@
           <div class="empty-state">Buscando fotos en Drive...</div>
         </div>
       </div>
+
+      <div class="moment-card" id="card-meme">
+        <div class="moment-header">
+          <div class="moment-title">📸 ¡Imita el meme!</div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('meme')">Descargar</button>
+            <button class="btn-see-all" onclick="abrirCuadricula('meme', '📸 ¡Imita el meme!')">Ver todo ↗</button>
+          </div>
+        </div>
+        <div class="moment-preview-row" id="row-meme">
+          <div class="empty-state">Buscando fotos en Drive...</div>
+        </div>
+      </div>
     </div>
 
     <input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime" style="display: none;">
@@ -516,18 +542,20 @@ document.getElementById('wedding-password').addEventListener('keypress', functio
     }
 });
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwReVZOq-7NStVVJMPZL5JBEKan02wtFYk2qWbNwtI4qPbuXSWoU5OKZ1U2kCWMYeBf/exec";
-const CONCURRENCIA_MAXIMA = 3;
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx32xaoZEFBfnhsy4t6xB98WI0VCOMMteOK21ji-sYc62gx32a93V_tWpvcIfYwG4xN/exec";
+const CONCURRENCIA_MAXIMA = 5;
 
 const CARPETAS_DRIVE = {
+    preboda: "1AifTnYvdSFsB3_12YFOzjvSDdUwBn2yx",
     previas: "1kEWzhbmt0MefZPPDv_gff2xFqZQbu56W",
     ceremonia: "1YrD1618fWqTtY2upifHUtrzsrYYkGIoG",
     coctel: "1N64y54W9ZDufToxNgor0KnZ1jnVNfLYj",
     comida: "1o_SwNQuJ_qk6exQNcwd-5jnUyow0P9XI",
-    fiesta: "1Q_udT2oQbsHddvRvjLNZi_qWAJ-vL3Bs"
+    fiesta: "1Q_udT2oQbsHddvRvjLNZi_qWAJ-vL3Bs",
+    meme: "1xe_Dbjfpj2TxATBnQdqeeisvTucsxZW-"
 };
 
-let datosGaleria = { previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [] };
+let datosGaleria = { preboda: [], previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [], meme: [] };
 let seccionActiva = null;
 let subidasEnCurso = 0;
 let indiceLightboxActivo = -1;
@@ -596,7 +624,10 @@ function renderizarCuadriculaCompleta() {
         let mediaTag = '';
         let videoIndicator = '';
         
-        if (item.type.includes('video')) {
+        // Si está pendiente de subir, mostramos un contenedor vacío elegante en lugar de una imagen rota
+        if (item.status === 'pending') {
+            mediaTag = `<div style="width:100%; height:100%; background:#e5e5ea;"></div>`;
+        } else if (item.type.includes('video')) {
             mediaTag = `<video src="${item.url}" muted autoplay loop playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
         } else {
@@ -609,7 +640,6 @@ function renderizarCuadriculaCompleta() {
         grid.appendChild(div);
     });
 }
-
 function mostrarElementoLightbox() {
     const box = document.getElementById('lightbox-media-box');
     box.innerHTML = ''; 
@@ -681,11 +711,13 @@ function actualizarFilaMiniaturas(seccion) {
     }
 
     const titulosSeccion = {
+        preboda: '💍 Preboda',
         previas: '🌅 Previa',
         ceremonia: '💐 Ceremonia',
         coctel: '🍸 Cóctel',
         comida: '🍽️ Comida',
-        fiesta: '🎉 Fiesta'
+        fiesta: '🎉 Fiesta',
+        meme: '📸 ¡Imita el meme!'
     };
 
     datosGaleria[seccion].slice(0, 10).forEach(item => {
@@ -725,7 +757,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let uploadedCount = 0;
             const validFiles = [];
-            const FECHA_BODA_LIMITE = new Date('2026-09-05T13:00:00');
+            
+            // Definición de límites de tiempo
+            const LIMITE_PREBODA = new Date('2026-09-05T05:00:00');
+            const LIMITE_BODA_INICIO = new Date('2026-09-05T13:00:00');
             let archivosRechazados = 0;
 
             for (let file of files) {
@@ -763,8 +798,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     continue; 
                 }
 
+                // Lógica de clasificación por intervalos de tiempo
                 let seccion = "fiesta";
-                if (fechaUso < FECHA_BODA_LIMITE) {
+                if (fechaUso < LIMITE_PREBODA) {
+                    seccion = "preboda";
+                } else if (fechaUso < LIMITE_BODA_INICIO) {
                     seccion = "previas";
                 } else {
                     const horas = fechaUso.getHours() + (fechaUso.getMinutes() / 60);

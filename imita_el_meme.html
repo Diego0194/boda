@@ -272,9 +272,12 @@
     }
     
     .btn-vote:disabled {
-      opacity: 0.7;
+      opacity: 0.6;
       cursor: not-allowed;
       transform: scale(1);
+      background: #2f3542;
+      box-shadow: none;
+      color: #a4b0be;
     }
     
     .btn-close-lightbox {
@@ -341,12 +344,13 @@
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZ-k_Ql9WlXWRj747xlv_FnKNcxytUQdv_nKy5qR0E8K1VQ1_msW8K56DtqJj-kDE_/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1lYPXW3GghLBHiOzOq_iNPxFBNwO3-QmmE8oIsHR3FkETlRsphYLWeTzzPOXwO0ya/exec";
   const CARPETA_MEMES_ID = "1xe_Dbjfpj2TxATBnQdqeeisvTucsxZW-";
   
   let fotosMeme = []; 
   let fotoActivaId = null;
   let ultimaMarcaTiempoLocal = null;
+  let votacionActivada = false; // Guardará el estado global enviado por el backend
 
   function setCookie(name, value, days) {
     let expires = "";
@@ -396,9 +400,18 @@
       }
 
       const data = await response.json();
+      
+      // Actualizamos la variable local del estado de votación
+      votacionActivada = !!data.voting_active;
+
+      // Si el lightbox está abierto, refrescamos el estado del botón de voto inmediatamente
+      if (fotoActivaId) {
+        actualizarEstadoBotonVoto();
+      }
+
       const timestampServidor = data && data.last_update ? String(data.last_update) : "0";
       
-      console.log(`[Polling ${new Date().toLocaleTimeString()}] Local: "${ultimaMarcaTiempoLocal}" | Servidor: "${timestampServidor}"`);
+      console.log(`[Polling ${new Date().toLocaleTimeString()}] Local: "${ultimaMarcaTiempoLocal}" | Servidor: "${timestampServidor}" | Votación activa: ${votacionActivada}`);
 
       // Primera ejecución: guardar la marca inicial
       if (ultimaMarcaTiempoLocal === null) {
@@ -492,17 +505,27 @@
   function abrirLightbox(foto) {
     fotoActivaId = foto.id;
     document.getElementById('lightbox-img').src = foto.url;
-    
+    actualizarEstadoBotonVoto();
+    document.getElementById('lightbox-overlay').style.display = 'flex';
+  }
+
+  function actualizarEstadoBotonVoto() {
     const btnVote = document.getElementById('btn-vote-action');
-    if (miVotoActual === foto.id) {
+    if (!btnVote) return;
+
+    if (!votacionActivada) {
+      btnVote.innerHTML = "🔒 Votación cerrada";
+      btnVote.disabled = true;
+      btnVote.classList.remove('active');
+    } else if (miVotoActual === fotoActivaId) {
       btnVote.innerHTML = "Retirar Voto";
+      btnVote.disabled = false;
       btnVote.classList.add('active');
     } else {
       btnVote.innerHTML = "🔥 ¡Votar a este!";
+      btnVote.disabled = false;
       btnVote.classList.remove('active');
     }
-    
-    document.getElementById('lightbox-overlay').style.display = 'flex';
   }
 
   function cerrarLightbox() {
@@ -511,7 +534,7 @@
   }
 
   async function gestionarVoto() {
-    if (!fotoActivaId) return;
+    if (!fotoActivaId || !votacionActivada) return;
 
     const btnVote = document.getElementById('btn-vote-action');
     const btnClose = document.getElementById('btn-close-lightbox');
@@ -554,7 +577,7 @@
         }
       } else {
         console.error("❌ Error en el servidor al votar:", data.error);
-        alert("Hubo un error de conexión con Drive. Inténtalo de nuevo.");
+        alert(data.error || "Hubo un error de conexión con Drive. Inténtalo de nuevo.");
       }
     } catch (error) {
       console.error("❌ Error de red al votar:", error);

@@ -165,6 +165,23 @@
     }
     .preview-thumb img, .preview-thumb video { width: 100%; height: 100%; object-fit: cover; }
     
+    /* Capa sombreada para miniaturas subiéndose en la fila principal */
+    .preview-thumb-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.55);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+
     .empty-state {
       font-size: 13px;
       color: #86868b;
@@ -214,12 +231,15 @@
     .item-status {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.55);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white; font-size: 14px;
+      color: white; font-size: 12px;
       font-weight: 600;
+      text-align: center;
+      padding: 4px;
+      box-sizing: border-box;
     }
     .item-status.done { display: none; }
     .item-status.error { background: rgba(217, 83, 79, 0.7); }
@@ -493,7 +513,7 @@
       </div>
     </div>
 
-    <input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime" style="display: none;">
+    <input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,image/heif,video/mp4,video/quicktime" style="display: none;">
     <label for="foto-input" class="floating-upload-btn" title="Subir fotos o vídeos">+</label>
   </div>
 </main>
@@ -624,22 +644,20 @@ function renderizarCuadriculaCompleta() {
         let mediaTag = '';
         let videoIndicator = '';
         
-        // Si está pendiente de subir, mostramos un contenedor vacío elegante en lugar de una imagen rota
-        if (item.status === 'pending') {
-            mediaTag = `<div style="width:100%; height:100%; background:#e5e5ea;"></div>`;
-        } else if (item.type.includes('video')) {
+        if (item.type.includes('video')) {
             mediaTag = `<video src="${item.url}" muted autoplay loop playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
         } else {
             mediaTag = `<img src="${item.url}">`;
         }
             
-        let textoEstado = item.status === 'pending' ? '0%' : item.status === 'error' ? '❌' : '';
+        let textoEstado = item.status === 'pending' ? 'Subiendo...' : item.status === 'error' ? '❌' : '';
         
         div.innerHTML = `${mediaTag}${videoIndicator}<div class="item-status ${item.status}" id="status-grid-${item.id}">${textoEstado}</div>`;
         grid.appendChild(div);
     });
 }
+
 function mostrarElementoLightbox() {
     const box = document.getElementById('lightbox-media-box');
     box.innerHTML = ''; 
@@ -728,7 +746,12 @@ function actualizarFilaMiniaturas(seccion) {
         
         let mediaTag = '';
         let videoIndicator = '';
+        let uploadingOverlay = '';
         
+        if (item.status === 'pending') {
+            uploadingOverlay = `<div class="preview-thumb-overlay" id="status-thumb-${item.id}">Subiendo...</div>`;
+        }
+
         if (item.type.includes('video')) {
             mediaTag = `<video src="${item.url}" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
@@ -736,7 +759,7 @@ function actualizarFilaMiniaturas(seccion) {
             mediaTag = `<img src="${item.url}">`;
         }
             
-        thumb.innerHTML = `${mediaTag}${videoIndicator}`;
+        thumb.innerHTML = `${mediaTag}${videoIndicator}${uploadingOverlay}`;
         row.appendChild(thumb);
     });
 }
@@ -813,16 +836,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const extension = file.name.split('.').pop().toLowerCase();
+                const esHEIC = extension === 'heic' || extension === 'heif';
                 const timestampName = fechaUso.toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/:/g, '-') + '.' + extension;
 
-                const localURL = URL.createObjectURL(file);
+                const localURL = esHEIC ? '' : URL.createObjectURL(file);
                 const itemId = 'file-' + Math.random().toString(36).substr(2, 9);
                 
-                const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending' };
-                datosGaleria[seccion].unshift(nuevoItem); 
+                const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending', esHEIC: esHEIC };
+                
+                // Si no es HEIC, mostramos la miniatura sombreada con "Subiendo..." inmediatamente
+                if (!esHEIC) {
+                    datosGaleria[seccion].unshift(nuevoItem); 
+                    actualizarFilaMiniaturas(seccion);
+                }
 
-                actualizarFilaMiniaturas(seccion);
-                validFiles.push({ file, nuevoNombre: timestampName, itemId, seccion });
+                validFiles.push({ file, nuevoNombre: timestampName, itemId, seccion, esHEIC });
             }
 
             if (validFiles.length === 0) {
@@ -847,7 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (cola.length === 0) return;
                     
                     const item = cola.shift();
-                    const promesaSubida = subirArchivo(item.file, item.nuevoNombre, item.itemId, item.seccion).then(() => {
+                    const promesaSubida = subirArchivo(item.file, item.nuevoNombre, item.itemId, item.seccion, item.esHEIC).then(() => {
                         uploadedCount++;
                         subidasEnCurso--;
                         const percent = Math.round((uploadedCount / validFiles.length) * 100);
@@ -875,7 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-async function subirArchivo(file, nuevoNombre, itemId, seccion) {
+async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
     return new Promise(async (resolve) => {
         let accessToken = "";
         try {
@@ -930,7 +958,7 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion) {
                     const porcentajeReal = Math.round((e.loaded / e.total) * 100);
                     const elGridStatus = document.getElementById(`status-grid-${itemId}`);
                     if (elGridStatus) {
-                        elGridStatus.innerText = (porcentajeReal >= 100 ? 99 : porcentajeReal) + "%";
+                        elGridStatus.innerText = "Subiendo...";
                     }
                 }
             });
@@ -939,8 +967,25 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion) {
                 if (xhr.readyState === 4) {
                     let statusResult = 'done';
                     if (xhr.status === 200 || xhr.status === 201) {
-                        const elGridStatus = document.getElementById(`status-grid-${itemId}`);
-                        if (elGridStatus) elGridStatus.innerText = "100%";
+                        // Lógica especial para HEIC/HEIF
+                        if (esHEIC) {
+                            try {
+                                const responseDrive = JSON.parse(xhr.responseText);
+                                const driveFileId = responseDrive.id;
+                                
+                                // Esperamos 3 segundos a que Drive genere la miniatura
+                                setTimeout(() => {
+                                    const driveThumbnailUrl = `https://lh3.googleusercontent.com/d/${driveFileId}=w400`;
+                                    const objHEIC = { id: itemId, url: driveThumbnailUrl, type: file.type, status: 'done' };
+                                    
+                                    datosGaleria[seccion].unshift(objHEIC);
+                                    actualizarFilaMiniaturas(seccion);
+                                    if (seccionActiva) renderizarCuadriculaCompleta();
+                                }, 3000);
+                            } catch (e) {
+                                console.error("Error al obtener miniatura HEIC:", e);
+                            }
+                        }
                     } else {
                         statusResult = 'error';
                     }
@@ -954,6 +999,13 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion) {
                             elGrid.className = `item-status ${statusResult}`;
                             elGrid.innerText = statusResult === 'error' ? '❌' : '';
                         }
+                        
+                        // Ocultamos la capa "Subiendo..." de la fila principal de miniaturas
+                        const elThumbStatus = document.getElementById(`status-thumb-${itemId}`);
+                        if (elThumbStatus) {
+                            elThumbStatus.remove();
+                        }
+                        
                         resolve();
                     }, 500);
                 }

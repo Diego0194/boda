@@ -192,7 +192,6 @@
       border-color: #ff6b81;
     }
 
-    /* Botón flotante corregido ópticamente al centro */
     .floating-upload-btn {
       position: fixed;
       bottom: 30px;
@@ -342,13 +341,13 @@
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRzrzXt_41UApjuZlpL_YRXBotEEJJteeim9xScS5LGiMN6XDmLXAipwsKN41vsE_6/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZ-k_Ql9WlXWRj747xlv_FnKNcxytUQdv_nKy5qR0E8K1VQ1_msW8K56DtqJj-kDE_/exec";
   const CARPETA_MEMES_ID = "1xe_Dbjfpj2TxATBnQdqeeisvTucsxZW-";
   
   let fotosMeme = []; 
   let fotoActivaId = null;
+  let ultimaMarcaTiempoLocal = null;
 
-  // --- Funciones para manejar Cookies robustas en móviles ---
   function setCookie(name, value, days) {
     let expires = "";
     if (days) {
@@ -377,24 +376,60 @@
   let miVotoActual = getCookie('votoMemeFID') || null;
 
   window.onload = async () => {
+    console.log("🚀 Iniciando aplicación...");
     await cargarMemes();
-    
-    // Actualizar automáticamente cada 30 segundos en segundo plano
-    setInterval(async () => {
-      await cargarMemes(true); // true para modo silencioso (sin molestar si hay modales abiertos)
-    }, 5000);
+    iniciarBucleActualizacion();
   };
 
-  async function cargarMemes(silencioso = false) {
+  async function iniciarBucleActualizacion() {
+    await comprobarActualizaciones();
+    setTimeout(iniciarBucleActualizacion, 3000);
+  }
+
+  async function comprobarActualizaciones() {
+    const timestampReq = Date.now();
     try {
-      const response = await fetch(`${SCRIPT_URL}?action=get_memes`);
+      const response = await fetch(`${SCRIPT_URL}?action=check_update&_t=${timestampReq}`);
+      if (!response.ok) {
+        console.warn("⚠️ Respuesta HTTP no OK en check_update:", response.status);
+        return;
+      }
+
+      const data = await response.json();
+      const timestampServidor = data && data.last_update ? String(data.last_update) : "0";
+      
+      console.log(`[Polling ${new Date().toLocaleTimeString()}] Local: "${ultimaMarcaTiempoLocal}" | Servidor: "${timestampServidor}"`);
+
+      // Primera ejecución: guardar la marca inicial
+      if (ultimaMarcaTiempoLocal === null) {
+        ultimaMarcaTiempoLocal = timestampServidor;
+        console.log("📌 Marca de tiempo inicial fijada en:", ultimaMarcaTiempoLocal);
+        return;
+      }
+
+      // Si detectamos un cambio en el timestamp del servidor
+      if (timestampServidor !== ultimaMarcaTiempoLocal) {
+        console.log(`🔥 CAMBIO DETECTADO! Actualizando de ${ultimaMarcaTiempoLocal} -> ${timestampServidor}`);
+        ultimaMarcaTiempoLocal = timestampServidor;
+        await cargarMemes(true);
+      }
+    } catch (e) {
+      console.warn("⚠️ Error puntual en check_update:", e.message);
+    }
+  }
+
+  async function cargarMemes(silencioso = false) {
+    console.log("📥 Cargando memes desde Drive...");
+    try {
+      const response = await fetch(`${SCRIPT_URL}?action=get_memes&_t=${Date.now()}`);
       const data = await response.json();
       
       fotosMeme = Array.isArray(data) ? data : []; 
+      console.log(`✅ ${fotosMeme.length} memes cargados correctamente.`);
       renderizarGaleria(); 
     } catch (error) {
       if (!silencioso) {
-        console.error("Error cargando fotos de Drive", error);
+        console.error("❌ Error cargando fotos de Drive", error);
         document.getElementById('meme-gallery').innerHTML = "<p style='text-align:center; color:#a4b0be;'>Error al cargar las fotos. Actualiza la página.</p>";
       }
     }
@@ -405,10 +440,8 @@
     if (!grid) return;
     grid.innerHTML = '';
     
-    // Ordenar de mayor a menor número de votos
     fotosMeme.sort((a, b) => b.votos - a.votos);
 
-    // Calcular los puestos reales teniendo en cuenta empates
     let puestos = [];
     let puestoActual = 1;
     
@@ -500,11 +533,13 @@
     }
 
     try {
-      const urlVoto = `${SCRIPT_URL}?action=vote&id=${idVotoNuevo}&previousId=${idVotoAnterior}`;
+      console.log(`🗳️ Enviando voto. Nuevo: ${idVotoNuevo} | Anterior: ${idVotoAnterior}`);
+      const urlVoto = `${SCRIPT_URL}?action=vote&id=${idVotoNuevo}&previousId=${idVotoAnterior}&_t=${Date.now()}`;
       const respuesta = await fetch(urlVoto);
       const data = await respuesta.json();
       
       if (data.success) {
+        console.log("✅ Voto registrado con éxito en Apps Script.");
         if (esRetirarVoto) {
           actualizarVotosLocal(fotoActivaId, -1);
           miVotoActual = null;
@@ -518,11 +553,11 @@
           setCookie('votoMemeFID', fotoActivaId, 365);
         }
       } else {
-        console.error("Error en el servidor:", data.error);
+        console.error("❌ Error en el servidor al votar:", data.error);
         alert("Hubo un error de conexión con Drive. Inténtalo de nuevo.");
       }
     } catch (error) {
-      console.error("Error de red:", error);
+      console.error("❌ Error de red al votar:", error);
       alert("Comprueba tu conexión e inténtalo de nuevo.");
     }
 
@@ -550,7 +585,7 @@
     progressText.innerText = "Conectando con Drive...";
 
     try {
-      const tokenRes = await fetch(`${SCRIPT_URL}?get_token=true`);
+      const tokenRes = await fetch(`${SCRIPT_URL}?get_token=true&_t=${Date.now()}`);
       const tokenData = await tokenRes.json();
       
       if (!tokenData.token) throw new Error("No se pudo obtener el token de autorización");
@@ -594,12 +629,13 @@
       }, 1000);
 
     } catch (error) {
-      console.error("Error subiendo meme:", error);
+      console.error("❌ Error subiendo meme:", error);
       alert("Hubo un error al subir la foto. Revisa la consola.");
       progressArea.style.display = 'none';
       progressBar.style.width = '0%';
     }
   });
 </script>
+
 </body>
 </html>

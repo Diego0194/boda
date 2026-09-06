@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Comparte tus fotos — F&D</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="media/favicon.png">
   <style>
@@ -62,6 +62,25 @@
       font-family: 'Playfair Display', serif;
       font-size: 18px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .insta-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .insta-link:hover {
+      transform: scale(1.1);
+      opacity: 0.85;
+    }
+    .insta-icon {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
     }
     
     .moment-actions {
@@ -76,6 +95,13 @@
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
+      transition: opacity 0.2s, color 0.2s;
+    }
+    .btn-see-all:disabled {
+      color: #a1a1a6 !important;
+      cursor: not-allowed !important;
+      opacity: 0.5 !important;
+      pointer-events: none !important;
     }
     .btn-download-all {
       background: none;
@@ -151,7 +177,14 @@
       align-items: center;
       z-index: 510;
     }
-    .grid-view-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+    .grid-view-title { 
+      font-family: 'Playfair Display', serif; 
+      font-size: 18px; 
+      font-weight: 700; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+    }
     .btn-close-grid { background: var(--gray-light); border: none; padding: 6px 14px; border-radius: 15px; font-size: 13px; font-weight: 600; cursor: pointer; }
 
     .gallery-grid {
@@ -348,12 +381,34 @@
 
   <div id="protected-content" style="display: block;">
     <div id="moments-wrapper">
+      
+      <!-- APARTADO ÁNGEL CABALLERO -->
+      <div class="moment-card" id="card-angel">
+        <div class="moment-header">
+          <div class="moment-title">
+            📷 Ángel Caballero 
+            <a href="https://instagram.com/inspirando_caballero" target="_blank" rel="noopener noreferrer" class="insta-link" title="Ver Instagram de Ángel Caballero">
+              <svg class="insta-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C9.284 2 8.944 2.012 7.877 2.06 6.812 2.108 6.086 2.278 5.45 2.525A5.021 5.021 0 0 0 3.63 3.63a5.021 5.021 0 0 0-1.105 1.82C2.278 6.086 2.108 6.812 2.06 7.877 2.012 8.944 2 9.284 2 12s.012 3.056.06 4.123c.048 1.065.218 1.791.465 2.427a5.021 5.021 0 0 0 1.105 1.82 5.021 5.021 0 0 0 1.82 1.105c.636.247 1.362.417 2.427.465C8.944 21.988 9.284 22 12 22s3.056-.012 4.123-.06c1.065-.048 1.791-.218 2.427-.465a5.021 5.021 0 0 0 1.82-1.105 5.021 5.021 0 0 0 1.105-1.82c.247-.636.417-1.362.465-2.427.048-1.067.06-1.407.06-4.123s-.012-3.056-.06-4.123c-.048-1.065-.218-1.791-.465-2.427a5.021 5.021 0 0 0-1.105-1.82A5.021 5.021 0 0 0 18.55 2.525c-.636-.247-1.362-.417-2.427-.465C15.056 2.012 14.716 2 12 2zm0 1.802c2.67 0 2.987.01 4.042.059.975.045 1.504.207 1.857.344.467.182.8.398 1.15.748.35.35.566.683.748 1.15.137.353.3.882.344 1.857.048 1.055.058 1.372.058 4.042s-.01 2.987-.058 4.042c-.045.975-.207 1.504-.344 1.857a3.216 3.216 0 0 1-.748 1.15c-.35.35-.683.566-1.15.748-.353.137-.882.3-1.857.344-1.055.048-1.372.058-4.042.058s-2.987-.01-4.042-.058c-.975-.045-1.504-.207-1.857-.344a3.216 3.216 0 0 1-1.15-.748 3.216 3.216 0 0 1-.748-1.15c-.137-.353-.3-.882-.344-1.857-.048-1.055-.058-1.372-.058-4.042s.01-2.987.058-4.042c.045-.975.207-1.504.344-1.857.182-.467.398-.8.748-1.15.35-.35.683-.566 1.15-.748.353-.137.882-.3 1.857-.344 1.055-.048 1.372-.058 4.042-.058zm0 3.078a5.12 5.12 0 1 0 0 10.24 5.12 5.12 0 0 0 0-10.24zm0 8.438a3.318 3.318 0 1 1 0-6.636 3.318 3.318 0 0 1 0 6.636zm6.528-9.048a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z" fill="#E1306C"/>
+              </svg>
+            </a>
+          </div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('angel')">Descargar</button>
+            <button class="btn-see-all" id="btn-see-angel" disabled onclick="abrirCuadricula('angel', '📷 Ángel Caballero <a href=\'https://instagram.com/inspirando_caballero\' target=\'_blank\' class=\'insta-link\'><svg class=\'insta-icon\' viewBox=\'0 0 24 24\' fill=\'none\'><path fill-rule=\'evenodd\' clip-rule=\'evenodd\' d=\'M12 2C9.284 2 8.944 2.012 7.877 2.06 6.812 2.108 6.086 2.278 5.45 2.525A5.021 5.021 0 0 0 3.63 3.63a5.021 5.021 0 0 0-1.105 1.82C2.278 6.086 2.108 6.812 2.06 7.877 2.012 8.944 2 9.284 2 12s.012 3.056.06 4.123c.048 1.065.218 1.791.465 2.427a5.021 5.021 0 0 0 1.105 1.82 5.021 5.021 0 0 0 1.82 1.105c.636.247 1.362.417 2.427.465C8.944 21.988 9.284 22 12 22s3.056-.012 4.123-.06c1.065-.048 1.791-.218 2.427-.465a5.021 5.021 0 0 0 1.82-1.105 5.021 5.021 0 0 0 1.105-1.82c.247-.636.417-1.362.465-2.427.048-1.067.06-1.407.06-4.123s-.012-3.056-.06-4.123c-.048-1.065-.218-1.791-.465-2.427a5.021 5.021 0 0 0-1.105-1.82A5.021 5.021 0 0 0 18.55 2.525c-.636-.247-1.362-.417-2.427-.465C15.056 2.012 14.716 2 12 2zm0 1.802c2.67 0 2.987.01 4.042.059.975.045 1.504.207 1.857.344.467.182.8.398 1.15.748.35.35.566.683.748 1.15.137.353.3.882.344 1.857.048 1.055.058 1.372.058 4.042s-.01 2.987-.058 4.042c-.045.975-.207 1.504-.344 1.857a3.216 3.216 0 0 1-.748 1.15c-.35.35-.683.566-1.15.748-.353.137-.882.3-1.857.344-1.055.048-1.372.058-4.042.058s-2.987-.01-4.042-.058c-.975-.045-1.504-.207-1.857-.344a3.216 3.216 0 0 1-1.15-.748 3.216 3.216 0 0 1-.748-1.15c-.137-.353-.3-.882-.344-1.857-.048-1.055-.058-1.372-.058-4.042s.01-2.987.058-4.042c.045-.975.207-1.504.344-1.857.182-.467.398-.8.748-1.15.35-.35.683-.566 1.15-.748.353-.137.882-.3 1.857-.344 1.055-.048 1.372-.058 4.042-.058zm0 3.078a5.12 5.12 0 1 0 0 10.24 5.12 5.12 0 0 0 0-10.24zm0 8.438a3.318 3.318 0 1 1 0-6.636 3.318 3.318 0 0 1 0 6.636zm6.528-9.048a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z\' fill=\'#E1306C\'/></svg></a>')">Ver todo ↗</button>
+          </div>
+        </div>
+        <div class="moment-preview-row" id="row-angel">
+          <div class="empty-state">Buscando fotos en Drive...</div>
+        </div>
+      </div>
+
       <div class="moment-card" id="card-preboda">
         <div class="moment-header">
           <div class="moment-title">💍 Preboda</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('preboda')">Descargar</button>
-            <button class="btn-see-all" onclick="abrirCuadricula('preboda', '💍 Preboda')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-preboda" disabled onclick="abrirCuadricula('preboda', '💍 Preboda')">Ver todo ↗</button>
           </div>
         </div>
         <div class="moment-preview-row" id="row-preboda">
@@ -366,7 +421,7 @@
           <div class="moment-title">🌅 Previa (Antes de las 13:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('previas')">Descargar</button>
-            <button class="btn-see-all" onclick="abrirCuadricula('previas', '🌅 Previa')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-previas" disabled onclick="abrirCuadricula('previas', '🌅 Previa')">Ver todo ↗</button>
           </div>
         </div>
         <div class="moment-preview-row" id="row-previas">
@@ -379,7 +434,7 @@
           <div class="moment-title">💐 Ceremonia (13:00 - 14:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('ceremonia')">Descargar</button>
-            <button class="btn-see-all" onclick="abrirCuadricula('ceremonia', '⛪ Ceremonia')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-ceremonia" disabled onclick="abrirCuadricula('ceremonia', '⛪ Ceremonia')">Ver todo ↗</button>
           </div>
         </div>
         <div class="moment-preview-row" id="row-ceremonia">
@@ -392,7 +447,7 @@
           <div class="moment-title">🍸 Cóctel (14:00 - 16:30)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('coctel')">Descargar</button>
-            <button class="btn-see-all" onclick="abrirCuadricula('coctel', '🍸 Cóctel')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-coctel" disabled onclick="abrirCuadricula('coctel', '🍸 Cóctel')">Ver todo ↗</button>
           </div>
         </div>
         <div class="moment-preview-row" id="row-coctel">
@@ -405,7 +460,7 @@
           <div class="moment-title">🍽️ Comida (16:30 - 18:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('comida')">Descargar</button>
-            <button class="btn-see-all" onclick="abrirCuadricula('comida', '🍽️ Comida')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-comida" disabled onclick="abrirCuadricula('comida', '🍽️ Comida')">Ver todo ↗</button>
           </div>
         </div>
         <div class="moment-preview-row" id="row-comida">
@@ -418,7 +473,7 @@
           <div class="moment-title">🎉 Fiesta (A partir de 18:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('fiesta')">Descargar</button>
-            <button class="btn-see-all" onclick="abrirCuadricula('fiesta', '🎉 Fiesta')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-fiesta" disabled onclick="abrirCuadricula('fiesta', '🎉 Fiesta')">Ver todo ↗</button>
           </div>
         </div>
         <div class="moment-preview-row" id="row-fiesta">
@@ -431,13 +486,14 @@
           <div class="moment-title">📸 ¡Imita el meme!</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('meme')">Descargar</button>
-            <button class="btn-see-all" onclick="abrirCuadricula('meme', '📸 ¡Imita el meme!')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-meme" disabled onclick="abrirCuadricula('meme', '📸 ¡Imita el meme!')">Ver todo ↗</button>
           </div>
         </div>
         <div class="moment-preview-row" id="row-meme">
           <div class="empty-state">Buscando fotos en Drive...</div>
         </div>
       </div>
+
     </div>
 
     <input type="file" id="foto-input" multiple accept="image/jpeg,image/png,image/heic,image/heif,video/mp4,video/quicktime" style="display: none;">
@@ -466,10 +522,11 @@
 <script src="main.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7Ka0dXHdZc2EBlgfiw0e1uGBhmeT3bK5gQ8L-h8ywsMYVIC77uIQC4V1sSZQlV78/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFZi9IsKu_h2gL1YKyuqeHtOfnb3v-72us2O1ybvkap3Azr-hMFEuFqar3YA8oiYF2/exec";
 const CONCURRENCIA_MAXIMA = 5;
 
 const CARPETAS_DRIVE = {
+    angel: "1KQ1Iqb65Gaysnliuc6L4peT5C0qw-GkU",
     preboda: "1AifTnYvdSFsB3_12YFOzjvSDdUwBn2yx",
     previas: "1kEWzhbmt0MefZPPDv_gff2xFqZQbu56W",
     ceremonia: "1YrD1618fWqTtY2upifHUtrzsrYYkGIoG",
@@ -479,7 +536,7 @@ const CARPETAS_DRIVE = {
     meme: "1xe_Dbjfpj2TxATBnQdqeeisvTucsxZW-"
 };
 
-let datosGaleria = { preboda: [], previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [], meme: [] };
+let datosGaleria = { angel: [], preboda: [], previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [], meme: [] };
 let seccionActiva = null;
 let subidasEnCurso = 0;
 let indiceLightboxActivo = -1;
@@ -495,6 +552,12 @@ async function inicializarGaleria() {
     const progressArea = document.getElementById('progress-area');
     progressArea.style.display = 'block';
     
+    // Deshabilitar expresamente todos los botones antes de la petición
+    Object.keys(CARPETAS_DRIVE).forEach(seccion => {
+        const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
+        if (btnSeeAll) btnSeeAll.disabled = true;
+    });
+
     try {
         const respuesta = await fetch(SCRIPT_URL);
         const data = await respuesta.json();
@@ -502,6 +565,8 @@ async function inicializarGaleria() {
         
         Object.keys(CARPETAS_DRIVE).forEach(seccion => {
             actualizarFilaMiniaturas(seccion);
+            const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
+            if (btnSeeAll) btnSeeAll.disabled = false;
         });
         
         progressArea.style.display = 'none';
@@ -511,13 +576,18 @@ async function inicializarGaleria() {
         
         Object.keys(CARPETAS_DRIVE).forEach(seccion => {
             actualizarFilaMiniaturas(seccion);
+            const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
+            if (btnSeeAll) btnSeeAll.disabled = false;
         });
     }
 }
 
 function abrirCuadricula(seccion, titulo) {
+    const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
+    if (btnSeeAll && btnSeeAll.disabled) return;
+    
     seccionActiva = seccion;
-    document.getElementById('grid-view-title').innerText = titulo;
+    document.getElementById('grid-view-title').innerHTML = titulo;
     document.getElementById('grid-view-overlay').style.display = 'block';
     renderizarCuadriculaCompleta();
 }
@@ -633,6 +703,7 @@ function actualizarFilaMiniaturas(seccion) {
     }
 
     const titulosSeccion = {
+        angel: '📷 Ángel Caballero <a href="https://instagram.com/inspirando_caballero" target="_blank" class="insta-link"><svg class="insta-icon" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C9.284 2 8.944 2.012 7.877 2.06 6.812 2.108 6.086 2.278 5.45 2.525A5.021 5.021 0 0 0 3.63 3.63a5.021 5.021 0 0 0-1.105 1.82C2.278 6.086 2.108 6.812 2.06 7.877 2.012 8.944 2 9.284 2 12s.012 3.056.06 4.123c.048 1.065.218 1.791.465 2.427a5.021 5.021 0 0 0 1.105 1.82 5.021 5.021 0 0 0 1.82 1.105c.636.247 1.362.417 2.427.465C8.944 21.988 9.284 22 12 22s3.056-.012 4.123-.06c1.065-.048 1.791-.218 2.427-.465a5.021 5.021 0 0 0 1.82-1.105 5.021 5.021 0 0 0 1.105-1.82c.247-.636.417-1.362.465-2.427.048-1.067.06-1.407.06-4.123s-.012-3.056-.06-4.123c-.048-1.065-.218-1.791-.465-2.427a5.021 5.021 0 0 0-1.105-1.82A5.021 5.021 0 0 0 18.55 2.525c-.636-.247-1.362-.417-2.427-.465C15.056 2.012 14.716 2 12 2zm0 1.802c2.67 0 2.987.01 4.042.059.975.045 1.504.207 1.857.344.467.182.8.398 1.15.748.35.35.566.683.748 1.15.137.353.3.882.344 1.857.048 1.055.058 1.372.058 4.042s-.01 2.987-.058 4.042c-.045.975-.207 1.504-.344 1.857a3.216 3.216 0 0 1-.748 1.15c-.35.35-.683.566-1.15.748-.353.137-.882.3-1.857.344-1.055.048-1.372.058-4.042.058s-2.987-.01-4.042-.058c-.975-.045-1.504-.207-1.857-.344a3.216 3.216 0 0 1-1.15-.748 3.216 3.216 0 0 1-.748-1.15c-.137-.353-.3-.882-.344-1.857-.048-1.055-.058-1.372-.058-4.042s.01-2.987.058-4.042c.045-.975.207-1.504.344-1.857.182-.467.398-.8.748-1.15.35-.35.683-.566 1.15-.748.353-.137.882-.3 1.857-.344 1.055-.048 1.372-.058 4.042-.058zm0 3.078a5.12 5.12 0 1 0 0 10.24 5.12 5.12 0 0 0 0-10.24zm0 8.438a3.318 3.318 0 1 1 0-6.636 3.318 3.318 0 0 1 0 6.636zm6.528-9.048a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z" fill="#E1306C"/></svg></a>',
         preboda: '💍 Preboda',
         previas: '🌅 Previa',
         ceremonia: '💐 Ceremonia',
@@ -715,7 +786,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tags) {
                     const fechaOriginalStr = tags['DateTimeOriginal']?.description || tags['CreationDate']?.description;
                     if (fechaOriginalStr) {
-                        // Extracción segura de fecha y hora local evitando desfases de zonas horarias/UTC
                         const partes = fechaOriginalStr.split(" ");
                         if (partes.length === 2) {
                             const ymd = partes[0].replace(/:/g, "-");
@@ -752,7 +822,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const extension = file.name.split('.').pop().toLowerCase();
                 const esHEIC = extension === 'heic' || extension === 'heif';
                 
-                // Formato ISO local para nombrar el archivo
                 const pad = (n) => String(n).padStart(2, '0');
                 const timestampName = `${fechaUso.getFullYear()}-${pad(fechaUso.getMonth()+1)}-${pad(fechaUso.getDate())}_${pad(fechaUso.getHours())}-${pad(fechaUso.getMinutes())}-${pad(fechaUso.getSeconds())}.${extension}`;
 
@@ -871,7 +940,6 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
 
             xhr.upload.addEventListener("progress", function(e) {
                 if (e.lengthComputable) {
-                    const porcentajeReal = Math.round((e.loaded / e.total) * 100);
                     const elGridStatus = document.getElementById(`status-grid-${itemId}`);
                     if (elGridStatus) {
                         elGridStatus.innerText = "Subiendo...";

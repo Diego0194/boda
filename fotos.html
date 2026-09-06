@@ -466,7 +466,7 @@
 <script src="main.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx32xaoZEFBfnhsy4t6xB98WI0VCOMMteOK21ji-sYc62gx32a93V_tWpvcIfYwG4xN/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7Ka0dXHdZc2EBlgfiw0e1uGBhmeT3bK5gQ8L-h8ywsMYVIC77uIQC4V1sSZQlV78/exec";
 const CONCURRENCIA_MAXIMA = 5;
 
 const CARPETAS_DRIVE = {
@@ -642,7 +642,7 @@ function actualizarFilaMiniaturas(seccion) {
         meme: '📸 ¡Imita el meme!'
     };
 
-    datosGaleria[seccion].slice(0, 10).forEach(item => {
+    datosGaleria[seccion].forEach(item => {
         const thumb = document.createElement('div');
         thumb.className = 'preview-thumb';
         thumb.style.cursor = 'pointer';

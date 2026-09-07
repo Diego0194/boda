@@ -742,7 +742,7 @@ function renderizarCuadriculaCompleta() {
         const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
 
         if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
-            mediaTag = `<video src="${item.url}" muted autoplay loop playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
+            mediaTag = `<video src="${item.url}#t=0.1" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
         } else {
             mediaTag = `<img src="${item.url}">`;
@@ -773,33 +773,42 @@ function mostrarElementoLightbox() {
     btnDownload.innerText = 'Descargar ⬇️';
     btnDownload.onclick = (e) => e.stopPropagation();
 
-    const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
+    const esVideo = item.type && item.type.includes('video');
 
-    if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
-        let videoUrl = item.url;
+    if (esVideo) {
         let downloadUrl = item.url;
-        
-        const matchId = item.url.match(/id=([^&]+)/);
+        const matchId = item.url ? item.url.match(/id=([^&]+)/) : null;
+
         if (matchId && matchId[1]) {
-            videoUrl = `https://drive.google.com/file/d/${matchId[1]}/preview`;
-            downloadUrl = `https://drive.google.com/uc?export=download&id=${matchId[1]}`;
+            // Vídeo alojado en Google Drive
+            const fileId = matchId[1];
+            downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+            iframe.className = 'lightbox-media';
+            iframe.style.width = '90%';
+            iframe.style.height = '75vh';
+            iframe.style.border = 'none';
+            iframe.allow = 'autoplay';
+            box.appendChild(iframe);
+        } else {
+            // Vídeo local (preview directo)
+            const videoEl = document.createElement('video');
+            videoEl.src = item.url;
+            videoEl.controls = true;
+            videoEl.autoplay = true;
+            videoEl.playsInline = true;
+            videoEl.className = 'lightbox-media';
+            box.appendChild(videoEl);
         }
-        
+
         btnDownload.href = downloadUrl;
         btnDownload.target = '_blank';
-
-        const iframe = document.createElement('iframe');
-        iframe.src = videoUrl;
-        iframe.className = 'lightbox-media';
-        iframe.style.width = '100%';
-        iframe.style.height = '75vh';
-        iframe.style.border = 'none';
-        iframe.allow = 'autoplay';
-        
-        box.appendChild(iframe);
     } else {
+        // Imagen normal
         let downloadUrl = item.url;
-        const matchId = item.url.match(/id=([^&]+)/);
+        const matchId = item.url ? item.url.match(/id=([^&]+)/) : null;
         if (matchId && matchId[1]) {
             downloadUrl = `https://drive.google.com/uc?export=download&id=${matchId[1]}`;
             btnDownload.href = downloadUrl;
@@ -889,7 +898,7 @@ function actualizarFilaMiniaturas(seccion) {
         const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
 
         if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
-            mediaTag = `<video src="${item.url}" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
+            mediaTag = `<video src="${item.url}#t=0.1" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
         } else {
             mediaTag = `<img src="${item.url}">`;

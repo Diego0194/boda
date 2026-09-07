@@ -325,7 +325,7 @@
     }
     .lightbox-media {
       max-width: 100%;
-      max-height: 90vh;
+      max-height: 80vh;
       object-fit: contain;
       box-shadow: 0 4px 30px rgba(0,0,0,0.5);
       z-index: 2050;
@@ -368,6 +368,33 @@
       font-family: 'Inter', sans-serif;
       z-index: 2100;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .lightbox-download-btn {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 2150;
+      transition: background 0.2s, transform 0.2s;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .lightbox-download-btn:hover {
+      background: rgba(255, 255, 255, 0.45);
+      transform: translateX(-50%) scale(1.05);
     }
   </style>
 </head>
@@ -423,8 +450,7 @@
           <div class="fotomaton-info">
             <div class="fotomaton-thumb">🔗</div>
             <div>
-              <strong style="font-family: 'Playfair Display', serif; font-size: 15px;">Fotomatón:</strong>
-              <span style="font-size: 13px; color: #666; margin-left: 4px;">Accede a las fotos del fotomatón</span>
+              <strong style="font-family: 'Playfair Display', serif; font-size: 15px;">Fotomatón</strong>
             </div>
           </div>
           <span class="btn-see-all" style="pointer-events: none;">Ver fotos ↗</span>
@@ -582,7 +608,7 @@
 
 <div class="lightbox-overlay" id="lightbox-overlay" onclick="cerrarLightbox(event)">
   <div class="lightbox-content-container">
-    <span class="lightbox-close-hint">Toca fuera para volver</span>
+    <span class="lightbox-close-hint">Toca en cualquier parte para volver</span>
     <button class="lightbox-nav-btn lightbox-prev" onclick="navegarLightbox(-1, event)">‹</button>
     <div id="lightbox-media-box" style="width: 100%; display: flex; justify-content: center; align-items: center;"></div>
     <button class="lightbox-nav-btn lightbox-next" onclick="navegarLightbox(1, event)">›</button>
@@ -619,6 +645,11 @@ window.addEventListener('beforeunload', (e) => {
     }
 });
 
+function obtenerFotosSinPortada(seccion) {
+    if (!Array.isArray(datosGaleria[seccion])) return [];
+    return datosGaleria[seccion].filter(item => !item.name || !item.name.toLowerCase().startsWith('portada_'));
+}
+
 async function inicializarGaleria() {
     const progressArea = document.getElementById('progress-area');
     progressArea.style.display = 'block';
@@ -629,7 +660,6 @@ async function inicializarGaleria() {
     });
 
     try {
-        // Carga inicial rápida: limit=4 pide solo 4 fotos (o las nombradas como portada_*)
         const respuesta = await fetch(`${SCRIPT_URL}?limit=4`);
         const data = await respuesta.json();
         
@@ -665,7 +695,6 @@ async function abrirCuadricula(seccion, titulo) {
     grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">Cargando fotos de la carpeta...</div>';
 
     try {
-        // Carga bajo demanda: pide todas las fotos solo de la carpeta abierta
         const res = await fetch(`${SCRIPT_URL}?folder=${seccion}`);
         const responseData = await res.json();
         
@@ -695,14 +724,15 @@ function renderizarCuadriculaCompleta() {
     const grid = document.getElementById('main-gallery-grid');
     grid.innerHTML = '';
     
-    if (!seccionActiva || !Array.isArray(datosGaleria[seccionActiva])) return;
+    if (!seccionActiva) return;
+    const fotosVisibles = obtenerFotosSinPortada(seccionActiva);
     
-    if (datosGaleria[seccionActiva].length === 0) {
+    if (fotosVisibles.length === 0) {
         grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center;">Aún no hay fotos en este momento</div>';
         return;
     }
 
-    datosGaleria[seccionActiva].forEach((item, index) => {
+    fotosVisibles.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'gallery-item';
         div.onclick = () => abrirLightbox(index);
@@ -732,56 +762,84 @@ function mostrarElementoLightbox() {
     const box = document.getElementById('lightbox-media-box');
     box.innerHTML = ''; 
     
-    const item = datosGaleria[seccionActiva][indiceLightboxActivo];
+    const fotosVisibles = obtenerFotosSinPortada(seccionActiva);
+    const item = fotosVisibles[indiceLightboxActivo];
     if (!item) return;
+
+    // Botón de descarga centrado abajo
+    const btnDownload = document.createElement('a');
+    btnDownload.className = 'lightbox-download-btn';
+    btnDownload.title = 'Descargar este archivo';
+    btnDownload.innerText = 'Descargar ⬇️';
+    btnDownload.onclick = (e) => e.stopPropagation();
 
     const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
 
     if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
         let videoUrl = item.url;
+        let downloadUrl = item.url;
+        
         const matchId = item.url.match(/id=([^&]+)/);
         if (matchId && matchId[1]) {
             videoUrl = `https://drive.google.com/file/d/${matchId[1]}/preview`;
+            downloadUrl = `https://drive.google.com/uc?export=download&id=${matchId[1]}`;
         }
         
+        btnDownload.href = downloadUrl;
+        btnDownload.target = '_blank';
+
         const iframe = document.createElement('iframe');
         iframe.src = videoUrl;
         iframe.className = 'lightbox-media';
         iframe.style.width = '100%';
-        iframe.style.height = '80vh';
+        iframe.style.height = '75vh';
         iframe.style.border = 'none';
         iframe.allow = 'autoplay';
         
         box.appendChild(iframe);
     } else {
+        let downloadUrl = item.url;
+        const matchId = item.url.match(/id=([^&]+)/);
+        if (matchId && matchId[1]) {
+            downloadUrl = `https://drive.google.com/uc?export=download&id=${matchId[1]}`;
+            btnDownload.href = downloadUrl;
+            btnDownload.target = '_blank';
+        } else {
+            btnDownload.href = item.url;
+            btnDownload.download = item.name || 'foto.jpg';
+        }
+
         const img = document.createElement('img');
         img.src = item.url;
         img.className = 'lightbox-media';
         box.appendChild(img);
     }
+
+    box.appendChild(btnDownload);
 }
 
 function abrirLightbox(index) {
-    if (!seccionActiva || !Array.isArray(datosGaleria[seccionActiva]) || !datosGaleria[seccionActiva][index]) return;
+    if (!seccionActiva) return;
+    const fotosVisibles = obtenerFotosSinPortada(seccionActiva);
+    if (!fotosVisibles[index]) return;
+    
     indiceLightboxActivo = index;
     document.getElementById('lightbox-overlay').style.display = 'flex';
     mostrarElementoLightbox();
 }
 
 function cerrarLightbox(event) {
-    const objetivosCierre = ['lightbox-overlay', 'lightbox-content-container', 'lightbox-media-box'];
-    if (objetivosCierre.includes(event.target.id) || objetivosCierre.includes(event.target.className)) {
-        document.getElementById('lightbox-overlay').style.display = 'none';
-        document.getElementById('lightbox-media-box').innerHTML = ''; 
-        indiceLightboxActivo = -1;
-    }
+    document.getElementById('lightbox-overlay').style.display = 'none';
+    document.getElementById('lightbox-media-box').innerHTML = ''; 
+    indiceLightboxActivo = -1;
 }
 
 function navegarLightbox(direccion, event) {
     event.stopPropagation(); 
-    if (!seccionActiva || !Array.isArray(datosGaleria[seccionActiva])) return;
+    if (!seccionActiva) return;
     
-    const totalElementos = datosGaleria[seccionActiva].length;
+    const fotosVisibles = obtenerFotosSinPortada(seccionActiva);
+    const totalElementos = fotosVisibles.length;
     let nuevoIndice = indiceLightboxActivo + direccion;
     
     if (nuevoIndice >= totalElementos) nuevoIndice = 0;
@@ -934,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const localURL = esHEIC ? '' : URL.createObjectURL(file);
                 const itemId = 'file-' + Math.random().toString(36).substr(2, 9);
                 
-                const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending', esHEIC: esHEIC };
+                const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending', esHEIC: esHEIC, name: timestampName };
                 
                 if (!esHEIC) {
                     if (!Array.isArray(datosGaleria[seccion])) datosGaleria[seccion] = [];
@@ -1065,7 +1123,7 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
                                 
                                 setTimeout(() => {
                                     const driveThumbnailUrl = `https://lh3.googleusercontent.com/d/${driveFileId}=w400`;
-                                    const objHEIC = { id: itemId, url: driveThumbnailUrl, type: file.type, status: 'done' };
+                                    const objHEIC = { id: itemId, url: driveThumbnailUrl, type: file.type, status: 'done', name: nuevoNombre };
                                     
                                     if (!Array.isArray(datosGaleria[seccion])) datosGaleria[seccion] = [];
                                     datosGaleria[seccion].unshift(objHEIC);

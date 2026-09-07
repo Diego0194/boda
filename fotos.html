@@ -84,6 +84,42 @@
       vertical-align: middle;
     }
     
+    /* Estilos para el enlace de Fotomatón */
+    .fotomaton-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      color: var(--text-main);
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--gray-light);
+      background: #fafafa;
+      transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .fotomaton-link:hover {
+      background: #f0f0f3;
+      border-color: #d1d1d6;
+      transform: translateY(-1px);
+    }
+    .fotomaton-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+    }
+    .fotomaton-thumb {
+      width: 36px;
+      height: 36px;
+      background: #eef2ff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    
     .moment-actions {
       display: flex;
       gap: 12px;
@@ -383,6 +419,20 @@
   <div id="protected-content" style="display: block;">
     <div id="moments-wrapper">
       
+      <!-- APARTADO FOTOMATÓN -->
+      <div class="moment-card" id="card-fotomaton">
+        <a href="https://fotoshare.co/e/DP-29TOCWYHwfJCoGWWqT" target="_blank" rel="noopener noreferrer" class="fotomaton-link">
+          <div class="fotomaton-info">
+            <div class="fotomaton-thumb">🔗</div>
+            <div>
+              <strong style="font-family: 'Playfair Display', serif; font-size: 15px;">Fotomatón:</strong>
+              <span style="font-size: 13px; color: #666; margin-left: 4px;">Accede a las fotos del fotomatón</span>
+            </div>
+          </div>
+          <span class="btn-see-all" style="pointer-events: none;">Ver fotos ↗</span>
+        </a>
+      </div>
+
       <!-- APARTADO ÁNGEL CABALLERO -->
       <div class="moment-card" id="card-angel">
         <div class="moment-header">

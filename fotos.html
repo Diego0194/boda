@@ -65,42 +65,25 @@
 	  display: flex;
 	  align-items: center;
 	  gap: 8px;
-	  white-space: nowrap; /* Evita que el nombre se divida en varias líneas */
+	  white-space: nowrap;
 	}
 
-    .insta-link {
+    .insta-link, .web-link {
       display: inline-flex;
       align-items: center;
       text-decoration: none;
       transition: transform 0.2s, opacity 0.2s;
     }
-    .insta-link:hover {
+    .insta-link:hover, .web-link:hover {
       transform: scale(1.1);
       opacity: 0.85;
     }
-    .insta-icon {
-      width: 20px;
-      height: 20px;
-      vertical-align: middle;
-    }
-
-    .web-link {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-      transition: transform 0.2s, opacity 0.2s;
-    }
-    .web-link:hover {
-      transform: scale(1.1);
-      opacity: 0.85;
-    }
-    .web-icon {
+    .insta-icon, .web-icon {
       width: 20px;
       height: 20px;
       vertical-align: middle;
     }
     
-    /* Estilos para el enlace de Fotomatón */
     .fotomaton-link {
       display: flex;
       align-items: center;
@@ -166,19 +149,17 @@
     }
 
     .moment-preview-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
-      overflow-x: auto;
+      overflow: hidden;
       padding-bottom: 4px;
-      scroll-behavior: smooth;
       min-height: 75px;
     }
-    .moment-preview-row::-webkit-scrollbar { display: none; }
     
     .preview-thumb {
-      width: 75px;
-      height: 75px;
-      flex-shrink: 0;
+      width: 100%;
+      aspect-ratio: 1 / 1;
       border-radius: 6px;
       background: var(--gray-light);
       overflow: hidden;
@@ -207,6 +188,7 @@
       color: #86868b;
       font-style: italic;
       padding: 10px 0;
+      grid-column: span 4;
     }
 
     .grid-view-overlay {
@@ -427,7 +409,7 @@
         <p style="margin-bottom: 5px;">Nos encantaría tener todas las fotos y vídeos para el recuerdo.<br>Aquí compartiremos también las fotos y vídeos de nuestros fotógrafos para que podáis descargar las que queráis.</p>
         <p class="whatsapp-note">
           <strong>Nota:</strong> El sistema filtrará fotos de WhatsApp para asegurar la mejor calidad. 
-          Por favor, sube sólo las fotos/vídeos originales de tu galería, no hace falta entrar a las carpetas (se mira la hora de captura de cada foto).
+          Por favor, sube sólo las fotos/vídeos originales de tu galería.
         </p>
       </div>
   </div>
@@ -484,7 +466,7 @@
           </div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('angel')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-angel" disabled onclick="abrirCuadricula('angel', '📷 Ángel Caballero <a href=\'https://instagram.com/inspirando_caballero\' target=\'_blank\' class=\'insta-link\'><svg class=\'insta-icon\' viewBox=\'0 0 24 24\' fill=\'none\'><path fill-rule=\'evenodd\' clip-rule=\'evenodd\' d=\'M12 2C9.284 2 8.944 2.012 7.877 2.06 6.812 2.108 6.086 2.278 5.45 2.525A5.021 5.021 0 0 0 3.63 3.63a5.021 5.021 0 0 0-1.105 1.82C2.278 6.086 2.108 6.812 2.06 7.877 2.012 8.944 2 9.284 2 12s.012 3.056.06 4.123c.048 1.065.218 1.791.465 2.427a5.021 5.021 0 0 0 1.105 1.82 5.021 5.021 0 0 0 1.82 1.105c.636.247 1.362.417 2.427.465C8.944 21.988 9.284 22 12 22s3.056-.012 4.123-.06c1.065-.048 1.791-.218 2.427-.465a5.021 5.021 0 0 0 1.82-1.105 5.021 5.021 0 0 0 1.105-1.82c.247-.636.417-1.362.465-2.427.048-1.067.06-1.407.06-4.123s-.012-3.056-.06-4.123c-.048-1.065-.218-1.791-.465-2.427a5.021 5.021 0 0 0-1.105-1.82A5.021 5.021 0 0 0 18.55 2.525c-.636-.247-1.362-.417-2.427-.465C15.056 2.012 14.716 2 12 2zm0 1.802c2.67 0 2.987.01 4.042.059.975.045 1.504.207 1.857.344.467.182.8.398 1.15.748.35.35.566.683.748 1.15.137.353.3.882.344 1.857.048 1.055.058 1.372.058 4.042s-.01 2.987-.058 4.042c-.045.975-.207 1.504-.344 1.857a3.216 3.216 0 0 1-.748 1.15c-.35.35-.683.566-1.15.748-.353.137-.882.3-1.857.344-1.055.048-1.372.058-4.042.058s-2.987-.01-4.042-.058c-.975-.045-1.504-.207-1.857-.344a3.216 3.216 0 0 1-1.15-.748 3.216 3.216 0 0 1-.748-1.15c-.137-.353-.3-.882-.344-1.857-.048-1.055-.058-1.372-.058-4.042s.01-2.987.058-4.042c.045-.975.207-1.504.344-1.857.182-.467.398-.8.748-1.15.35-.35.683-.566 1.15-.748.353-.137.882-.3 1.857-.344 1.055-.048 1.372-.058 4.042-.058zm0 3.078a5.12 5.12 0 1 0 0 10.24 5.12 5.12 0 0 0 0-10.24zm0 8.438a3.318 3.318 0 1 1 0-6.636 3.318 3.318 0 0 1 0 6.636zm6.528-9.048a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z\' fill=\'#E1306C\'/></svg></a>')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-angel" disabled onclick="abrirCuadricula('angel', '📷 Ángel Caballero')">Ver todo ↗</button>
           </div>
         </div>
         <div class="moment-preview-row" id="row-angel">
@@ -611,7 +593,7 @@
 <script src="main.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFZi9IsKu_h2gL1YKyuqeHtOfnb3v-72us2O1ybvkap3Azr-hMFEuFqar3YA8oiYF2/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-4Z5CQOqstgnddimjgUSJp-iaL5TUNDqHj1t27BbJ6CE84_ObEdXlpeGm03MjABH6/exec";
 const CONCURRENCIA_MAXIMA = 5;
 
 const CARPETAS_DRIVE = {
@@ -641,18 +623,18 @@ async function inicializarGaleria() {
     const progressArea = document.getElementById('progress-area');
     progressArea.style.display = 'block';
     
-    // Deshabilitar expresamente todos los botones antes de la petición
     Object.keys(CARPETAS_DRIVE).forEach(seccion => {
         const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
         if (btnSeeAll) btnSeeAll.disabled = true;
     });
 
     try {
-        const respuesta = await fetch(SCRIPT_URL);
+        // Carga inicial rápida: limit=4 pide solo 4 fotos (o las nombradas como portada_*)
+        const respuesta = await fetch(`${SCRIPT_URL}?limit=4`);
         const data = await respuesta.json();
-        datosGaleria = data;
         
         Object.keys(CARPETAS_DRIVE).forEach(seccion => {
+            datosGaleria[seccion] = Array.isArray(data[seccion]) ? data[seccion] : [];
             actualizarFilaMiniaturas(seccion);
             const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
             if (btnSeeAll) btnSeeAll.disabled = false;
@@ -671,14 +653,30 @@ async function inicializarGaleria() {
     }
 }
 
-function abrirCuadricula(seccion, titulo) {
+async function abrirCuadricula(seccion, titulo) {
     const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
     if (btnSeeAll && btnSeeAll.disabled) return;
     
     seccionActiva = seccion;
     document.getElementById('grid-view-title').innerHTML = titulo;
     document.getElementById('grid-view-overlay').style.display = 'block';
-    renderizarCuadriculaCompleta();
+    
+    const grid = document.getElementById('main-gallery-grid');
+    grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">Cargando fotos de la carpeta...</div>';
+
+    try {
+        // Carga bajo demanda: pide todas las fotos solo de la carpeta abierta
+        const res = await fetch(`${SCRIPT_URL}?folder=${seccion}`);
+        const responseData = await res.json();
+        
+        if (Array.isArray(responseData)) {
+            datosGaleria[seccion] = responseData;
+        }
+
+        renderizarCuadriculaCompleta();
+    } catch (err) {
+        renderizarCuadriculaCompleta();
+    }
 }
 
 function cerrarCuadricula() {
@@ -697,8 +695,13 @@ function renderizarCuadriculaCompleta() {
     const grid = document.getElementById('main-gallery-grid');
     grid.innerHTML = '';
     
-    if (!seccionActiva) return;
+    if (!seccionActiva || !Array.isArray(datosGaleria[seccionActiva])) return;
     
+    if (datosGaleria[seccionActiva].length === 0) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center;">Aún no hay fotos en este momento</div>';
+        return;
+    }
+
     datosGaleria[seccionActiva].forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'gallery-item';
@@ -706,12 +709,16 @@ function renderizarCuadriculaCompleta() {
         
         let mediaTag = '';
         let videoIndicator = '';
-        
-        if (item.type.includes('video')) {
+        const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
+
+        if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
             mediaTag = `<video src="${item.url}" muted autoplay loop playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
         } else {
             mediaTag = `<img src="${item.url}">`;
+            if (item.type && item.type.includes('video')) {
+                videoIndicator = `<span class="video-indicator">🎞️</span>`;
+            }
         }
             
         let textoEstado = item.status === 'pending' ? 'Subiendo...' : item.status === 'error' ? '❌' : '';
@@ -726,8 +733,11 @@ function mostrarElementoLightbox() {
     box.innerHTML = ''; 
     
     const item = datosGaleria[seccionActiva][indiceLightboxActivo];
-    
-    if (item.type.includes('video')) {
+    if (!item) return;
+
+    const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
+
+    if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
         let videoUrl = item.url;
         const matchId = item.url.match(/id=([^&]+)/);
         if (matchId && matchId[1]) {
@@ -752,7 +762,7 @@ function mostrarElementoLightbox() {
 }
 
 function abrirLightbox(index) {
-    if (!seccionActiva || !datosGaleria[seccionActiva][index]) return;
+    if (!seccionActiva || !Array.isArray(datosGaleria[seccionActiva]) || !datosGaleria[seccionActiva][index]) return;
     indiceLightboxActivo = index;
     document.getElementById('lightbox-overlay').style.display = 'flex';
     mostrarElementoLightbox();
@@ -769,7 +779,7 @@ function cerrarLightbox(event) {
 
 function navegarLightbox(direccion, event) {
     event.stopPropagation(); 
-    if (!seccionActiva) return;
+    if (!seccionActiva || !Array.isArray(datosGaleria[seccionActiva])) return;
     
     const totalElementos = datosGaleria[seccionActiva].length;
     let nuevoIndice = indiceLightboxActivo + direccion;
@@ -786,13 +796,13 @@ function actualizarFilaMiniaturas(seccion) {
     if (!row) return;
     row.innerHTML = '';
     
-    if (!datosGaleria[seccion] || datosGaleria[seccion].length === 0) {
+    if (!datosGaleria[seccion] || !Array.isArray(datosGaleria[seccion]) || datosGaleria[seccion].length === 0) {
         row.innerHTML = `<div class="empty-state">Aún no hay fotos en este momento</div>`;
         return;
     }
 
     const titulosSeccion = {
-        angel: '📷 Ángel Caballero <a href="https://instagram.com/inspirando_caballero" target="_blank" class="insta-link"><svg class="insta-icon" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C9.284 2 8.944 2.012 7.877 2.06 6.812 2.108 6.086 2.278 5.45 2.525A5.021 5.021 0 0 0 3.63 3.63a5.021 5.021 0 0 0-1.105 1.82C2.278 6.086 2.108 6.812 2.06 7.877 2.012 8.944 2 9.284 2 12s.012 3.056.06 4.123c.048 1.065.218 1.791.465 2.427a5.021 5.021 0 0 0 1.105 1.82 5.021 5.021 0 0 0 1.82 1.105c.636.247 1.362.417 2.427.465C8.944 21.988 9.284 22 12 22s3.056-.012 4.123-.06c1.065-.048 1.791-.218 2.427-.465a5.021 5.021 0 0 0 1.82-1.105 5.021 5.021 0 0 0 1.105-1.82c.247-.636.417-1.362.465-2.427.048-1.067.06-1.407.06-4.123s-.012-3.056-.06-4.123c-.048-1.065-.218-1.791-.465-2.427a5.021 5.021 0 0 0-1.105-1.82A5.021 5.021 0 0 0 18.55 2.525c-.636-.247-1.362-.417-2.427-.465C15.056 2.012 14.716 2 12 2zm0 1.802c2.67 0 2.987.01 4.042.059.975.045 1.504.207 1.857.344.467.182.8.398 1.15.748.35.35.566.683.748 1.15.137.353.3.882.344 1.857.048 1.055.058 1.372.058 4.042s-.01 2.987-.058 4.042c-.045.975-.207 1.504-.344 1.857a3.216 3.216 0 0 1-.748 1.15c-.35.35-.683.566-1.15.748-.353.137-.882.3-1.857.344-1.055.048-1.372.058-4.042.058s-2.987-.01-4.042-.058c-.975-.045-1.504-.207-1.857-.344a3.216 3.216 0 0 1-1.15-.748 3.216 3.216 0 0 1-.748-1.15c-.137-.353-.3-.882-.344-1.857-.048-1.055-.058-1.372-.058-4.042s.01-2.987.058-4.042c.045-.975.207-1.504.344-1.857.182-.467.398-.8.748-1.15.35-.35.683-.566 1.15-.748.353-.137.882-.3 1.857-.344 1.055-.048 1.372-.058 4.042-.058zm0 3.078a5.12 5.12 0 1 0 0 10.24 5.12 5.12 0 0 0 0-10.24zm0 8.438a3.318 3.318 0 1 1 0-6.636 3.318 3.318 0 0 1 0 6.636zm6.528-9.048a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z" fill="#E1306C"/></svg></a>',
+        angel: '📷 Ángel Caballero',
         preboda: '💍 Preboda',
         previas: '🌅 Previa',
         ceremonia: '💐 Ceremonia',
@@ -802,7 +812,9 @@ function actualizarFilaMiniaturas(seccion) {
         meme: '📸 ¡Imita el meme!'
     };
 
-    datosGaleria[seccion].forEach(item => {
+    const itemsPreview = datosGaleria[seccion].slice(0, 4);
+
+    itemsPreview.forEach(item => {
         const thumb = document.createElement('div');
         thumb.className = 'preview-thumb';
         thumb.style.cursor = 'pointer';
@@ -816,11 +828,16 @@ function actualizarFilaMiniaturas(seccion) {
             uploadingOverlay = `<div class="preview-thumb-overlay" id="status-thumb-${item.id}">Subiendo...</div>`;
         }
 
-        if (item.type.includes('video')) {
+        const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
+
+        if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
             mediaTag = `<video src="${item.url}" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
         } else {
             mediaTag = `<img src="${item.url}">`;
+            if (item.type && item.type.includes('video')) {
+                videoIndicator = `<span class="video-indicator">🎞️</span>`;
+            }
         }
             
         thumb.innerHTML = `${mediaTag}${videoIndicator}${uploadingOverlay}`;
@@ -920,6 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending', esHEIC: esHEIC };
                 
                 if (!esHEIC) {
+                    if (!Array.isArray(datosGaleria[seccion])) datosGaleria[seccion] = [];
                     datosGaleria[seccion].unshift(nuevoItem); 
                     actualizarFilaMiniaturas(seccion);
                 }
@@ -1049,6 +1067,7 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
                                     const driveThumbnailUrl = `https://lh3.googleusercontent.com/d/${driveFileId}=w400`;
                                     const objHEIC = { id: itemId, url: driveThumbnailUrl, type: file.type, status: 'done' };
                                     
+                                    if (!Array.isArray(datosGaleria[seccion])) datosGaleria[seccion] = [];
                                     datosGaleria[seccion].unshift(objHEIC);
                                     actualizarFilaMiniaturas(seccion);
                                     if (seccionActiva) renderizarCuadriculaCompleta();
@@ -1061,8 +1080,10 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
                         statusResult = 'error';
                     }
 
-                    const obj = datosGaleria[seccion].find(i => i.id === itemId);
-                    if (obj) obj.status = statusResult;
+                    if (Array.isArray(datosGaleria[seccion])) {
+                        const obj = datosGaleria[seccion].find(i => i.id === itemId);
+                        if (obj) obj.status = statusResult;
+                    }
 
                     setTimeout(() => {
                         const elGrid = document.getElementById(`status-grid-${itemId}`);
@@ -1089,8 +1110,10 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
 }
 
 function marcarErrorVisual(itemId, seccion) {
-    const obj = datosGaleria[seccion].find(i => i.id === itemId);
-    if (obj) obj.status = 'error';
+    if (Array.isArray(datosGaleria[seccion])) {
+        const obj = datosGaleria[seccion].find(i => i.id === itemId);
+        if (obj) obj.status = 'error';
+    }
     const elGrid = document.getElementById(`status-grid-${itemId}`);
     if (elGrid) {
         elGrid.className = `item-status error`;

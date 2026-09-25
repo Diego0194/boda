@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Galería Tiras de Fotomatón</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #f43f5e;
+            --text-color: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 8px 16px;
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        p.subtitle {
+            margin: 2px 0 0;
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        .gallery-container {
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            gap: 20px;
+            padding: 15px 25px;
+            flex-grow: 1;
+            cursor: grab;
+            user-select: none;
+            scroll-behavior: auto;
+        }
+
+        .gallery-container:active {
+            cursor: grabbing;
+        }
+
+        .strip-card {
+            flex: 0 0 auto;
+            width: auto;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px;
+            transition: border-color 0.2s ease, transform 0.1s ease;
+            cursor: pointer;
+        }
+
+        .strip-card:hover {
+            border-color: rgba(244, 63, 94, 0.5);
+        }
+
+        .strip-card:active {
+            transform: scale(0.98);
+        }
+
+        .strip-image-wrapper {
+            width: 100%;
+            height: 100%;
+            background: #060910;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            pointer-events: none; /* Evita cualquier conflicto nativo con la imagen */
+        }
+
+        .strip-image-wrapper img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            -webkit-user-drag: none;
+            user-drag: none;
+            pointer-events: none;
+        }
+
+        #loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 1rem;
+            color: #94a3b8;
+            padding: 0 20px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--accent-color);
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .gallery-container::-webkit-scrollbar {
+            display: none;
+        }
+        .gallery-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Galería de Tiras de Fotomatón</h1>
+        <p class="subtitle">Haz clic y arrastra horizontalmente para moverte. Pulsa una tira para ver su carpeta.</p>
+    </header>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        Cargando tiras...
+    </div>
+
+    <div class="gallery-container" id="gallery" style="display: none;"></div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGbF6_JfVycCnRFx9uoTh-rUmvNJ2KRLuXgvMqUXYidxKCgFn97Xa-feCKHfHL7c62jQ/exec";
+        const CACHE_KEY = "fotomaton_gallery_cache";
+        const CACHE_TIME_KEY = "fotomaton_gallery_time";
+        const CACHE_DURATION = 15 * 60 * 1000; // 15 minutos
+
+        async function loadGallery() {
+            try {
+                let data = null;
+                const cachedData = localStorage.getItem(CACHE_KEY);
+                const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+                const now = Date.now();
+
+                if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
+                    data = JSON.parse(cachedData);
+                    renderGallery(data);
+                } else {
+                    const response = await fetch(WEB_APP_URL);
+                    data = await response.json();
+                    
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    localStorage.setItem(CACHE_TIME_KEY, now);
+                    
+                    renderGallery(data);
+                }
+
+            } catch (error) {
+                console.error("Error al cargar las tiras:", error);
+                document.getElementById('loader').innerHTML = '❌ Error al conectar con Google Drive.';
+            }
+        }
+
+        function renderGallery(data) {
+            const gallery = document.getElementById('gallery');
+            const loader = document.getElementById('loader');
+            
+            gallery.innerHTML = '';
+
+            data.forEach(item => {
+                const card = document.createElement('div'); // Cambiado a div para evitar comportamientos de enlace nativo
+                card.className = 'strip-card';
+                
+                // Gestionar la apertura de la carpeta mediante evento de clic limpio
+                card.addEventListener('click', () => {
+                    if (!card.dataset.moved || card.dataset.moved === "false") {
+                        window.open(item.folderUrl, '_blank', 'noopener,noreferrer');
+                    }
+                });
+
+                card.innerHTML = `
+                    <div class="strip-image-wrapper">
+                        <img src="${item.imgUrl}" alt="Tira de fotomaton" draggable="false" loading="lazy">
+                    </div>
+                `;
+                gallery.appendChild(card);
+            });
+
+            loader.style.display = 'none';
+            gallery.style.display = 'flex';
+            
+            initSmoothDrag(gallery);
+        }
+
+        function initSmoothDrag(slider) {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            let hasMoved = false;
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                hasMoved = false;
+                slider.classList.add('active');
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+                
+                // Marcar todas las tarjetas como no movidas al iniciar el click
+                slider.querySelectorAll('.strip-card').forEach(c => c.dataset.moved = "false");
+            });
+
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.classList.remove('active');
+            });
+
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.classList.remove('active');
+            });
+
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 1.8;
+                
+                if (Math.abs(walk) > 4) {
+                    hasMoved = true;
+                    // Si el usuario arrastra, marcamos las tarjetas para bloquear el evento de clic
+                    slider.querySelectorAll('.strip-card').forEach(c => c.dataset.moved = "true");
+                }
+                
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        }
+
+        loadGallery();
+    </script>
+</body>
+</html>

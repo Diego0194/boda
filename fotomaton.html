@@ -69,6 +69,7 @@
             cursor: grabbing;
         }
 
+        /* Cambiado a etiqueta 'a' para garantizar apertura nativa */
         .strip-card {
             flex: 0 0 auto;
             width: auto;
@@ -84,6 +85,7 @@
             padding: 6px;
             transition: border-color 0.2s ease, transform 0.1s ease;
             cursor: pointer;
+            text-decoration: none;
         }
 
         .strip-card:hover {
@@ -103,7 +105,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            pointer-events: none; /* Evita cualquier conflicto nativo con la imagen */
+            pointer-events: none;
         }
 
         .strip-image-wrapper img {
@@ -154,7 +156,7 @@
 
     <header>
         <h1>Galería de Tiras de Fotomatón</h1>
-        <p class="subtitle">Haz clic y arrastra horizontalmente para moverte. Pulsa una tira para ver su carpeta.</p>
+        <p class="subtitle">Desliza horizontalmente para moverte. Pulsa una tira para ver su carpeta.</p>
     </header>
 
     <div id="loader">
@@ -203,13 +205,17 @@
             gallery.innerHTML = '';
 
             data.forEach(item => {
-                const card = document.createElement('div'); // Cambiado a div para evitar comportamientos de enlace nativo
+                // Usamos una etiqueta <a> nativa para asegurar que los navegadores móviles abran el enlace sin bloqueos
+                const card = document.createElement('a');
                 card.className = 'strip-card';
+                card.href = item.folderUrl;
+                card.target = '_blank';
+                card.rel = 'noopener noreferrer';
                 
-                // Gestionar la apertura de la carpeta mediante evento de clic limpio
-                card.addEventListener('click', () => {
-                    if (!card.dataset.moved || card.dataset.moved === "false") {
-                        window.open(item.folderUrl, '_blank', 'noopener,noreferrer');
+                // Evitar que el enlace navegue si el usuario estaba arrastrando la galería
+                card.addEventListener('click', (e) => {
+                    if (card.dataset.hasMoved === "true") {
+                        e.preventDefault();
                     }
                 });
 
@@ -233,15 +239,14 @@
             let scrollLeft;
             let hasMoved = false;
 
+            // --- EVENTOS DE RATÓN (Desktop) ---
             slider.addEventListener('mousedown', (e) => {
                 isDown = true;
                 hasMoved = false;
                 slider.classList.add('active');
                 startX = e.pageX - slider.offsetLeft;
                 scrollLeft = slider.scrollLeft;
-                
-                // Marcar todas las tarjetas como no movidas al iniciar el click
-                slider.querySelectorAll('.strip-card').forEach(c => c.dataset.moved = "false");
+                slider.querySelectorAll('.strip-card').forEach(c => c.dataset.hasMoved = "false");
             });
 
             slider.addEventListener('mouseleave', () => {
@@ -256,18 +261,42 @@
 
             slider.addEventListener('mousemove', (e) => {
                 if (!isDown) return;
-                e.preventDefault();
                 const x = e.pageX - slider.offsetLeft;
                 const walk = (x - startX) * 1.8;
                 
                 if (Math.abs(walk) > 4) {
                     hasMoved = true;
-                    // Si el usuario arrastra, marcamos las tarjetas para bloquear el evento de clic
-                    slider.querySelectorAll('.strip-card').forEach(c => c.dataset.moved = "true");
+                    slider.querySelectorAll('.strip-card').forEach(c => c.dataset.hasMoved = "true");
                 }
                 
                 slider.scrollLeft = scrollLeft - walk;
             });
+
+            // --- EVENTOS TÁCTILES (Móviles / Tablets) ---
+            slider.addEventListener('touchstart', (e) => {
+                isDown = true;
+                hasMoved = false;
+                startX = e.touches[0].pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+                slider.querySelectorAll('.strip-card').forEach(c => c.dataset.hasMoved = "false");
+            }, { passive: true });
+
+            slider.addEventListener('touchend', () => {
+                isDown = false;
+            });
+
+            slider.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                const x = e.touches[0].pageX - slider.offsetLeft;
+                const walk = (x - startX) * 1.5;
+
+                if (Math.abs(walk) > 5) {
+                    hasMoved = true;
+                    slider.querySelectorAll('.strip-card').forEach(c => c.dataset.hasMoved = "true");
+                }
+
+                slider.scrollLeft = scrollLeft - walk;
+            }, { passive: true });
         }
 
         loadGallery();

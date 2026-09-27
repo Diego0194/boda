@@ -31,19 +31,9 @@
     }
     .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
     
-    .progress-fixed {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%;
-      background: rgba(255,255,255,0.95);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      z-index: 1000;
-      padding: 10px 20px;
-      box-sizing: border-box;
-    }
-    .progress-bar-bg { background: var(--gray-light); height: 4px; border-radius: 2px; overflow: hidden; margin-top: 4px;}
+    .progress-bar-bg { background: var(--gray-light); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 12px; }
     .progress-bar-fill { width: 0%; height: 100%; background: #34c759; transition: width 0.3s; }
-    .progress-status { font-size: 11px; text-align: center; color: var(--text-main); font-weight: 600; }
+    .progress-status { font-size: 13px; text-align: center; color: var(--text-main); font-weight: 600; margin-bottom: 6px; }
 
     .moment-card {
       background: var(--card-bg);
@@ -58,15 +48,15 @@
       align-items: center;
       margin-bottom: 12px;
     }
-	.moment-title {
-	  font-family: 'Playfair Display', serif;
-	  font-size: 14px;
-	  font-weight: 700;
-	  display: flex;
-	  align-items: center;
-	  gap: 8px;
-	  white-space: nowrap;
-	}
+    .moment-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
 
     .insta-link, .web-link {
       display: inline-flex;
@@ -256,9 +246,19 @@
     h2 { margin-bottom: 10px; }
     .intro { 
       margin-bottom: 15px; 
-      font-family: 'Playfair Display', serif; 
+      font-family: 'Inter', sans-serif; 
+      line-height: 1.5;
     }
-    .whatsapp-note { font-size: 0.9em; margin-top: 5px; color: #555; }
+    .whatsapp-note { 
+      font-size: 0.88em; 
+      margin-top: 10px; 
+      color: #924040; 
+      background: #fdf2f2;
+      border: 1px dashed #e8b4b4;
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: inline-block;
+    }
 
     .floating-upload-btn {
       position: fixed;
@@ -325,7 +325,6 @@
       overflow: hidden;
     }
     
-    /* Contenedor adaptado para encuadrar iframe o vídeo nativo sin barras redundantes */
     .lightbox-iframe-wrapper {
       position: relative;
       width: 100%;
@@ -398,14 +397,44 @@
       background: rgba(255, 255, 255, 0.45);
       transform: translateX(-50%) scale(1.05);
     }
+	
+	.grid-loader-container {
+	  grid-column: span 3;
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  justify-content: center;
+	  padding: 24px 0;
+	  gap: 10px;
+	  color: #86868b;
+	  font-size: 13px;
+	  font-weight: 500;
+	}
+
+	.spinner {
+	  width: 24px;
+	  height: 24px;
+	  border: 3px solid rgba(184, 92, 92, 0.2);
+	  border-top-color: var(--accent);
+	  border-radius: 50%;
+	  animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+	  to { transform: rotate(360deg); }
+	}
+
+	.end-of-gallery {
+	  grid-column: span 3;
+	  text-align: center;
+	  padding: 25px 0 35px 0;
+	  font-size: 13px;
+	  color: #a1a1a6;
+	  font-style: italic;
+	}
   </style>
 </head>
 <body>
-
-<div class="progress-fixed" id="progress-area">
-  <div class="progress-status" id="progress-text">Sincronizando con Google Drive...</div>
-  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
-</div>
 
 <header>
   <div class="container header-flex">
@@ -435,10 +464,12 @@
   <div class="page-content" style="padding-top: 20px;">
     <h2 style="text-align: center; font-family: 'Playfair Display', serif;">Comparte tus fotos del gran día</h2>
       <div class="intro" style="text-align: center;">
-        <p style="margin-bottom: 5px;">Nos encantaría tener todas las fotos y vídeos para el recuerdo.<br>Aquí compartiremos también las fotos y vídeos de nuestros fotógrafos para que podáis descargar las que queráis.</p>
+        <p style="margin-bottom: 8px;">
+          Nos encantaría tener todas las fotos y vídeos para el recuerdo.<br>
+          Subid las fotos y vídeos aquí mismo y la página las clasificará automáticamente.
+        </p>
         <p class="whatsapp-note">
-          <strong>Nota:</strong> El sistema filtrará fotos de WhatsApp para asegurar la mejor calidad. 
-          Por favor, sube sólo las fotos/vídeos originales de tu galería.
+          <strong>IMPORTANTE:</strong> No subáis fotos o vídeos de Whatsapp, solo originales 😊
         </p>
       </div>
   </div>
@@ -494,12 +525,10 @@
           </div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('angel')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-angel" disabled onclick="abrirCuadricula('angel', '📷 Ángel Caballero')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-angel" onclick="abrirCuadricula('angel', '📷 Ángel Caballero')">Ver todo ↗</button>
           </div>
         </div>
-        <div class="moment-preview-row" id="row-angel">
-          <div class="empty-state">Buscando fotos en Drive...</div>
-        </div>
+        <div class="moment-preview-row" id="row-angel"></div>
       </div>
 
       <div class="moment-card" id="card-preboda">
@@ -507,12 +536,10 @@
           <div class="moment-title">💍 Preboda</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('preboda')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-preboda" disabled onclick="abrirCuadricula('preboda', '💍 Preboda')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-preboda" onclick="abrirCuadricula('preboda', '💍 Preboda')">Ver todo ↗</button>
           </div>
         </div>
-        <div class="moment-preview-row" id="row-preboda">
-          <div class="empty-state">Buscando fotos en Drive...</div>
-        </div>
+        <div class="moment-preview-row" id="row-preboda"></div>
       </div>
 
       <div class="moment-card" id="card-previas">
@@ -520,12 +547,10 @@
           <div class="moment-title">🌅 Previa (Antes de las 13:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('previas')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-previas" disabled onclick="abrirCuadricula('previas', '🌅 Previa')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-previas" onclick="abrirCuadricula('previas', '🌅 Previa')">Ver todo ↗</button>
           </div>
         </div>
-        <div class="moment-preview-row" id="row-previas">
-          <div class="empty-state">Buscando fotos en Drive...</div>
-        </div>
+        <div class="moment-preview-row" id="row-previas"></div>
       </div>
 
       <div class="moment-card" id="card-ceremonia">
@@ -533,12 +558,10 @@
           <div class="moment-title">💐 Ceremonia (13:00 - 14:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('ceremonia')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-ceremonia" disabled onclick="abrirCuadricula('ceremonia', '⛪ Ceremonia')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-ceremonia" onclick="abrirCuadricula('ceremonia', '⛪ Ceremonia')">Ver todo ↗</button>
           </div>
         </div>
-        <div class="moment-preview-row" id="row-ceremonia">
-          <div class="empty-state">Buscando fotos en Drive...</div>
-        </div>
+        <div class="moment-preview-row" id="row-ceremonia"></div>
       </div>
 
       <div class="moment-card" id="card-coctel">
@@ -546,12 +569,10 @@
           <div class="moment-title">🍸 Cóctel (14:00 - 16:30)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('coctel')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-coctel" disabled onclick="abrirCuadricula('coctel', '🍸 Cóctel')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-coctel" onclick="abrirCuadricula('coctel', '🍸 Cóctel')">Ver todo ↗</button>
           </div>
         </div>
-        <div class="moment-preview-row" id="row-coctel">
-          <div class="empty-state">Buscando fotos en Drive...</div>
-        </div>
+        <div class="moment-preview-row" id="row-coctel"></div>
       </div>
 
       <div class="moment-card" id="card-comida">
@@ -559,12 +580,10 @@
           <div class="moment-title">🍽️ Comida (16:30 - 18:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('comida')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-comida" disabled onclick="abrirCuadricula('comida', '🍽️ Comida')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-comida" onclick="abrirCuadricula('comida', '🍽️ Comida')">Ver todo ↗</button>
           </div>
         </div>
-        <div class="moment-preview-row" id="row-comida">
-          <div class="empty-state">Buscando fotos en Drive...</div>
-        </div>
+        <div class="moment-preview-row" id="row-comida"></div>
       </div>
 
       <div class="moment-card" id="card-fiesta">
@@ -572,12 +591,10 @@
           <div class="moment-title">🎉 Fiesta (A partir de 18:00)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('fiesta')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-fiesta" disabled onclick="abrirCuadricula('fiesta', '🎉 Fiesta')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-fiesta" onclick="abrirCuadricula('fiesta', '🎉 Fiesta')">Ver todo ↗</button>
           </div>
         </div>
-        <div class="moment-preview-row" id="row-fiesta">
-          <div class="empty-state">Buscando fotos en Drive...</div>
-        </div>
+        <div class="moment-preview-row" id="row-fiesta"></div>
       </div>
 
       <div class="moment-card" id="card-meme">
@@ -585,12 +602,10 @@
           <div class="moment-title">📸 ¡Imita el meme!</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('meme')">Descargar</button>
-            <button class="btn-see-all" id="btn-see-meme" disabled onclick="abrirCuadricula('meme', '📸 ¡Imita el meme!')">Ver todo ↗</button>
+            <button class="btn-see-all" id="btn-see-meme" onclick="abrirCuadricula('meme', '📸 ¡Imita el meme!')">Ver todo ↗</button>
           </div>
         </div>
-        <div class="moment-preview-row" id="row-meme">
-          <div class="empty-state">Buscando fotos en Drive...</div>
-        </div>
+        <div class="moment-preview-row" id="row-meme"></div>
       </div>
 
     </div>
@@ -617,11 +632,29 @@
   </div>
 </div>
 
+<!-- POPUP DE PROGRESO DE SUBIDA -->
+<div id="upload-progress-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(3px);">
+  <div style="background: #ffffff; padding: 24px; border-radius: 16px; max-width: 400px; width: 85%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popInCentrado 0.3s ease-out;">
+    <div id="upload-progress-text" class="progress-status">Analizando archivos...</div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="upload-progress-bar"></div></div>
+    <div style="font-size: 11px; color: #86868b; margin-top: 12px;">Por favor, no cierres esta página mientras se suben los archivos.</div>
+  </div>
+</div>
+
+<!-- POPUP DE AVISO / ALERTA DE RESUMEN -->
+<div id="custom-alert-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); z-index: 3050; align-items: center; justify-content: center; backdrop-filter: blur(3px);">
+  <div style="background: #ffffff; padding: 24px; border-radius: 16px; max-width: 400px; width: 85%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popInCentrado 0.3s ease-out;">
+    <div id="modal-icon" style="font-size: 36px; margin-bottom: 10px;">⚠️</div>
+    <div id="modal-text" style="font-size: 15px; color: #1d1d1f; font-family: 'Inter', sans-serif; line-height: 1.5; margin-bottom: 20px; white-space: pre-line;"></div>
+    <button onclick="cerrarModalAviso()" style="background: #b85c5c; color: white; border: none; padding: 10px 24px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Entendido</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.js"></script>
 <script src="main.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-4Z5CQOqstgnddimjgUSJp-iaL5TUNDqHj1t27BbJ6CE84_ObEdXlpeGm03MjABH6/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQrYvJLCvYnIJxY41admwe4bOBPEfAMKekcu31Na36AeMN67iRKMGrNzLKwlp757qo/exec";
 const CONCURRENCIA_MAXIMA = 5;
 
 const CARPETAS_DRIVE = {
@@ -635,10 +668,69 @@ const CARPETAS_DRIVE = {
     meme: "1xe_Dbjfpj2TxATBnQdqeeisvTucsxZW-"
 };
 
+const NOMBRES_SECCIONES = {
+    angel: 'Ángel Caballero',
+    preboda: 'Preboda',
+    previas: 'Previa',
+    ceremonia: 'Ceremonia',
+    coctel: 'Cóctel',
+    comida: 'Comida',
+    fiesta: 'Fiesta',
+    meme: 'Imita el meme'
+};
+
 let datosGaleria = { angel: [], preboda: [], previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [], meme: [] };
 let seccionActiva = null;
 let subidasEnCurso = 0;
 let indiceLightboxActivo = -1;
+
+let nextPageTokenActivo = null;
+let cargandoMasFotos = false;
+let observerScroll = null;
+
+function mostrarModalProgreso(texto, porcentaje = 0, icono = "⏳") {
+    const modal = document.getElementById('upload-progress-modal');
+    document.getElementById('upload-progress-text').innerHTML = texto;
+    
+    if (porcentaje !== null) {
+        document.getElementById('upload-progress-bar').style.width = porcentaje + '%';
+    }
+    
+    let iconEl = modal.querySelector('.progress-icon');
+    if (!iconEl) {
+        iconEl = document.createElement('div');
+        iconEl.className = 'progress-icon';
+        iconEl.style.fontSize = '36px';
+        iconEl.style.marginBottom = '10px';
+        modal.querySelector('div').prepend(iconEl);
+    }
+    iconEl.innerText = icono;
+    
+    const barBg = modal.querySelector('.progress-bar-bg');
+    if (barBg) barBg.style.display = (porcentaje === null) ? 'none' : 'block';
+
+    let closeBtn = document.getElementById('upload-modal-close-btn');
+    if (!closeBtn) {
+        closeBtn = document.createElement('button');
+        closeBtn.id = 'upload-modal-close-btn';
+        closeBtn.style.cssText = "background: #b85c5c; color: white; border: none; padding: 10px 24px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 15px; display: none;";
+        closeBtn.innerText = "Entendido";
+        closeBtn.onclick = ocultarModalProgreso;
+        modal.querySelector('div').appendChild(closeBtn);
+    }
+    closeBtn.style.display = (porcentaje === null) ? 'inline-block' : 'none';
+
+    modal.style.display = 'flex';
+}
+
+function actualizarModalProgreso(texto, porcentaje) {
+    document.getElementById('upload-progress-text').innerHTML = texto;
+    document.getElementById('upload-progress-bar').style.width = porcentaje + '%';
+}
+
+function ocultarModalProgreso() {
+    document.getElementById('upload-progress-modal').style.display = 'none';
+}
 
 window.addEventListener('beforeunload', (e) => {
     if (subidasEnCurso > 0) {
@@ -649,40 +741,25 @@ window.addEventListener('beforeunload', (e) => {
 
 function obtenerFotosSinPortada(seccion) {
     if (!Array.isArray(datosGaleria[seccion])) return [];
-    return datosGaleria[seccion].filter(item => !item.name || !item.name.toLowerCase().startsWith('portada_'));
+    return datosGaleria[seccion].filter(item => !item.name || !item.name.toLowerCase().includes('portada_'));
 }
 
-async function inicializarGaleria() {
-    const progressArea = document.getElementById('progress-area');
-    progressArea.style.display = 'block';
-    
+// Inicialización instantánea sin peticiones GET a Google Apps Script
+function inicializarGaleria() {
     Object.keys(CARPETAS_DRIVE).forEach(seccion => {
-        const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
-        if (btnSeeAll) btnSeeAll.disabled = true;
-    });
+        datosGaleria[seccion] = [1, 2, 3, 4].map(num => ({
+            id: `local-${seccion}-${num}`,
+            url: `media/${seccion}_portada_${num}.jpg`,
+            name: `${seccion}_portada_${num}.jpg`,
+            type: 'image/jpeg',
+            status: 'done'
+        }));
 
-    try {
-        const respuesta = await fetch(`${SCRIPT_URL}?limit=4`);
-        const data = await respuesta.json();
-        
-        Object.keys(CARPETAS_DRIVE).forEach(seccion => {
-            datosGaleria[seccion] = Array.isArray(data[seccion]) ? data[seccion] : [];
-            actualizarFilaMiniaturas(seccion);
-            const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
-            if (btnSeeAll) btnSeeAll.disabled = false;
-        });
-        
-        progressArea.style.display = 'none';
-    } catch (err) {
-        document.getElementById('progress-text').innerText = "Galería lista para recibir fotos.";
-        setTimeout(() => progressArea.style.display = 'none', 3000);
-        
-        Object.keys(CARPETAS_DRIVE).forEach(seccion => {
-            actualizarFilaMiniaturas(seccion);
-            const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
-            if (btnSeeAll) btnSeeAll.disabled = false;
-        });
-    }
+        actualizarFilaMiniaturas(seccion);
+
+        const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
+        if (btnSeeAll) btnSeeAll.disabled = false;
+    });
 }
 
 async function abrirCuadricula(seccion, titulo) {
@@ -690,29 +767,104 @@ async function abrirCuadricula(seccion, titulo) {
     if (btnSeeAll && btnSeeAll.disabled) return;
     
     seccionActiva = seccion;
+    nextPageTokenActivo = null;
+    cargandoMasFotos = false;
+    
     document.getElementById('grid-view-title').innerHTML = titulo;
     document.getElementById('grid-view-overlay').style.display = 'block';
     
     const grid = document.getElementById('main-gallery-grid');
-    grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">Cargando fotos de la carpeta...</div>';
+    grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">Cargando fotos...</div>';
+
+    await cargarPaginaCuadricula(true);
+}
+
+async function cargarPaginaCuadricula(esPrimeraCarga = false) {
+    if (cargandoMasFotos || (!esPrimeraCarga && !nextPageTokenActivo)) return;
+    cargandoMasFotos = true;
+
+    const grid = document.getElementById('main-gallery-grid');
+    
+    let loader = document.getElementById('grid-loader');
+    if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'grid-loader';
+        loader.className = 'grid-loader-container';
+        loader.innerHTML = `
+            <div class="spinner"></div>
+            <span>Cargando más contenido...</span>
+        `;
+    }
+
+    grid.appendChild(loader);
 
     try {
-        const res = await fetch(`${SCRIPT_URL}?folder=${seccion}`);
-        const responseData = await res.json();
+        let url = `${SCRIPT_URL}?folder=${seccionActiva}&pageSize=18`;
+        if (nextPageTokenActivo) {
+            url += `&pageToken=${encodeURIComponent(nextPageTokenActivo)}`;
+        }
+
+        const res = await fetch(url);
+        const data = await res.json();
         
-        if (Array.isArray(responseData)) {
-            datosGaleria[seccion] = responseData;
+        const nuevosArchivos = Array.isArray(data.files) ? data.files : [];
+        nextPageTokenActivo = data.nextPageToken || null;
+
+        if (esPrimeraCarga) {
+            grid.innerHTML = '';
+            datosGaleria[seccionActiva] = nuevosArchivos;
+        } else {
+            datosGaleria[seccionActiva] = datosGaleria[seccionActiva].concat(nuevosArchivos);
         }
 
         renderizarCuadriculaCompleta();
+
+        if (nextPageTokenActivo) {
+            grid.appendChild(loader);
+            iniciarObserverScroll();
+        } else {
+            if (loader.parentNode) loader.remove();
+            
+            const endMsg = document.createElement('div');
+            endMsg.className = 'end-of-gallery';
+            endMsg.innerText = '✨ Has visto todas las fotos de esta carpeta';
+            grid.appendChild(endMsg);
+        }
+
     } catch (err) {
-        renderizarCuadriculaCompleta();
+        if (loader.parentNode) loader.remove();
+        if (esPrimeraCarga) {
+            renderizarCuadriculaCompleta();
+        }
+    } finally {
+        cargandoMasFotos = false;
     }
+}
+
+function iniciarObserverScroll() {
+    if (observerScroll) observerScroll.disconnect();
+
+    const loader = document.getElementById('grid-loader');
+    if (!loader) return;
+
+    observerScroll = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !cargandoMasFotos && nextPageTokenActivo) {
+            cargarPaginaCuadricula(false);
+        }
+    }, {
+        root: document.getElementById('grid-view-overlay'),
+        rootMargin: '150px'
+    });
+
+    observerScroll.observe(loader);
 }
 
 function cerrarCuadricula() {
     document.getElementById('grid-view-overlay').style.display = 'none';
+    if (observerScroll) observerScroll.disconnect();
     seccionActiva = null;
+    nextPageTokenActivo = null;
+    cargandoMasFotos = false;
 }
 
 function descargarCarpeta(seccion) {
@@ -724,6 +876,8 @@ function descargarCarpeta(seccion) {
 
 function renderizarCuadriculaCompleta() {
     const grid = document.getElementById('main-gallery-grid');
+    const loader = document.getElementById('grid-loader');
+    
     grid.innerHTML = '';
     
     if (!seccionActiva) return;
@@ -758,6 +912,10 @@ function renderizarCuadriculaCompleta() {
         div.innerHTML = `${mediaTag}${videoIndicator}<div class="item-status ${item.status}" id="status-grid-${item.id}">${textoEstado}</div>`;
         grid.appendChild(div);
     });
+
+    if (loader && nextPageTokenActivo) {
+        grid.appendChild(loader);
+    }
 }
 
 function mostrarElementoLightbox() {
@@ -768,7 +926,6 @@ function mostrarElementoLightbox() {
     const item = fotosVisibles[indiceLightboxActivo];
     if (!item) return;
 
-    // Botón de descarga centrado abajo
     const btnDownload = document.createElement('a');
     btnDownload.className = 'lightbox-download-btn';
     btnDownload.title = 'Descargar este archivo';
@@ -782,7 +939,6 @@ function mostrarElementoLightbox() {
         const matchId = item.url ? item.url.match(/id=([^&]+)/) : null;
 
         if (matchId && matchId[1]) {
-            // Se utiliza el reproductor preview de Drive asegurando permisos de reproducción
             const fileId = matchId[1];
             downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
             
@@ -797,7 +953,6 @@ function mostrarElementoLightbox() {
             wrapper.appendChild(iframe);
             box.appendChild(wrapper);
         } else {
-            // Archivo de vídeo subido localmente (Preview antes de subir a Drive)
             const videoEl = document.createElement('video');
             videoEl.src = item.url;
             videoEl.controls = true;
@@ -810,7 +965,6 @@ function mostrarElementoLightbox() {
         btnDownload.href = downloadUrl;
         btnDownload.target = '_blank';
     } else {
-        // Imagen estándar
         let downloadUrl = item.url;
         const matchId = item.url ? item.url.match(/id=([^&]+)/) : null;
         if (matchId && matchId[1]) {
@@ -872,24 +1026,13 @@ function actualizarFilaMiniaturas(seccion) {
         return;
     }
 
-    const titulosSeccion = {
-        angel: '📷 Ángel Caballero',
-        preboda: '💍 Preboda',
-        previas: '🌅 Previa',
-        ceremonia: '💐 Ceremonia',
-        coctel: '🍸 Cóctel',
-        comida: '🍽️ Comida',
-        fiesta: '🎉 Fiesta',
-        meme: '📸 ¡Imita el meme!'
-    };
-
     const itemsPreview = datosGaleria[seccion].slice(0, 4);
 
     itemsPreview.forEach(item => {
         const thumb = document.createElement('div');
         thumb.className = 'preview-thumb';
         thumb.style.cursor = 'pointer';
-        thumb.onclick = () => abrirCuadricula(seccion, titulosSeccion[seccion]);
+        thumb.onclick = () => abrirCuadricula(seccion, NOMBRES_SECCIONES[seccion]);
         
         let mediaTag = '';
         let videoIndicator = '';
@@ -916,6 +1059,70 @@ function actualizarFilaMiniaturas(seccion) {
     });
 }
 
+async function parsearFechaVideoMP4MOV(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        const maxChunk = 2 * 1024 * 1024;
+        
+        const buscarEnBytes = (bytes) => {
+            const decoder = new TextDecoder('ascii');
+            const text = decoder.decode(bytes);
+            const matchIso = text.match(/(\d{4})[-:](\d{2})[-:](\d{2})[T ](\d{2}):(\d{2}):(\d{2})/);
+            if (matchIso) {
+                const [_, y, m, d, h, min, sec] = matchIso.map(Number);
+                const f = new Date(y, m - 1, d, h, min, sec);
+                if (!isNaN(f.getTime()) && f.getFullYear() > 2000) return f;
+            }
+
+            for (let i = 0; i < bytes.length - 8; i++) {
+                if (bytes[i] === 0x6D && bytes[i+1] === 0x76 && bytes[i+2] === 0x68 && bytes[i+3] === 0x64) {
+                    const version = bytes[i + 4];
+                    let creationTimeSeconds = 0;
+                    
+                    if (version === 1) {
+                        const view = new DataView(bytes.buffer, bytes.byteOffset + i + 8, 8);
+                        creationTimeSeconds = Number(view.getBigUint64(0, false));
+                    } else {
+                        const view = new DataView(bytes.buffer, bytes.byteOffset + i + 8, 4);
+                        creationTimeSeconds = view.getUint32(0, false);
+                    }
+
+                    if (creationTimeSeconds > 0) {
+                        const epochQuicktime = new Date(Date.UTC(1904, 0, 1)).getTime();
+                        const fechaUtc = new Date(epochQuicktime + (creationTimeSeconds * 1000));
+                        if (!isNaN(fechaUtc.getTime()) && fechaUtc.getFullYear() > 2000) return fechaUtc;
+                    }
+                }
+            }
+            return null;
+        };
+
+        const sliceHead = file.slice(0, Math.min(file.size, maxChunk));
+        reader.onload = function(eHead) {
+            const bytesHead = new Uint8Array(eHead.target.result);
+            const resHead = buscarEnBytes(bytesHead);
+            if (resHead) return resolve(resHead);
+
+            if (file.size > maxChunk) {
+                const readerTail = new FileReader();
+                const sliceTail = file.slice(Math.max(0, file.size - maxChunk), file.size);
+                readerTail.onload = function(eTail) {
+                    const bytesTail = new Uint8Array(eTail.target.result);
+                    const resTail = buscarEnBytes(bytesTail);
+                    resolve(resTail);
+                };
+                readerTail.onerror = () => resolve(null);
+                readerTail.readAsArrayBuffer(sliceTail);
+            } else {
+                resolve(null);
+            }
+        };
+
+        reader.onerror = () => resolve(null);
+        reader.readAsArrayBuffer(sliceHead);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     inicializarGaleria();
 
@@ -925,61 +1132,82 @@ document.addEventListener('DOMContentLoaded', () => {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
 
-            const progressArea = document.getElementById('progress-area');
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            
-            progressArea.style.display = 'block';
-            progressText.innerText = "Analizando archivos...";
+            let totalFotosSeleccionadas = 0;
+            let totalVideosSeleccionados = 0;
+
+            files.forEach(f => {
+                const ext = f.name.split('.').pop().toLowerCase();
+                if (f.type.includes('video') || ext === 'mov' || ext === 'mp4') totalVideosSeleccionados++;
+                else totalFotosSeleccionadas++;
+            });
+
+            let textoInicial = "Analizando ";
+            const partes = [];
+            if (totalFotosSeleccionadas > 0) partes.push(`${totalFotosSeleccionadas} foto(s)`);
+            if (totalVideosSeleccionados > 0) partes.push(`${totalVideosSeleccionados} vídeo(s)`);
+            textoInicial += partes.join(' y ') + "...";
+
+            mostrarModalProgreso(textoInicial, 0, "⏳");
 
             let uploadedCount = 0;
             const validFiles = [];
             
             const LIMITE_PREBODA = new Date('2026-09-05T05:00:00');
             const LIMITE_BODA_INICIO = new Date('2026-09-05T13:00:00');
-            let archivosRechazados = 0;
+
+            const FECHA_INICIO_PERMITIDA = new Date('2026-09-04T00:00:00');
+            const FECHA_FIN_PERMITIDA = new Date('2026-09-06T23:59:59');
+
+            let fotosRechazadas = 0;
+            let videosRechazados = 0;
 
             for (let file of files) {
-                let fechaUso = new Date(file.lastModified);
+                let fechaUso = null;
                 let tieneMetadatosValidos = false;
                 let tags = null;
-                
-                try {
-                    tags = await ExifReader.load(file);
-                } catch (err) { }
 
-                if (file.type.includes('video')) {
-                    const esNombreWhatsApp = file.name.toLowerCase().includes('whatsapp');
-                    if (!esNombreWhatsApp) {
+                const extension = file.name.split('.').pop().toLowerCase();
+                const esMOV = extension === 'mov';
+                const esMP4 = extension === 'mp4';
+                const esVideo = file.type.includes('video') || esMOV || esMP4;
+
+                if (esVideo) {
+                    const fechaVideoBin = await parsearFechaVideoMP4MOV(file);
+                    if (fechaVideoBin) {
+                        fechaUso = fechaVideoBin;
                         tieneMetadatosValidos = true;
                     }
                 } 
-                else {
-                    if (tags && (tags['Make'] || tags['Model'] || tags['Software'] || tags['DateTimeOriginal'])) {
-                        tieneMetadatosValidos = true;
-                    }
-                }
+                
+                if (!tieneMetadatosValidos) {
+                    try {
+                        tags = await ExifReader.load(file);
+                    } catch (err) {}
 
-                if (tags) {
-                    const fechaOriginalStr = tags['DateTimeOriginal']?.description || tags['CreationDate']?.description;
-                    if (fechaOriginalStr) {
-                        const partes = fechaOriginalStr.split(" ");
-                        if (partes.length === 2) {
-                            const ymd = partes[0].replace(/:/g, "-");
-                            const hms = partes[1].split(":");
-                            if (hms.length >= 2) {
-                                const [y, m, d] = ymd.split("-").map(Number);
-                                const h = parseInt(hms[0], 10);
-                                const min = parseInt(hms[1], 10);
-                                const sec = hms[2] ? parseInt(hms[2], 10) : 0;
+                    if (tags) {
+                        const fechaOriginalStr = tags['DateTimeOriginal']?.description || 
+                                                 tags['CreationDate']?.description || 
+                                                 tags['CreateDate']?.description ||
+                                                 tags['MediaCreateDate']?.description;
+                        
+                        if (fechaOriginalStr) {
+                            const matchIso = fechaOriginalStr.match(/(\d{4})[:/-](\d{2})[:/-](\d{2})[T ](\d{2}):(\d{2}):(\d{2})/);
+                            if (matchIso) {
+                                const [_, y, m, d, h, min, sec] = matchIso.map(Number);
                                 fechaUso = new Date(y, m - 1, d, h, min, sec);
+                                tieneMetadatosValidos = true;
                             }
+                        }
+
+                        if (!esVideo && (tags['Make'] || tags['Model'] || tags['Software'])) {
+                            tieneMetadatosValidos = true;
                         }
                     }
                 }
 
-                if (!tieneMetadatosValidos) {
-                    archivosRechazados++;
+                if (!tieneMetadatosValidos || !fechaUso || isNaN(fechaUso.getTime()) || fechaUso < FECHA_INICIO_PERMITIDA || fechaUso > FECHA_FIN_PERMITIDA) {
+                    if (esVideo) videosRechazados++;
+                    else fotosRechazadas++;
                     continue; 
                 }
 
@@ -996,9 +1224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     else seccion = "fiesta";
                 }
 
-                const extension = file.name.split('.').pop().toLowerCase();
                 const esHEIC = extension === 'heic' || extension === 'heif';
-                
                 const pad = (n) => String(n).padStart(2, '0');
                 const timestampName = `${fechaUso.getFullYear()}-${pad(fechaUso.getMonth()+1)}-${pad(fechaUso.getDate())}_${pad(fechaUso.getHours())}-${pad(fechaUso.getMinutes())}-${pad(fechaUso.getSeconds())}.${extension}`;
 
@@ -1013,42 +1239,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     actualizarFilaMiniaturas(seccion);
                 }
 
-                validFiles.push({ file, nuevoNombre: timestampName, itemId, seccion, esHEIC });
+                validFiles.push({ file, nuevoNombre: timestampName, itemId, seccion, esHEIC, esVideo });
             }
 
             if (validFiles.length === 0) {
-                progressText.innerText = `⚠️ No se subió nada. Por favor, selecciona fotos o vídeos originales.`;
-                setTimeout(() => { progressArea.style.display = 'none'; }, 5000);
+                let msgRechazo = "No se ha podido subir ningún archivo por no pasar los filtros (fecha no válida o fuera del 4, 5 y 6 de septiembre).";
+                mostrarModalProgreso(msgRechazo, null, "⚠️");
+                fotoInput.value = "";
                 return;
             }
 
             if (seccionActiva) renderizarCuadriculaCompleta();
 
-            if (archivosRechazados > 0) {
-                progressText.innerText = `Subiendo... (${archivosRechazados} filtrados por calidad/WhatsApp)`;
-                await new Promise(r => setTimeout(r, 2000)); 
-            }
+            actualizarModalProgreso(`Subiendo archivos... (0/${validFiles.length})`, 0);
+
+            const conteoExitoso = {};
 
             const ejecutarSubidas = async () => {
                 const cola = [...validFiles];
-                const activos = [];
                 subidasEnCurso = validFiles.length;
 
                 async function procesarSiguiente() {
                     if (cola.length === 0) return;
                     
                     const item = cola.shift();
-                    const promesaSubida = subirArchivo(item.file, item.nuevoNombre, item.itemId, item.seccion, item.esHEIC).then(() => {
-                        uploadedCount++;
-                        subidasEnCurso--;
-                        const percent = Math.round((uploadedCount / validFiles.length) * 100);
-                        progressBar.style.width = percent + '%';
-                        progressText.innerText = `Subiendo fotos... (${uploadedCount}/${validFiles.length})`;
-                    });
+                    const exito = await subirArchivo(item.file, item.nuevoNombre, item.itemId, item.seccion, item.esHEIC);
+                    
+                    uploadedCount++;
+                    subidasEnCurso--;
+                    
+                    if (exito) {
+                        if (!conteoExitoso[item.seccion]) conteoExitoso[item.seccion] = { fotos: 0, videos: 0 };
+                        if (item.esVideo) conteoExitoso[item.seccion].videos++;
+                        else conteoExitoso[item.seccion].fotos++;
+                    }
 
-                    activos.push(promesaSubida);
-                    await promesaSubida;
-                    activos.splice(activos.indexOf(promesaSubida), 1);
+                    const percent = Math.round((uploadedCount / validFiles.length) * 100);
+                    actualizarModalProgreso(`Subiendo archivos... (${uploadedCount}/${validFiles.length})`, percent);
+
                     await procesarSiguiente();
                 }
 
@@ -1061,7 +1289,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
             await ejecutarSubidas();
             subidasEnCurso = 0;
-            setTimeout(() => { progressArea.style.display = 'none'; progressBar.style.width = '0%'; }, 3000);
+
+            const partesResumen = [];
+            Object.keys(conteoExitoso).forEach(sec => {
+                const f = conteoExitoso[sec].fotos;
+                const v = conteoExitoso[sec].videos;
+                const elementos = [];
+                if (f > 0) elementos.push(`${f} foto${f > 1 ? 's' : ''}`);
+                if (v > 0) elementos.push(`${v} vídeos${v > 1 ? 's' : ''}`);
+                
+                const nombreCarpeta = NOMBRES_SECCIONES[sec] || sec;
+                partesResumen.push(`${elementos.join(' y ')} a <strong>${nombreCarpeta}</strong>`);
+            });
+
+            let htmlFinal = "";
+            let iconoFinal = "🎉";
+
+            if (partesResumen.length > 0) {
+                htmlFinal = `Se ha añadido ${partesResumen.join(', ')}.`;
+            } else {
+                htmlFinal = "No se ha podido completar la subida de ningún archivo.";
+                iconoFinal = "❌";
+            }
+
+            const totalRechazados = fotosRechazadas + videosRechazados;
+            if (totalRechazados > 0) {
+                const elementosRechazados = [];
+                if (fotosRechazadas > 0) elementosRechazados.push(`${fotosRechazadas} foto(s)`);
+                if (videosRechazados > 0) elementosRechazados.push(`${videosRechazados} vídeo(s)`);
+                htmlFinal += `<br><br><span style="font-size: 12px; color: #86868b;">⚠️ ${elementosRechazados.join(' y ')} no pasaron los filtros de fecha.</span>`;
+            }
+
+            mostrarModalProgreso(htmlFinal, null, iconoFinal);
+            fotoInput.value = "";
         });
     }
 });
@@ -1075,7 +1335,7 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
             accessToken = dataToken.token;
         } catch (err) {
             marcarErrorVisual(itemId, seccion);
-            return resolve();
+            return resolve(false);
         }
 
         const folderId = CARPETAS_DRIVE[seccion];
@@ -1090,7 +1350,7 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
         };
 
         const reader = new FileReader();
-        reader.onerror = () => { marcarErrorVisual(itemId, seccion); resolve(); };
+        reader.onerror = () => { marcarErrorVisual(itemId, seccion); resolve(false); };
         
         reader.onload = function() {
             const arrayBuffer = reader.result;
@@ -1128,14 +1388,17 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     let statusResult = 'done';
+                    let fueExitoso = false;
+
                     if (xhr.status === 200 || xhr.status === 201) {
+                        fueExitoso = true;
                         if (esHEIC) {
                             try {
                                 const responseDrive = JSON.parse(xhr.responseText);
                                 const driveFileId = responseDrive.id;
                                 
                                 setTimeout(() => {
-                                    const driveThumbnailUrl = `https://lh3.googleusercontent.com/d/${driveFileId}=w400`;
+                                    const driveThumbnailUrl = `https://lh3.googleusercontent.com/d/${driveFileId}=s0`;
                                     const objHEIC = { id: itemId, url: driveThumbnailUrl, type: file.type, status: 'done', name: nuevoNombre };
                                     
                                     if (!Array.isArray(datosGaleria[seccion])) datosGaleria[seccion] = [];
@@ -1168,7 +1431,7 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
                             elThumbStatus.remove();
                         }
                         
-                        resolve();
+                        resolve(fueExitoso);
                     }, 500);
                 }
             };
@@ -1192,5 +1455,6 @@ function marcarErrorVisual(itemId, seccion) {
     }
 }
 </script>
+
 </body>
 </html>

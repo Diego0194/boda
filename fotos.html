@@ -156,22 +156,6 @@
       position: relative;
     }
     .preview-thumb img, .preview-thumb video { width: 100%; height: 100%; object-fit: cover; }
-    
-    .preview-thumb-overlay {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.55);
-      color: white;
-      font-size: 10px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2px;
-      box-sizing: border-box;
-      z-index: 10;
-    }
 
     .empty-state {
       font-size: 13px;
@@ -315,33 +299,53 @@
       align-items: center;
       justify-content: center;
     }
-    .lightbox-content-container {
+    
+.lightbox-content-container {
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
+      box-sizing: border-box;
+      padding: 60px 15px;
       overflow: hidden;
     }
     
+    /* WIDGET DEL IFRAME DE VIDEO */
     .lightbox-iframe-wrapper {
       position: relative;
-      width: 100%;
+      width: 90vw;
       max-width: 800px;
-      height: 75vh;
-      overflow: hidden;
+      height: 70vh;
+      max-height: 800px;
       border-radius: 12px;
+      overflow: hidden;
       box-shadow: 0 4px 30px rgba(0,0,0,0.5);
       z-index: 2050;
       background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
+    /* Asegura que el iframe ocupe todo el marco sin desplazarse */
+    .lightbox-iframe-wrapper iframe {
+      width: 100% !important;
+      height: 100% !important;
+      border: none !important;
+      display: block;
+    }
+
+    /* Para las imágenes */
     .lightbox-media {
-      width: 100%;
-      height: 100%;
+      max-width: 90vw;
+      max-height: 80vh;
+      width: auto;
+      height: auto;
       object-fit: contain;
       border: none;
+      border-radius: 8px;
     }
 
     .lightbox-nav-btn {
@@ -368,7 +372,20 @@
     .lightbox-next { right: 20px; }
     
     .lightbox-close-hint {
-      display: none;
+      display: block;
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 2150;
+      pointer-events: none;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 6px 16px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
     }
 
     .lightbox-download-btn {
@@ -625,9 +642,9 @@
 
 <div class="lightbox-overlay" id="lightbox-overlay" onclick="cerrarLightbox(event)">
   <div class="lightbox-content-container">
-    <span class="lightbox-close-hint">Toca en cualquier parte para volver</span>
+    <span class="lightbox-close-hint">Toca en cualquier lugar para volver</span>
     <button class="lightbox-nav-btn lightbox-prev" onclick="navegarLightbox(-1, event)">‹</button>
-    <div id="lightbox-media-box" style="width: 100%; display: flex; justify-content: center; align-items: center;"></div>
+    <div id="lightbox-media-box" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;"></div>
     <button class="lightbox-nav-btn lightbox-next" onclick="navegarLightbox(1, event)">›</button>
   </div>
 </div>
@@ -654,7 +671,7 @@
 <script src="main.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQrYvJLCvYnIJxY41admwe4bOBPEfAMKekcu31Na36AeMN67iRKMGrNzLKwlp757qo/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx24lJ8EfFGnLExKltSuhwAhZ6t7v4tEyZrYQYLyqxB2zj6NVVqZZlNv8tCCCo9zu8/exec";
 const CONCURRENCIA_MAXIMA = 5;
 
 const CARPETAS_DRIVE = {
@@ -688,14 +705,28 @@ let nextPageTokenActivo = null;
 let cargandoMasFotos = false;
 let observerScroll = null;
 
-// NUEVO: Función auxiliar para solicitar miniaturas reducidas (=w400) a Google Drive
 function obtenerUrlMiniaturaOptimizada(url, maxAncho = 400) {
     if (!url) return '';
-    // Si es una URL formateada por AppScript (lh3.googleusercontent.com/d/ID=s0)
     if (url.includes('googleusercontent.com')) {
         return url.replace(/=s0$/, `=w${maxAncho}`).replace(/=s\d+$/, `=w${maxAncho}`);
     }
     return url;
+}
+
+function esUnVideo(item) {
+    if (!item) return false;
+    const extension = item.name ? item.name.split('.').pop().toLowerCase() : '';
+    const extensionesVideo = ['mp4', 'mov', 'avi', 'm4v', 'mkv', 'webm', '3gp', 'quicktime'];
+    
+    if (item.type && item.type.includes('video')) return true;
+    if (extensionesVideo.includes(extension)) return true;
+    return false;
+}
+
+function obtenerFileId(url) {
+    if (!url) return null;
+    const match = url.match(/\/d\/([^=/]+)/) || url.match(/id=([^&]+)/);
+    return match ? match[1] : null;
 }
 
 function mostrarModalProgreso(texto, porcentaje = 0, icono = "⏳") {
@@ -884,7 +915,6 @@ function cerrarCuadricula() {
     cargandoMasFotos = false;
 }
 
-// CORREGIDO: Redirige en la misma ventana en dispositivos móviles
 function descargarCarpeta(seccion) {
     const folderId = CARPETAS_DRIVE[seccion];
     if (!folderId) return;
@@ -919,17 +949,17 @@ function renderizarCuadriculaCompleta() {
         
         let mediaTag = '';
         let videoIndicator = '';
-        const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
 
-        // OPTIMIZACIÓN: Solicitamos una miniatura comprimida al 50% / 400px a Google Drive
-        const urlOptimizada = obtenerUrlMiniaturaOptimizada(item.url, 400);
+        const esVideo = esUnVideo(item);
 
-        if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
-            mediaTag = item.url ? `<video src="${urlOptimizada}#t=0.1" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${urlOptimizada}'; this.replaceWith(img);"></video>` : `<div style="background:#2c2c2e;width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;">🎬</div>`;
+        // Si es archivo local (blob), mostramos reproductor local corto; si viene de Drive, siempre mostramos su miniatura img
+        if (esVideo && item.url && item.url.startsWith('blob:')) {
+            mediaTag = `<video src="${item.url}#t=0.1" muted playsinline preload="metadata"></video>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
         } else {
+            const urlOptimizada = obtenerUrlMiniaturaOptimizada(item.url, 400);
             mediaTag = item.url ? `<img src="${urlOptimizada}" loading="lazy">` : `<div style="background:#e5e5ea;width:100%;height:100%;"></div>`;
-            if (item.type && item.type.includes('video')) {
+            if (esVideo) {
                 videoIndicator = `<span class="video-indicator">🎞️</span>`;
             }
         }
@@ -959,27 +989,29 @@ function mostrarElementoLightbox() {
     btnDownload.innerText = 'Descargar ⬇️';
     btnDownload.onclick = (e) => e.stopPropagation();
 
-    const esVideo = item.type && item.type.includes('video');
+    const fileId = obtenerFileId(item.url) || item.id;
+    const esVideo = esUnVideo(item);
 
     if (esVideo) {
-        let downloadUrl = item.url;
-        const matchId = item.url ? item.url.match(/id=([^&]+)/) : null;
-
-        if (matchId && matchId[1]) {
-            const fileId = matchId[1];
-            downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        if (fileId && !item.url.startsWith('blob:')) {
+            const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
             
             const wrapper = document.createElement('div');
             wrapper.className = 'lightbox-iframe-wrapper';
 
             const iframe = document.createElement('iframe');
             iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-            iframe.className = 'lightbox-media';
-            iframe.allow = 'autoplay';
+            // Sin la clase lightbox-media para evitar conflictos de maquetación CSS
+            iframe.allow = 'autoplay; encrypted-media';
+            iframe.setAttribute('allowfullscreen', 'true');
             
             wrapper.appendChild(iframe);
             box.appendChild(wrapper);
+
+            btnDownload.href = downloadUrl;
+            btnDownload.target = '_blank';
         } else {
+            // Vídeo local (blobs)
             const videoEl = document.createElement('video');
             videoEl.src = item.url;
             videoEl.controls = true;
@@ -987,15 +1019,15 @@ function mostrarElementoLightbox() {
             videoEl.playsInline = true;
             videoEl.className = 'lightbox-media';
             box.appendChild(videoEl);
-        }
 
-        btnDownload.href = downloadUrl;
-        btnDownload.target = '_blank';
+            btnDownload.href = item.url;
+            btnDownload.download = item.name || 'video.mp4';
+        }
     } else {
+        // Imágenes
         let downloadUrl = item.url;
-        const matchId = item.url ? item.url.match(/id=([^&]+)/) : null;
-        if (matchId && matchId[1]) {
-            downloadUrl = `https://drive.google.com/uc?export=download&id=${matchId[1]}`;
+        if (fileId && !item.url.startsWith('blob:')) {
+            downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
             btnDownload.href = downloadUrl;
             btnDownload.target = '_blank';
         } else {
@@ -1004,7 +1036,7 @@ function mostrarElementoLightbox() {
         }
 
         const img = document.createElement('img');
-        img.src = item.url; // Aquí se sigue usando la URL completa/original a máxima calidad
+        img.src = item.url;
         img.className = 'lightbox-media';
         box.appendChild(img);
     }
@@ -1212,7 +1244,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pad = (n) => String(n).padStart(2, '0');
                 const timestampName = `${fechaUso.getFullYear()}-${pad(fechaUso.getMonth()+1)}-${pad(fechaUso.getDate())}_${pad(fechaUso.getHours())}-${pad(fechaUso.getMinutes())}-${pad(fechaUso.getSeconds())}.${extension}`;
 
-                // CORREGIDO: No creamos Blob URL para vídeos o HEIC para ahorrar RAM masivamente
                 const localURL = (esHEIC || esVideo) ? '' : URL.createObjectURL(file);
                 const itemId = 'file-' + Math.random().toString(36).substr(2, 9);
                 
@@ -1401,7 +1432,6 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
                         const obj = datosGaleria[seccion].find(i => i.id === itemId);
                         if (obj) {
                             obj.status = statusResult;
-                            // CORREGIDO: Liberar la memoria del Blob para evitar cuelgues de RAM
                             if (obj.url && obj.url.startsWith('blob:')) {
                                 URL.revokeObjectURL(obj.url);
                                 obj.url = '';

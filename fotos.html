@@ -637,7 +637,7 @@
   <div style="background: #ffffff; padding: 24px; border-radius: 16px; max-width: 400px; width: 85%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popInCentrado 0.3s ease-out;">
     <div id="upload-progress-text" class="progress-status">Analizando archivos...</div>
     <div class="progress-bar-bg"><div class="progress-bar-fill" id="upload-progress-bar"></div></div>
-    <div style="font-size: 11px; color: #86868b; margin-top: 12px;">Por favor, no cierres esta página mientras se suben los archivos.</div>
+    <div id="upload-modal-footer-text" style="font-size: 11px; color: #86868b; margin-top: 12px;">Por favor, no cierres esta página mientras se suben los archivos.</div>
   </div>
 </div>
 
@@ -709,6 +709,11 @@ function mostrarModalProgreso(texto, porcentaje = 0, icono = "⏳") {
     const barBg = modal.querySelector('.progress-bar-bg');
     if (barBg) barBg.style.display = (porcentaje === null) ? 'none' : 'block';
 
+    const footerText = document.getElementById('upload-modal-footer-text');
+    if (footerText) {
+        footerText.innerText = (porcentaje === null) ? "Ya puedes cerrar esta ventana" : "Por favor, no cierres esta página mientras se suben los archivos.";
+    }
+
     let closeBtn = document.getElementById('upload-modal-close-btn');
     if (!closeBtn) {
         closeBtn = document.createElement('button');
@@ -744,18 +749,21 @@ function obtenerFotosSinPortada(seccion) {
     return datosGaleria[seccion].filter(item => !item.name || !item.name.toLowerCase().includes('portada_'));
 }
 
-// Inicialización instantánea sin peticiones GET a Google Apps Script
+// Inicialización estática sin peticiones GET y pintado de portadas locales fijas
 function inicializarGaleria() {
     Object.keys(CARPETAS_DRIVE).forEach(seccion => {
-        datosGaleria[seccion] = [1, 2, 3, 4].map(num => ({
-            id: `local-${seccion}-${num}`,
-            url: `media/${seccion}_portada_${num}.jpg`,
-            name: `${seccion}_portada_${num}.jpg`,
-            type: 'image/jpeg',
-            status: 'done'
-        }));
-
-        actualizarFilaMiniaturas(seccion);
+        const row = document.getElementById(`row-${seccion}`);
+        if (row) {
+            row.innerHTML = '';
+            [1, 2, 3, 4].forEach(num => {
+                const thumb = document.createElement('div');
+                thumb.className = 'preview-thumb';
+                thumb.style.cursor = 'pointer';
+                thumb.onclick = () => abrirCuadricula(seccion, NOMBRES_SECCIONES[seccion]);
+                thumb.innerHTML = `<img src="media/${seccion}_portada_${num}.jpg">`;
+                row.appendChild(thumb);
+            });
+        }
 
         const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
         if (btnSeeAll) btnSeeAll.disabled = false;
@@ -1016,49 +1024,6 @@ function navegarLightbox(direccion, event) {
     mostrarElementoLightbox();
 }
 
-function actualizarFilaMiniaturas(seccion) {
-    const row = document.getElementById(`row-${seccion}`);
-    if (!row) return;
-    row.innerHTML = '';
-    
-    if (!datosGaleria[seccion] || !Array.isArray(datosGaleria[seccion]) || datosGaleria[seccion].length === 0) {
-        row.innerHTML = `<div class="empty-state">Aún no hay fotos en este momento</div>`;
-        return;
-    }
-
-    const itemsPreview = datosGaleria[seccion].slice(0, 4);
-
-    itemsPreview.forEach(item => {
-        const thumb = document.createElement('div');
-        thumb.className = 'preview-thumb';
-        thumb.style.cursor = 'pointer';
-        thumb.onclick = () => abrirCuadricula(seccion, NOMBRES_SECCIONES[seccion]);
-        
-        let mediaTag = '';
-        let videoIndicator = '';
-        let uploadingOverlay = '';
-        
-        if (item.status === 'pending') {
-            uploadingOverlay = `<div class="preview-thumb-overlay" id="status-thumb-${item.id}">Subiendo...</div>`;
-        }
-
-        const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
-
-        if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
-            mediaTag = `<video src="${item.url}#t=0.1" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
-            videoIndicator = `<span class="video-indicator">🎞️</span>`;
-        } else {
-            mediaTag = `<img src="${item.url}">`;
-            if (item.type && item.type.includes('video')) {
-                videoIndicator = `<span class="video-indicator">🎞️</span>`;
-            }
-        }
-            
-        thumb.innerHTML = `${mediaTag}${videoIndicator}${uploadingOverlay}`;
-        row.appendChild(thumb);
-    });
-}
-
 async function parsearFechaVideoMP4MOV(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -1235,8 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (!esHEIC) {
                     if (!Array.isArray(datosGaleria[seccion])) datosGaleria[seccion] = [];
-                    datosGaleria[seccion].unshift(nuevoItem); 
-                    actualizarFilaMiniaturas(seccion);
+                    datosGaleria[seccion].unshift(nuevoItem);
                 }
 
                 validFiles.push({ file, nuevoNombre: timestampName, itemId, seccion, esHEIC, esVideo });
@@ -1403,7 +1367,6 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
                                     
                                     if (!Array.isArray(datosGaleria[seccion])) datosGaleria[seccion] = [];
                                     datosGaleria[seccion].unshift(objHEIC);
-                                    actualizarFilaMiniaturas(seccion);
                                     if (seccionActiva) renderizarCuadriculaCompleta();
                                 }, 3000);
                             } catch (e) {

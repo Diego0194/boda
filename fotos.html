@@ -749,7 +749,6 @@ function obtenerFotosSinPortada(seccion) {
     return datosGaleria[seccion].filter(item => !item.name || !item.name.toLowerCase().includes('portada_'));
 }
 
-// Inicialización estática sin peticiones GET y pintado de portadas locales fijas
 function inicializarGaleria() {
     Object.keys(CARPETAS_DRIVE).forEach(seccion => {
         const row = document.getElementById(`row-${seccion}`);
@@ -875,20 +874,16 @@ function cerrarCuadricula() {
     cargandoMasFotos = false;
 }
 
-// CÓDIGO CORREGIDO:
+// CORREGIDO: Redirige en la misma ventana en dispositivos móviles
 function descargarCarpeta(seccion) {
     const folderId = CARPETAS_DRIVE[seccion];
     if (!folderId) return;
     const urlDrive = `https://drive.google.com/drive/folders/${folderId}?usp=sharing`;
     
-    // Comprobamos si el usuario está en un dispositivo móvil
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
     if (isMobile) {
-        // Redirige directamente en la misma ventana para evitar la pestaña en blanco
         window.location.href = urlDrive;
     } else {
-        // En escritorio se mantiene la apertura en nueva pestaña
         window.open(urlDrive, '_blank', 'noopener,noreferrer');
     }
 }
@@ -917,10 +912,10 @@ function renderizarCuadriculaCompleta() {
         const esMiniaturaDrive = item.url && item.url.includes('drive.google.com/thumbnail');
 
         if (item.type && item.type.includes('video') && !esMiniaturaDrive) {
-            mediaTag = `<video src="${item.url}#t=0.1" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>`;
+            mediaTag = item.url ? `<video src="${item.url}#t=0.1" muted playsinline preload="metadata" onerror="this.onerror=null; let img=document.createElement('img'); img.src='${item.url}'; this.replaceWith(img);"></video>` : `<div style="background:#2c2c2e;width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;">🎬</div>`;
             videoIndicator = `<span class="video-indicator">🎞️</span>`;
         } else {
-            mediaTag = `<img src="${item.url}">`;
+            mediaTag = item.url ? `<img src="${item.url}">` : `<div style="background:#e5e5ea;width:100%;height:100%;"></div>`;
             if (item.type && item.type.includes('video')) {
                 videoIndicator = `<span class="video-indicator">🎞️</span>`;
             }
@@ -1204,7 +1199,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pad = (n) => String(n).padStart(2, '0');
                 const timestampName = `${fechaUso.getFullYear()}-${pad(fechaUso.getMonth()+1)}-${pad(fechaUso.getDate())}_${pad(fechaUso.getHours())}-${pad(fechaUso.getMinutes())}-${pad(fechaUso.getSeconds())}.${extension}`;
 
-                const localURL = esHEIC ? '' : URL.createObjectURL(file);
+                // CORREGIDO: No creamos Blob URL para vídeos o HEIC para ahorrar RAM masivamente
+                const localURL = (esHEIC || esVideo) ? '' : URL.createObjectURL(file);
                 const itemId = 'file-' + Math.random().toString(36).substr(2, 9);
                 
                 const nuevoItem = { id: itemId, url: localURL, type: file.type, status: 'pending', esHEIC: esHEIC, name: timestampName };
@@ -1271,7 +1267,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const v = conteoExitoso[sec].videos;
                 const elementos = [];
                 if (f > 0) elementos.push(`${f} foto${f > 1 ? 's' : ''}`);
-                if (v > 0) elementos.push(`${v} vídeos${v > 1 ? 's' : ''}`);
+                if (v > 0) elementos.push(`${v} vídeo${v > 1 ? 's' : ''}`);
                 
                 const nombreCarpeta = NOMBRES_SECCIONES[sec] || sec;
                 partesResumen.push(`${elementos.join(' y ')} a <strong>${nombreCarpeta}</strong>`);
@@ -1390,7 +1386,14 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
 
                     if (Array.isArray(datosGaleria[seccion])) {
                         const obj = datosGaleria[seccion].find(i => i.id === itemId);
-                        if (obj) obj.status = statusResult;
+                        if (obj) {
+                            obj.status = statusResult;
+                            // CORREGIDO: Liberar la memoria del Blob para evitar cuelgues de RAM
+                            if (obj.url && obj.url.startsWith('blob:')) {
+                                URL.revokeObjectURL(obj.url);
+                                obj.url = '';
+                            }
+                        }
                     }
 
                     setTimeout(() => {
@@ -1420,7 +1423,13 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
 function marcarErrorVisual(itemId, seccion) {
     if (Array.isArray(datosGaleria[seccion])) {
         const obj = datosGaleria[seccion].find(i => i.id === itemId);
-        if (obj) obj.status = 'error';
+        if (obj) {
+            obj.status = 'error';
+            if (obj.url && obj.url.startsWith('blob:')) {
+                URL.revokeObjectURL(obj.url);
+                obj.url = '';
+            }
+        }
     }
     const elGrid = document.getElementById(`status-grid-${itemId}`);
     if (elGrid) {

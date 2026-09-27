@@ -875,11 +875,22 @@ function cerrarCuadricula() {
     cargandoMasFotos = false;
 }
 
+// CÓDIGO CORREGIDO:
 function descargarCarpeta(seccion) {
     const folderId = CARPETAS_DRIVE[seccion];
     if (!folderId) return;
     const urlDrive = `https://drive.google.com/drive/folders/${folderId}?usp=sharing`;
-    window.open(urlDrive, '_blank');
+    
+    // Comprobamos si el usuario está en un dispositivo móvil
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        // Redirige directamente en la misma ventana para evitar la pestaña en blanco
+        window.location.href = urlDrive;
+    } else {
+        // En escritorio se mantiene la apertura en nueva pestaña
+        window.open(urlDrive, '_blank', 'noopener,noreferrer');
+    }
 }
 
 function renderizarCuadriculaCompleta() {

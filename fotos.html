@@ -591,7 +591,7 @@
 
       <div class="moment-card" id="card-comida">
         <div class="moment-header">
-          <div class="moment-title">🍽️ Comida (16:30 - 18:00)</div>
+          <div class="moment-title">🍽️ Comida (16:30 - 19:30)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('comida')">Descargar</button>
             <button class="btn-see-all" id="btn-see-comida" onclick="abrirCuadricula('comida', '🍽️ Comida')">Ver ↗</button>
@@ -602,7 +602,7 @@
 
       <div class="moment-card" id="card-fiesta">
         <div class="moment-header">
-          <div class="moment-title">🎉 Fiesta (A partir de 18:00)</div>
+          <div class="moment-title">🎉 Fiesta (A partir de 19:30)</div>
           <div class="moment-actions">
             <button class="btn-download-all" onclick="descargarCarpeta('fiesta')">Descargar</button>
             <button class="btn-see-all" id="btn-see-fiesta" onclick="abrirCuadricula('fiesta', '🎉 Fiesta')">Ver ↗</button>
@@ -1245,7 +1245,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const horas = fechaUso.getHours() + (fechaUso.getMinutes() / 60);
                     if (horas >= 13.0 && horas < 14.5) seccion = "ceremonia";
                     else if (horas >= 14.5 && horas < 16.5) seccion = "coctel";
-                    else if (horas >= 16.5 && horas < 18.5) seccion = "comida";
+                    else if (horas >= 16.5 && horas < 19.5) seccion = "comida";
                     else seccion = "fiesta";
                 }
 

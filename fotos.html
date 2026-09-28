@@ -300,7 +300,7 @@
       justify-content: center;
     }
     
-.lightbox-content-container {
+    .lightbox-content-container {
       position: relative;
       display: flex;
       align-items: center;
@@ -312,7 +312,6 @@
       overflow: hidden;
     }
     
-    /* WIDGET DEL IFRAME DE VIDEO */
     .lightbox-iframe-wrapper {
       position: relative;
       width: 90vw;
@@ -329,7 +328,6 @@
       align-items: center;
     }
 
-    /* Asegura que el iframe ocupe todo el marco sin desplazarse */
     .lightbox-iframe-wrapper iframe {
       width: 100% !important;
       height: 100% !important;
@@ -337,7 +335,6 @@
       display: block;
     }
 
-    /* Para las imágenes */
     .lightbox-media {
       max-width: 90vw;
       max-height: 80vh;
@@ -670,8 +667,11 @@
 <script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.js"></script>
 <script src="main.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.js"></script>
+<script src="main.js"></script>
+
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx24lJ8EfFGnLExKltSuhwAhZ6t7v4tEyZrYQYLyqxB2zj6NVVqZZlNv8tCCCo9zu8/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9yuycV29o1R_fBderYMXZwC3a90P1Wc0FKS_zy_keUINKoS5t4hctBb8XFw2EHFoz/exec";
 const CONCURRENCIA_MAXIMA = 5;
 
 const CARPETAS_DRIVE = {
@@ -700,10 +700,8 @@ let datosGaleria = { angel: [], preboda: [], previas: [], ceremonia: [], coctel:
 let seccionActiva = null;
 let subidasEnCurso = 0;
 let indiceLightboxActivo = -1;
-
-let nextPageTokenActivo = null;
 let cargandoMasFotos = false;
-let observerScroll = null;
+let currentAbortController = null;
 
 function obtenerUrlMiniaturaOptimizada(url, maxAncho = 400) {
     if (!url) return '';
@@ -810,83 +808,166 @@ function inicializarGaleria() {
     });
 }
 
+// Precargar el token en segundo plano al cargar la página
+async function precargarToken() {
+    if (sessionStorage.getItem('drive_access_token')) return;
+    try {
+        const resToken = await fetch(`${SCRIPT_URL}?get_token=true`, { method: "GET", redirect: "follow" });
+        if (resToken.ok) {
+            const dataToken = await resToken.json();
+            if (dataToken.token) {
+                sessionStorage.setItem('drive_access_token', dataToken.token);
+            }
+        }
+    } catch (e) {
+        console.warn("No se pudo precargar el token en segundo plano", e);
+    }
+}
+
 async function abrirCuadricula(seccion, titulo) {
     const btnSeeAll = document.getElementById(`btn-see-${seccion}`);
     if (btnSeeAll && btnSeeAll.disabled) return;
     
+    // Abortar cualquier petición HTTP pendiente previa
+    if (currentAbortController) {
+        currentAbortController.abort();
+    }
+    currentAbortController = new AbortController();
+
     seccionActiva = seccion;
-    nextPageTokenActivo = null;
     cargandoMasFotos = false;
     
     document.getElementById('grid-view-title').innerHTML = titulo;
     document.getElementById('grid-view-overlay').style.display = 'block';
     
     const grid = document.getElementById('main-gallery-grid');
-    grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">Cargando todas las fotos...</div>';
+    grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">Cargando fotos...</div>';
 
-    await cargarPaginaCuadricula(true);
+    await cargarPaginaCuadricula(currentAbortController.signal);
 }
 
-async function cargarPaginaCuadricula(esPrimeraCarga = false) {
+function cerrarCuadricula() {
+    // Abortar la petición en curso inmediatamente si se cierra la ventana
+    if (currentAbortController) {
+        currentAbortController.abort();
+        currentAbortController = null;
+    }
+    
+    document.getElementById('grid-view-overlay').style.display = 'none';
+    const grid = document.getElementById('main-gallery-grid');
+    grid.innerHTML = '';
+    seccionActiva = null;
+    cargandoMasFotos = false;
+}
+
+async function cargarPaginaCuadricula(signal) {
     if (cargandoMasFotos) return;
     cargandoMasFotos = true;
 
     const grid = document.getElementById('main-gallery-grid');
 
     try {
-        // Solicitamos un número alto de archivos (ej. 100) para traer todos a la vez sin paginación
-        let url = `${SCRIPT_URL}?folder=${seccionActiva}&pageSize=100`;
-
-        const res = await fetch(url);
-        const data = await res.json();
+        // 1. Reutilizamos el token precargado o lo obtenemos si no existe
+        let accessToken = sessionStorage.getItem('drive_access_token');
         
-        const nuevosArchivos = Array.isArray(data.files) ? data.files : [];
-        nextPageTokenActivo = null; // Desactivamos tokens de paginación adicional
-
-        grid.innerHTML = '';
-        datosGaleria[seccionActiva] = nuevosArchivos;
-
-        renderizarCuadriculaCompleta();
-
-        // Mensaje de fin de galería directo
-        if (nuevosArchivos.length > 0) {
-            const endMsg = document.createElement('div');
-            endMsg.className = 'end-of-gallery';
-            endMsg.innerText = '✨ Has visto todas las fotos de esta carpeta';
-            grid.appendChild(endMsg);
+        if (!accessToken) {
+            const resToken = await fetch(`${SCRIPT_URL}?get_token=true`, { method: "GET", redirect: "follow", signal });
+            if (!resToken.ok) throw new Error("Error obteniendo token");
+            const dataToken = await resToken.json();
+            accessToken = dataToken.token;
+            sessionStorage.setItem('drive_access_token', accessToken);
         }
 
+        const folderId = CARPETAS_DRIVE[seccionActiva];
+        const query = `'${folderId}' in parents and trashed = false and (mimeType contains 'image/' or mimeType contains 'video/')`;
+        
+        // 2. Petición DIRECTA a la API v3 de Google Drive (Respuesta ultra rápida ~200-400ms)
+        const driveUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&pageSize=50&fields=nextPageToken,files(id,name,mimeType)&orderBy=createdTime%20desc`;
+        
+        const resDrive = await fetch(driveUrl, {
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            signal: signal
+        });
+
+        // Si el token ha expirado, limpiamos sesión y reintentamos
+        if (resDrive.status === 401) {
+            sessionStorage.removeItem('drive_access_token');
+            throw new Error("Token expirado, vuelve a pulsar en la carpeta.");
+        }
+
+        if (!resDrive.ok) throw new Error(`Drive API error: ${resDrive.status}`);
+        
+        const dataDrive = await resDrive.json();
+        const archivosDrive = dataDrive.files || [];
+
+        const nuevosArchivos = archivosDrive.map(file => ({
+            id: file.id,
+            name: file.name,
+            url: `https://lh3.googleusercontent.com/d/${file.id}=w400`,
+            type: file.mimeType,
+            status: 'done'
+        }));
+
+        datosGaleria[seccionActiva] = nuevosArchivos;
+        grid.innerHTML = '';
+
+        if (nuevosArchivos.length === 0) {
+            grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center;">Aún no hay fotos en este momento</div>';
+            return;
+        }
+
+        renderizarCuadriculaFluida(seccionActiva);
+
     } catch (err) {
-        renderizarCuadriculaCompleta();
+        if (err.name === 'AbortError') {
+            console.log("Petición abortada por el usuario.");
+            return;
+        }
+        console.warn("Error al cargar fotos:", err);
+        grid.innerHTML = `<div class="empty-state" style="grid-column: span 3; text-align: center; color: #d9534f;">Error al cargar fotos: ${err.message}</div>`;
     } finally {
         cargandoMasFotos = false;
     }
 }
 
-function iniciarObserverScroll() {
-    if (observerScroll) observerScroll.disconnect();
+function renderizarCuadriculaFluida(seccion) {
+    const grid = document.getElementById('main-gallery-grid');
+    const fotosVisibles = obtenerFotosSinPortada(seccion);
 
-    const loader = document.getElementById('grid-loader');
-    if (!loader) return;
+    grid.innerHTML = '';
+    const fragment = document.createDocumentFragment();
 
-    observerScroll = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !cargandoMasFotos && nextPageTokenActivo) {
-            cargarPaginaCuadricula(false);
+    fotosVisibles.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        div.onclick = () => abrirLightbox(index);
+        
+        const esVideo = esUnVideo(item);
+        let mediaTag = '';
+        let videoIndicator = esVideo ? `<span class="video-indicator">🎞️</span>` : '';
+
+        if (esVideo && item.url && item.url.startsWith('blob:')) {
+            mediaTag = `<video src="${item.url}#t=0.1" muted playsinline preload="metadata"></video>`;
+        } else if (item.url) {
+            const urlOptimizada = obtenerUrlMiniaturaOptimizada(item.url, 400);
+            const loadingStrategy = index < 9 ? 'eager' : 'lazy';
+            mediaTag = `<img src="${urlOptimizada}" loading="${loadingStrategy}" decoding="async" onload="this.style.opacity=1" style="opacity:0; transition: opacity 0.2s ease;">`;
+        } else {
+            mediaTag = `<div style="background:#e5e5ea;width:100%;height:100%;"></div>`;
         }
-    }, {
-        root: document.getElementById('grid-view-overlay'),
-        rootMargin: '150px'
+
+        let textoEstado = item.status === 'pending' ? 'Subiendo...' : item.status === 'error' ? '❌' : '';
+        div.innerHTML = `${mediaTag}${videoIndicator}<div class="item-status ${item.status}" id="status-grid-${item.id}">${textoEstado}</div>`;
+        
+        fragment.appendChild(div);
     });
 
-    observerScroll.observe(loader);
-}
+    grid.appendChild(fragment);
 
-function cerrarCuadricula() {
-    document.getElementById('grid-view-overlay').style.display = 'none';
-    if (observerScroll) observerScroll.disconnect();
-    seccionActiva = null;
-    nextPageTokenActivo = null;
-    cargandoMasFotos = false;
+    const endMsg = document.createElement('div');
+    endMsg.className = 'end-of-gallery';
+    endMsg.innerText = '✨ Has visto todas las fotos de esta carpeta';
+    grid.appendChild(endMsg);
 }
 
 function descargarCarpeta(seccion) {
@@ -899,53 +980,6 @@ function descargarCarpeta(seccion) {
         window.location.href = urlDrive;
     } else {
         window.open(urlDrive, '_blank', 'noopener,noreferrer');
-    }
-}
-
-function renderizarCuadriculaCompleta() {
-    const grid = document.getElementById('main-gallery-grid');
-    const loader = document.getElementById('grid-loader');
-    
-    grid.innerHTML = '';
-    
-    if (!seccionActiva) return;
-    const fotosVisibles = obtenerFotosSinPortada(seccionActiva);
-    
-    if (fotosVisibles.length === 0) {
-        grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center;">Aún no hay fotos en este momento</div>';
-        return;
-    }
-
-    fotosVisibles.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'gallery-item';
-        div.onclick = () => abrirLightbox(index);
-        
-        let mediaTag = '';
-        let videoIndicator = '';
-
-        const esVideo = esUnVideo(item);
-
-        // Si es archivo local (blob), mostramos reproductor local corto; si viene de Drive, siempre mostramos su miniatura img
-        if (esVideo && item.url && item.url.startsWith('blob:')) {
-            mediaTag = `<video src="${item.url}#t=0.1" muted playsinline preload="metadata"></video>`;
-            videoIndicator = `<span class="video-indicator">🎞️</span>`;
-        } else {
-            const urlOptimizada = obtenerUrlMiniaturaOptimizada(item.url, 400);
-            mediaTag = item.url ? `<img src="${urlOptimizada}" loading="lazy">` : `<div style="background:#e5e5ea;width:100%;height:100%;"></div>`;
-            if (esVideo) {
-                videoIndicator = `<span class="video-indicator">🎞️</span>`;
-            }
-        }
-            
-        let textoEstado = item.status === 'pending' ? 'Subiendo...' : item.status === 'error' ? '❌' : '';
-        
-        div.innerHTML = `${mediaTag}${videoIndicator}<div class="item-status ${item.status}" id="status-grid-${item.id}">${textoEstado}</div>`;
-        grid.appendChild(div);
-    });
-
-    if (loader && nextPageTokenActivo) {
-        grid.appendChild(loader);
     }
 }
 
@@ -975,7 +1009,6 @@ function mostrarElementoLightbox() {
 
             const iframe = document.createElement('iframe');
             iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-            // Sin la clase lightbox-media para evitar conflictos de maquetación CSS
             iframe.allow = 'autoplay; encrypted-media';
             iframe.setAttribute('allowfullscreen', 'true');
             
@@ -985,7 +1018,6 @@ function mostrarElementoLightbox() {
             btnDownload.href = downloadUrl;
             btnDownload.target = '_blank';
         } else {
-            // Vídeo local (blobs)
             const videoEl = document.createElement('video');
             videoEl.src = item.url;
             videoEl.controls = true;
@@ -998,7 +1030,6 @@ function mostrarElementoLightbox() {
             btnDownload.download = item.name || 'video.mp4';
         }
     } else {
-        // Imágenes
         let downloadUrl = item.url;
         if (fileId && !item.url.startsWith('blob:')) {
             downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
@@ -1115,6 +1146,7 @@ async function parsearFechaVideoMP4MOV(file) {
 
 document.addEventListener('DOMContentLoaded', () => {
     inicializarGaleria();
+    precargarToken(); // Solicita el token en segundo plano inmediatamente
 
     const fotoInput = document.getElementById('foto-input');
     if(fotoInput) {
@@ -1238,7 +1270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (seccionActiva) renderizarCuadriculaCompleta();
+            if (seccionActiva) renderizarCuadriculaFluida(seccionActiva);
 
             actualizarModalProgreso(`Subiendo archivos... (0/${validFiles.length})`, 0);
 
@@ -1317,14 +1349,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
     return new Promise(async (resolve) => {
-        let accessToken = "";
-        try {
-            const resToken = await fetch(`${SCRIPT_URL}?get_token=true`);
-            const dataToken = await resToken.json();
-            accessToken = dataToken.token;
-        } catch (err) {
-            marcarErrorVisual(itemId, seccion);
-            return resolve(false);
+        let accessToken = sessionStorage.getItem('drive_access_token') || "";
+        
+        if (!accessToken) {
+            try {
+                const resToken = await fetch(`${SCRIPT_URL}?get_token=true`, { method: "GET", redirect: "follow" });
+                const dataToken = await resToken.json();
+                accessToken = dataToken.token;
+                sessionStorage.setItem('drive_access_token', accessToken);
+            } catch (err) {
+                marcarErrorVisual(itemId, seccion);
+                return resolve(false);
+            }
         }
 
         const folderId = CARPETAS_DRIVE[seccion];
@@ -1392,7 +1428,7 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
                                     
                                     if (!Array.isArray(datosGaleria[seccion])) datosGaleria[seccion] = [];
                                     datosGaleria[seccion].unshift(objHEIC);
-                                    if (seccionActiva) renderizarCuadriculaCompleta();
+                                    if (seccionActiva) renderizarCuadriculaFluida(seccionActiva);
                                 }, 3000);
                             } catch (e) {
                                 console.error("Error al obtener miniatura HEIC:", e);

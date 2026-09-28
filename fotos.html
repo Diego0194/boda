@@ -1347,33 +1347,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+async function obtenerTokenValido() {
+    let accessToken = sessionStorage.getItem('drive_access_token');
+    if (!accessToken) {
+        const resToken = await fetch(`${SCRIPT_URL}?get_token=true`, { method: "GET", redirect: "follow" });
+        if (!resToken.ok) throw new Error("No se pudo obtener el token");
+        const dataToken = await resToken.json();
+        accessToken = dataToken.token;
+        sessionStorage.setItem('drive_access_token', accessToken);
+    }
+    return accessToken;
+}
+
 async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
-    return new Promise(async (resolve) => {
-        let accessToken = sessionStorage.getItem('drive_access_token') || "";
-        
-        if (!accessToken) {
-            try {
-                const resToken = await fetch(`${SCRIPT_URL}?get_token=true`, { method: "GET", redirect: "follow" });
-                const dataToken = await resToken.json();
-                accessToken = dataToken.token;
-                sessionStorage.setItem('drive_access_token', accessToken);
-            } catch (err) {
-                marcarErrorVisual(itemId, seccion);
-                return resolve(false);
-            }
-        }
+    let accessToken = "";
+    try {
+        accessToken = await obtenerTokenValido();
+    } catch (err) {
+        marcarErrorVisual(itemId, seccion);
+        return false;
+    }
 
-        const folderId = CARPETAS_DRIVE[seccion];
-        const boundary = "-------314159265358979323846";
-        const delimiter = `\r\n--${boundary}\r\n`;
-        const close_delim = `\r\n--${boundary}--`;
+    const folderId = CARPETAS_DRIVE[seccion];
+    const boundary = "-------314159265358979323846";
+    const delimiter = `\r\n--${boundary}\r\n`;
+    const close_delim = `\r\n--${boundary}--`;
 
-        const metadata = {
-            name: nuevoNombre,
-            mimeType: file.type,
-            parents: [folderId]
-        };
+    const metadata = {
+        name: nuevoNombre,
+        mimeType: file.type,
+        parents: [folderId]
+    };
 
+    return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onerror = () => { marcarErrorVisual(itemId, seccion); resolve(false); };
         
@@ -1410,8 +1416,21 @@ async function subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC) {
                 }
             });
 
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = async function() {
                 if (xhr.readyState === 4) {
+                    // Si el token expiró (401 / 403), lo eliminamos y reintentamos la subida una vez más
+                    if (xhr.status === 401 || xhr.status === 403) {
+                        console.warn("Token expirado durante la subida, renovando...");
+                        sessionStorage.removeItem('drive_access_token');
+                        try {
+                            const nuevoExito = await subirArchivo(file, nuevoNombre, itemId, seccion, esHEIC);
+                            return resolve(nuevoExito);
+                        } catch (e) {
+                            marcarErrorVisual(itemId, seccion);
+                            return resolve(false);
+                        }
+                    }
+
                     let statusResult = 'done';
                     let fueExitoso = false;
 

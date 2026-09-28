@@ -882,7 +882,7 @@ async function cargarPaginaCuadricula(signal) {
         const query = `'${folderId}' in parents and trashed = false and (mimeType contains 'image/' or mimeType contains 'video/')`;
         
         // 2. Petición DIRECTA a la API v3 de Google Drive (Respuesta ultra rápida ~200-400ms)
-        const driveUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&pageSize=50&fields=nextPageToken,files(id,name,mimeType)&orderBy=createdTime%20desc`;
+        const driveUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&pageSize=50&fields=nextPageToken,files(id,name,mimeType)&orderBy=name`;
         
         const resDrive = await fetch(driveUrl, {
             headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -932,7 +932,10 @@ async function cargarPaginaCuadricula(signal) {
 
 function renderizarCuadriculaFluida(seccion) {
     const grid = document.getElementById('main-gallery-grid');
-    const fotosVisibles = obtenerFotosSinPortada(seccion);
+    let fotosVisibles = obtenerFotosSinPortada(seccion);
+
+    // Ordenamos alfabéticamente por nombre de archivo
+    fotosVisibles.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' }));
 
     grid.innerHTML = '';
     const fragment = document.createDocumentFragment();

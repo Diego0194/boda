@@ -822,57 +822,34 @@ async function abrirCuadricula(seccion, titulo) {
     document.getElementById('grid-view-overlay').style.display = 'block';
     
     const grid = document.getElementById('main-gallery-grid');
-    grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">Cargando fotos...</div>';
+    grid.innerHTML = '<div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">Cargando todas las fotos...</div>';
 
     await cargarPaginaCuadricula(true);
 }
 
 async function cargarPaginaCuadricula(esPrimeraCarga = false) {
-    if (cargandoMasFotos || (!esPrimeraCarga && !nextPageTokenActivo)) return;
+    if (cargandoMasFotos) return;
     cargandoMasFotos = true;
 
     const grid = document.getElementById('main-gallery-grid');
-    
-    let loader = document.getElementById('grid-loader');
-    if (!loader) {
-        loader = document.createElement('div');
-        loader.id = 'grid-loader';
-        loader.className = 'grid-loader-container';
-        loader.innerHTML = `
-            <div class="spinner"></div>
-            <span>Cargando más contenido...</span>
-        `;
-    }
-
-    grid.appendChild(loader);
 
     try {
-        let url = `${SCRIPT_URL}?folder=${seccionActiva}&pageSize=18`;
-        if (nextPageTokenActivo) {
-            url += `&pageToken=${encodeURIComponent(nextPageTokenActivo)}`;
-        }
+        // Solicitamos un número alto de archivos (ej. 100) para traer todos a la vez sin paginación
+        let url = `${SCRIPT_URL}?folder=${seccionActiva}&pageSize=100`;
 
         const res = await fetch(url);
         const data = await res.json();
         
         const nuevosArchivos = Array.isArray(data.files) ? data.files : [];
-        nextPageTokenActivo = data.nextPageToken || null;
+        nextPageTokenActivo = null; // Desactivamos tokens de paginación adicional
 
-        if (esPrimeraCarga) {
-            grid.innerHTML = '';
-            datosGaleria[seccionActiva] = nuevosArchivos;
-        } else {
-            datosGaleria[seccionActiva] = datosGaleria[seccionActiva].concat(nuevosArchivos);
-        }
+        grid.innerHTML = '';
+        datosGaleria[seccionActiva] = nuevosArchivos;
 
         renderizarCuadriculaCompleta();
 
-        if (nextPageTokenActivo) {
-            grid.appendChild(loader);
-            iniciarObserverScroll();
-        } else {
-            if (loader.parentNode) loader.remove();
-            
+        // Mensaje de fin de galería directo
+        if (nuevosArchivos.length > 0) {
             const endMsg = document.createElement('div');
             endMsg.className = 'end-of-gallery';
             endMsg.innerText = '✨ Has visto todas las fotos de esta carpeta';
@@ -880,10 +857,7 @@ async function cargarPaginaCuadricula(esPrimeraCarga = false) {
         }
 
     } catch (err) {
-        if (loader.parentNode) loader.remove();
-        if (esPrimeraCarga) {
-            renderizarCuadriculaCompleta();
-        }
+        renderizarCuadriculaCompleta();
     } finally {
         cargandoMasFotos = false;
     }

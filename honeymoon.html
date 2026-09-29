@@ -128,18 +128,13 @@
 
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
     
-    <!-- Controls Bar: Search & Tag Filters -->
-    <section class="bg-white/60 backdrop-blur border border-stone-200/60 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+    <!-- Controls Bar: Search Box & Counter -->
+    <section class="bg-white/60 backdrop-blur border border-stone-200/60 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
       
       <!-- Search Box -->
-      <div class="relative w-full md:w-72">
+      <div class="relative w-full sm:w-80">
         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
         <input type="text" id="input-search" placeholder="Buscar por lugar, nota o fecha..." class="w-full pl-10 pr-4 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition">
-      </div>
-
-      <!-- Tag Filter Pills -->
-      <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 no-scrollbar" id="tag-filters-container">
-        <!-- Dynamic Tag Pills injected via JS -->
       </div>
 
       <!-- Counter -->
@@ -148,8 +143,8 @@
       </div>
     </section>
 
-    <!-- Polaroid Gallery Grid -->
-    <section id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 sm:gap-10 py-4 items-start min-h-[350px]">
+    <!-- Polaroid Gallery Grid (2 columnas en móvil) -->
+    <section id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-8 lg:gap-10 py-4 items-start min-h-[350px]">
       <!-- Polaroid Items dynamically rendered here -->
     </section>
 
@@ -238,7 +233,6 @@
       }
     ];
 
-    let currentFilterTag = 'ALL';
     let currentSearchTerm = '';
     let currentLightboxIndex = -1;
     let filteredPhotos = [];
@@ -246,7 +240,6 @@
     // DOM Elements
     const galleryGrid = document.getElementById('gallery-grid');
     const photoCounter = document.getElementById('photo-counter');
-    const tagFiltersContainer = document.getElementById('tag-filters-container');
     const inputSearch = document.getElementById('input-search');
 
     // Modal Lightbox
@@ -263,15 +256,13 @@
     }
 
     function renderGallery() {
-      // Filter Photos
+      // Filter Photos strictly by Search Term
       filteredPhotos = SAMPLE_PHOTOS.filter(p => {
-        const matchesTag = currentFilterTag === 'ALL' || (p.location && p.location.trim().toLowerCase() === currentFilterTag.toLowerCase());
         const term = currentSearchTerm.toLowerCase();
-        const matchesSearch = !term || 
+        return !term || 
           (p.caption && p.caption.toLowerCase().includes(term)) || 
           (p.location && p.location.toLowerCase().includes(term)) ||
           (p.date && p.date.includes(term));
-        return matchesTag && matchesSearch;
       });
 
       // Ordenar por fecha: de más antiguas a más nuevas (ascendente)
@@ -279,9 +270,6 @@
 
       // Update counter
       photoCounter.textContent = filteredPhotos.length;
-
-      // Render Tags Filter Bar
-      renderTagFilters();
 
       // Clear Grid
       galleryGrid.innerHTML = '';
@@ -291,7 +279,7 @@
           <div class="col-span-full flex flex-col items-center justify-center py-16 text-center text-stone-400">
             <i class="fa-solid fa-images text-5xl mb-3 text-stone-300"></i>
             <p class="text-lg font-semibold text-stone-600">No hay fotos en esta vista</p>
-            <p class="text-xs text-stone-400 mt-1">Prueba a cambiar los filtros de búsqueda.</p>
+            <p class="text-xs text-stone-400 mt-1">Prueba a cambiar los términos de búsqueda.</p>
           </div>
         `;
         return;
@@ -302,27 +290,38 @@
         const card = document.createElement('div');
         const rotation = photo.rotation !== undefined ? photo.rotation : getRandomRotation();
         
-        card.className = 'polaroid-card group relative bg-[#fdfbf7] p-4 sm:p-4 pb-6 rounded-sm border border-stone-200/70 cursor-pointer select-none';
+        card.className = 'polaroid-card group relative bg-[#fdfbf7] p-2.5 sm:p-4 pb-4 sm:pb-6 rounded-sm border border-stone-200/70 cursor-pointer select-none';
         card.style.transform = `rotate(${rotation}deg)`;
         card.dataset.id = photo.id;
 
         card.innerHTML = `
           <!-- Photo Container -->
-          <div class="relative aspect-square w-full bg-stone-900 rounded-sm overflow-hidden photo-wrapper mb-4">
+          <div class="relative aspect-square w-full bg-stone-900 rounded-sm overflow-hidden photo-wrapper mb-3 sm:mb-4">
             <img src="${photo.url}" alt="${photo.caption || 'Polaroid'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 developing-animation" loading="lazy">
           </div>
 
-          <!-- Handwritten Caption -->
-          <div class="px-1 text-center min-h-[50px] flex flex-col justify-center">
-            <div class="caption-text font-handwriting text-2xl text-stone-800 font-semibold leading-tight break-words">
+          <!-- Handwritten Caption & Details in 3 lines -->
+          <div class="px-1 text-center min-h-[65px] sm:min-h-[75px] flex flex-col justify-center items-center gap-0.5">
+            
+            <!-- Línea 1: Nota -->
+            <div class="caption-text font-handwriting text-lg sm:text-2xl text-stone-800 font-semibold leading-tight break-words">
               ${escapeHtml(photo.caption || '')}
             </div>
             
-            <!-- Location & Date Tag -->
-            <div class="mt-2 flex items-center justify-center gap-2 text-[11px] font-medium text-stone-400 opacity-80">
-              ${photo.location ? `<span><i class="fa-solid fa-location-dot text-rose-400"></i> ${escapeHtml(photo.location)}</span>` : ''}
-              ${photo.date ? `<span><i class="fa-regular fa-calendar"></i> ${formatDate(photo.date)}</span>` : ''}
-            </div>
+            <!-- Línea 2: Ubicación -->
+            ${photo.location ? `
+              <div class="text-[10px] sm:text-[11px] font-medium text-stone-400 opacity-80 truncate max-w-full">
+                <i class="fa-solid fa-location-dot text-rose-400"></i> ${escapeHtml(photo.location)}
+              </div>
+            ` : ''}
+
+            <!-- Línea 3: Fecha -->
+            ${photo.date ? `
+              <div class="text-[10px] sm:text-[11px] font-medium text-stone-400 opacity-80">
+                <i class="fa-regular fa-calendar"></i> ${formatDate(photo.date)}
+              </div>
+            ` : ''}
+
           </div>
         `;
 
@@ -332,36 +331,6 @@
         });
 
         galleryGrid.appendChild(card);
-      });
-    }
-
-    // Render Filter Pills dynamically based on locations available
-    function renderTagFilters() {
-      const locations = Array.from(new Set(SAMPLE_PHOTOS.map(p => p.location).filter(Boolean)));
-      
-      let html = `
-        <button class="tag-btn text-xs font-semibold px-3 py-1.5 rounded-xl transition ${currentFilterTag === 'ALL' ? 'bg-stone-900 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}" data-tag="ALL">
-          Todas
-        </button>
-      `;
-
-      locations.forEach(loc => {
-        const active = currentFilterTag.toLowerCase() === loc.toLowerCase();
-        html += `
-          <button class="tag-btn text-xs font-semibold px-3 py-1.5 rounded-xl transition whitespace-nowrap ${active ? 'bg-rose-600 text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}" data-tag="${escapeHtml(loc)}">
-            📍 ${escapeHtml(loc)}
-          </button>
-        `;
-      });
-
-      tagFiltersContainer.innerHTML = html;
-
-      // Add Tag Click Listeners
-      tagFiltersContainer.querySelectorAll('.tag-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          currentFilterTag = btn.dataset.tag;
-          renderGallery();
-        });
       });
     }
 

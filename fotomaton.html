@@ -116,32 +116,6 @@
             pointer-events: none;
         }
 
-        #loader {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            font-size: 1rem;
-            color: #94a3b8;
-            padding: 0 20px;
-        }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: var(--accent-color);
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 12px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         .gallery-container::-webkit-scrollbar {
             display: none;
         }
@@ -158,67 +132,66 @@
         <p class="subtitle">Desliza horizontalmente para moverte. Pulsa una tira para ver su carpeta.</p>
     </header>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        Cargando enlaces...
-    </div>
-
-    <div class="gallery-container" id="gallery" style="display: flex;"></div>
+    <div class="gallery-container" id="gallery"></div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGbF6_JfVycCnRFx9uoTh-rUmvNJ2KRLuXgvMqUXYidxKCgFn97Xa-feCKHfHL7c62jQ/exec";
-        const CACHE_KEY = "fotomaton_gallery_cache";
-        const CACHE_TIME_KEY = "fotomaton_gallery_time";
-        const CACHE_DURATION = 15 * 60 * 1000; // 15 minutos
+        const FOLDER_MAP = {
+            "01": "https://drive.google.com/drive/folders/1VaJgIMmNok9vWK3pbqqKhj_i19uvbv__",
+            "02": "https://drive.google.com/drive/folders/1yvlTuqZ0-NC6EDZInXO_OxPYHzAWnOJL",
+            "03": "https://drive.google.com/drive/folders/1ECqD40niHD18_IC3i7EBTQ--buOUynNE",
+            "04": "https://drive.google.com/drive/folders/1GwrIiJfr4F7EzQyS1cN2Af0ZieKyXuiR",
+            "05": "https://drive.google.com/drive/folders/1gIQHG7_wcm8gqvYqozMOwzNTrPgb21b2",
+            "06": "https://drive.google.com/drive/folders/1o2UtiQy7sFScKFfF7zVoSJGAGagFZrfH",
+            "07": "https://drive.google.com/drive/folders/1h48_8oLyw-g0R3tz7CtN4EKtr4zCsOP9",
+            "08": "https://drive.google.com/drive/folders/1MHNqfCmrLtMePNYbOGeAGwsaaJNLPfU1",
+            "09": "https://drive.google.com/drive/folders/15PxoWxn9BnJQF7q6cdZ9NdwwciHfmFNU",
+            "10": "https://drive.google.com/drive/folders/1milnLk53IlzAq0zYKb7V69XY0WFP5xae",
+            "11": "https://drive.google.com/drive/folders/1wsZa42iGy3YlUbED7Yr3idYqg4u-UXGT",
+            "12": "https://drive.google.com/drive/folders/1qsPqxw7ayuQWLxI9gwRPTR3OVGLwj3DG",
+            "13": "https://drive.google.com/drive/folders/1m9mdKcXCqY1RiNy1SE9pxtP2t9uuQOPF",
+            "14": "https://drive.google.com/drive/folders/1-IR7ppN_xscej7tmtxE9GXtGWPnwu2t5",
+            "15": "https://drive.google.com/drive/folders/1zKtGlSbsB__OthVh5A84xzPIoeoCzSPi",
+            "16": "https://drive.google.com/drive/folders/1fZo0ZDIwl_06u7eDxjwxENKs4aJCe6zO",
+            "17": "https://drive.google.com/drive/folders/1t3pDe7a5p30RQUBGQotFejVueMMDePFR",
+            "18": "https://drive.google.com/drive/folders/1p0EcqcuxDpI5NwlgcN5u9ZGz0Ri2mpaC",
+            "19": "https://drive.google.com/drive/folders/1nvfrCTcO9Rf598uIYvyPBM0w8kklJ6ko",
+            "20": "https://drive.google.com/drive/folders/1Qc4sQn501A7ROEDTevGqnxw95gX5SO2Y",
+            "21": "https://drive.google.com/drive/folders/139A1SriGOjSZw2osn8MMWSjmHr8SvKAJ",
+            "22": "https://drive.google.com/drive/folders/1cIHwny6UCrLtPuf1gjRa2oMY1WwiHq1X",
+            "23": "https://drive.google.com/drive/folders/1FKJFevQLvNs22S0v-OYer6wqW66snC-D",
+            "24": "https://drive.google.com/drive/folders/1iw53Tpt60fO-yMHs7LFjNMiAyYEYStWR",
+            "25": "https://drive.google.com/drive/folders/1u0v4GV0QMoBg0Ah9gf-1Qr03bVvyDBut",
+            "26": "https://drive.google.com/drive/folders/1U5yCCI2jnOUoim2vSiX0MAd8IFxSbrPu",
+            "27": "https://drive.google.com/drive/folders/1SpohA6CtnEvuHvxahSKFSNGm-eJVrTFc",
+            "28": "https://drive.google.com/drive/folders/1u2xjrrwCRfSj67tKiS0OmPn6Gu_NnFF4",
+            "29": "https://drive.google.com/drive/folders/1SdFnjW9iJg8YiQ-g23GeEHzPWkN6irbW",
+            "30": "https://drive.google.com/drive/folders/1fOqZOUk5oLtCHAAefKuQQHGQRWV6wp91",
+            "31": "https://drive.google.com/drive/folders/1sH0FXDE88CzM8pBsSy1YzqveAduHgLHX",
+            "32": "https://drive.google.com/drive/folders/1qLg2Oi5afMCZ_zGEjKl9YNUwC5GOU5eP",
+            "33": "https://drive.google.com/drive/folders/10xfbejqrZLP1lwy7acxKHZ9MJl4-vJ3f",
+            "34": "https://drive.google.com/drive/folders/1hpftubD1m7b8Er0tecVS35F-W5mv9Ox5",
+            "35": "https://drive.google.com/drive/folders/1aQJkBFct2emgX7wwd5VNYlRlPUKExiD-",
+            "36": "https://drive.google.com/drive/folders/1nl0Kc4A230cdTwK2RANqaG66gqcXLT08",
+            "37": "https://drive.google.com/drive/folders/1bw5ZvPR5BLbxLp2DG2XEVi6nTeb-odg2"
+        };
 
-        async function loadGallery() {
-            try {
-                let data = null;
-                const cachedData = localStorage.getItem(CACHE_KEY);
-                const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
-                const now = Date.now();
+        const TOTAL_STRIPS = 37;
 
-                if (cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
-                    data = JSON.parse(cachedData);
-                    applyFolderUrls(data);
-                } else {
-                    const response = await fetch(WEB_APP_URL);
-                    data = await response.json();
-                    
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                    localStorage.setItem(CACHE_TIME_KEY, now);
-                    
-                    applyFolderUrls(data);
-                }
-
-            } catch (error) {
-                console.error("Error al obtener los enlaces de Drive:", error);
-                const loader = document.getElementById('loader');
-                if (loader) {
-                    loader.innerHTML = '⚠️ No se pudieron cargar los enlaces a las carpetas.';
-                }
-            }
-        }
-
-        function initLocalGallery() {
+        function initGallery() {
             const gallery = document.getElementById('gallery');
-            const dataMap = {};
-
-            // Renderizado estático inmediato usando la carpeta local fotomaton/
-            // Ajusta 'TOTAL_STRIPS' según la cantidad total de tiras locales que tengas
-            const TOTAL_STRIPS = 50; 
 
             for (let i = 1; i <= TOTAL_STRIPS; i++) {
-                const numStr = String(i).padStart(2, '0'); // Formato "01", "02", etc.
+                const numStr = String(i).padStart(2, '0');
                 const imgPath = `fotomaton/${numStr}.jpg`;
+                const folderUrl = FOLDER_MAP[numStr] || "#";
 
                 const card = document.createElement('a');
                 card.className = 'strip-card';
                 card.id = `strip-${numStr}`;
-                card.href = "#";
+                card.href = folderUrl;
                 card.target = '_blank';
                 card.rel = 'noopener noreferrer';
-                
+
                 card.addEventListener('click', (e) => {
                     if (card.dataset.hasMoved === "true" || card.getAttribute('href') === "#") {
                         e.preventDefault();
@@ -236,35 +209,14 @@
             initSmoothDrag(gallery);
         }
 
-        function applyFolderUrls(data) {
-            const loader = document.getElementById('loader');
-            
-            data.forEach(item => {
-                // Se presupone que item.name o item.id contiene la referencia "01", "02", etc.
-                // O emparejamos por el nombre del archivo / carpeta devuelto por la API
-                const nameMatch = item.name ? item.name.match(/\d+/) : null;
-                if (nameMatch) {
-                    const numStr = nameMatch[0].padStart(2, '0');
-                    const card = document.getElementById(`strip-${numStr}`);
-                    if (card && item.folderUrl) {
-                        card.href = item.folderUrl;
-                    }
-                }
-            });
-
-            if (loader) loader.style.display = 'none';
-        }
-
         function initSmoothDrag(slider) {
             let isDown = false;
             let startX;
             let scrollLeft;
-            let hasMoved = false;
 
-            // --- EVENTOS DE RATÓN (Desktop) ---
+            // Desktop
             slider.addEventListener('mousedown', (e) => {
                 isDown = true;
-                hasMoved = false;
                 slider.classList.add('active');
                 startX = e.pageX - slider.offsetLeft;
                 scrollLeft = slider.scrollLeft;
@@ -285,19 +237,17 @@
                 if (!isDown) return;
                 const x = e.pageX - slider.offsetLeft;
                 const walk = (x - startX) * 1.8;
-                
+
                 if (Math.abs(walk) > 4) {
-                    hasMoved = true;
                     slider.querySelectorAll('.strip-card').forEach(c => c.dataset.hasMoved = "true");
                 }
-                
+
                 slider.scrollLeft = scrollLeft - walk;
             });
 
-            // --- EVENTOS TÁCTILES (Móviles / Tablets) ---
+            // Móviles / Tablets
             slider.addEventListener('touchstart', (e) => {
                 isDown = true;
-                hasMoved = false;
                 startX = e.touches[0].pageX - slider.offsetLeft;
                 scrollLeft = slider.scrollLeft;
                 slider.querySelectorAll('.strip-card').forEach(c => c.dataset.hasMoved = "false");
@@ -313,7 +263,6 @@
                 const walk = (x - startX) * 1.5;
 
                 if (Math.abs(walk) > 5) {
-                    hasMoved = true;
                     slider.querySelectorAll('.strip-card').forEach(c => c.dataset.hasMoved = "true");
                 }
 
@@ -321,11 +270,7 @@
             }, { passive: true });
         }
 
-        // 1. Inicializar la galería inmediatamente con las imágenes locales
-        initLocalGallery();
-
-        // 2. Cargar los enlaces a las carpetas de Google Drive de forma asíncrona
-        loadGallery();
+        initGallery();
     </script>
 </body>
 </html>

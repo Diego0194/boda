@@ -192,13 +192,13 @@
     </button>
 
     <!-- Giant Polaroid Frame Card -->
-    <div class="relative bg-amber-50/95 max-w-3xl w-full rounded-lg shadow-2xl p-5 sm:p-8 pt-8 flex flex-col items-center transform scale-95 transition-transform duration-300 modal-lightbox-card border border-stone-200">
+    <div id="lightbox-card" class="relative bg-amber-50/95 w-full rounded-lg shadow-2xl p-5 sm:p-8 pt-8 flex flex-col items-center transform scale-95 transition-all duration-300 modal-lightbox-card border border-stone-200">
       
       <!-- Chincheta para la vista ampliada -->
       <div class="pin !w-6 !h-6 !-top-3"></div>
 
       <!-- Photo Holder -->
-      <div class="relative w-full aspect-[4/3] bg-stone-900 rounded shadow-inner overflow-hidden photo-wrapper flex items-center justify-center mt-2">
+      <div id="lightbox-wrapper" class="relative w-full max-h-[65vh] bg-stone-900 rounded shadow-inner overflow-hidden photo-wrapper flex items-center justify-center mt-2 transition-all duration-300">
         <img id="lightbox-img" class="w-full h-full object-contain">
       </div>
 
@@ -335,6 +335,9 @@
 
     // Modal Lightbox
     const modalLightbox = document.getElementById('modal-lightbox');
+    const lightboxCard = document.getElementById('lightbox-card');
+    const lightboxWrapper = document.getElementById('lightbox-wrapper');
+    const lightboxImg = document.getElementById('lightbox-img');
 
     window.addEventListener('DOMContentLoaded', () => {
       setupEventListeners();
@@ -429,7 +432,28 @@
       const photo = filteredPhotos[currentLightboxIndex];
       if (!photo) return;
 
-      document.getElementById('lightbox-img').src = photo.url;
+      // Escuchar cuando la imagen termine de cargar para calcular sus dimensiones reales
+      lightboxImg.onload = function() {
+        const isVertical = this.naturalHeight > this.naturalWidth;
+
+        if (isVertical) {
+          // Ajustes para foto vertical
+          lightboxCard.classList.remove('max-w-3xl');
+          lightboxCard.classList.add('max-w-md');
+
+          lightboxWrapper.classList.remove('aspect-[4/3]');
+          lightboxWrapper.classList.add('aspect-[3/4]');
+        } else {
+          // Ajustes para foto horizontal o cuadrada
+          lightboxCard.classList.remove('max-w-md');
+          lightboxCard.classList.add('max-w-3xl');
+
+          lightboxWrapper.classList.remove('aspect-[3/4]');
+          lightboxWrapper.classList.add('aspect-[4/3]');
+        }
+      };
+
+      lightboxImg.src = photo.url;
       document.getElementById('lightbox-caption').textContent = photo.caption || '';
       
       const locEl = document.getElementById('lightbox-location');

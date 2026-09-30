@@ -520,10 +520,12 @@
               </svg>
             </a>
           </div>
+          <div class="moment-actions">
+            <button class="btn-download-all" onclick="descargarCarpeta('paula')">Descargar</button>
+            <button class="btn-see-all" id="btn-see-paula" onclick="abrirCuadricula('paula', '📷 Paula Meis')">Ver ↗</button>
+          </div>
         </div>
-        <div class="moment-preview-row">
-          <div class="empty-state">Próximamente...</div>
-        </div>
+        <div class="moment-preview-row" id="row-paula"></div>
       </div>
 
       <!-- APARTADO ÁNGEL CABALLERO -->
@@ -667,14 +669,12 @@
 <script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.js"></script>
 <script src="main.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/exifreader@4.12.0/dist/exif-reader.js"></script>
-<script src="main.js"></script>
-
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9yuycV29o1R_fBderYMXZwC3a90P1Wc0FKS_zy_keUINKoS5t4hctBb8XFw2EHFoz/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7MqaMmcs_LQ-loDJUfGmW4uUt2cHLBlriHC5yWebt-jtTWBjo9B9mr1YUt-uFgEB1/exec";
 const CONCURRENCIA_MAXIMA = 5;
 
 const CARPETAS_DRIVE = {
+    paula: "1LykaNPRLbckB_gx1TcnHI9OAvAl4x-tY",
     angel: "1KQ1Iqb65Gaysnliuc6L4peT5C0qw-GkU",
     preboda: "1AifTnYvdSFsB3_12YFOzjvSDdUwBn2yx",
     previas: "1kEWzhbmt0MefZPPDv_gff2xFqZQbu56W",
@@ -686,6 +686,7 @@ const CARPETAS_DRIVE = {
 };
 
 const NOMBRES_SECCIONES = {
+    paula: 'Paula Meis',
     angel: 'Ángel Caballero',
     preboda: 'Preboda',
     previas: 'Previa',
@@ -696,7 +697,7 @@ const NOMBRES_SECCIONES = {
     meme: 'Imita el meme'
 };
 
-let datosGaleria = { angel: [], preboda: [], previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [], meme: [] };
+let datosGaleria = { paula: [], angel: [], preboda: [], previas: [], ceremonia: [], coctel: [], comida: [], fiesta: [], meme: [] };
 let seccionActiva = null;
 let subidasEnCurso = 0;
 let indiceLightboxActivo = -1;
@@ -798,7 +799,7 @@ function inicializarGaleria() {
                 thumb.className = 'preview-thumb';
                 thumb.style.cursor = 'pointer';
                 thumb.onclick = () => abrirCuadricula(seccion, NOMBRES_SECCIONES[seccion]);
-                thumb.innerHTML = `<img src="media/${seccion}_portada_${num}.jpg" loading="lazy">`;
+                thumb.innerHTML = `<img src="media/${seccion}_portada_${num}.jpg" loading="lazy" onerror="this.src='media/angel_portada_${num}.jpg'">`;
                 row.appendChild(thumb);
             });
         }
@@ -1341,7 +1342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const elementosRechazados = [];
                 if (fotosRechazadas > 0) elementosRechazados.push(`${fotosRechazadas} foto(s)`);
                 if (videosRechazados > 0) elementosRechazados.push(`${videosRechazados} vídeo(s)`);
-                htmlFinal += `<br><br><span style="font-size: 12px; color: #86868b;">⚠️ ${elementosRechazados.join(' y ')} no pasaron los filtros de fecha.</span>`;
+                htmlFinal += `<br><br><span style="font-size: 12px; color: #86868b;">⚠️️ ${elementosRechazados.join(' y ')} no pasaron los filtros de fecha.</span>`;
             }
 
             mostrarModalProgreso(htmlFinal, null, iconoFinal);

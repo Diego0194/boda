@@ -987,6 +987,7 @@ function descargarCarpeta(seccion) {
     }
 }
 
+
 function mostrarElementoLightbox() {
     const box = document.getElementById('lightbox-media-box');
     box.innerHTML = ''; 
@@ -1019,8 +1020,12 @@ function mostrarElementoLightbox() {
             wrapper.appendChild(iframe);
             box.appendChild(wrapper);
 
+            // Evitar target="_blank" en iOS/iPhone
             btnDownload.href = downloadUrl;
-            btnDownload.target = '_blank';
+            btnDownload.onclick = (e) => {
+                e.stopPropagation();
+                descargarSinPestanaBlanca(downloadUrl);
+            };
         } else {
             const videoEl = document.createElement('video');
             videoEl.src = item.url;
@@ -1034,11 +1039,13 @@ function mostrarElementoLightbox() {
             btnDownload.download = item.name || 'video.mp4';
         }
     } else {
-        let downloadUrl = item.url;
         if (fileId && !item.url.startsWith('blob:')) {
-            downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
             btnDownload.href = downloadUrl;
-            btnDownload.target = '_blank';
+            btnDownload.onclick = (e) => {
+                e.stopPropagation();
+                descargarSinPestanaBlanca(downloadUrl);
+            };
         } else {
             btnDownload.href = item.url;
             btnDownload.download = item.name || 'foto.jpg';
@@ -1051,6 +1058,18 @@ function mostrarElementoLightbox() {
     }
 
     box.appendChild(btnDownload);
+}
+
+// Función auxiliar para forzar la descarga sin abrir pestañas vacías
+function descargarSinPestanaBlanca(url) {
+    let iframe = document.getElementById('hidden-download-iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'hidden-download-iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+    }
+    iframe.src = url;
 }
 
 function abrirLightbox(index) {

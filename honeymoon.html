@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-stone-100">
+<html lang="es" class="h-full bg-stone-900">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,30 +37,55 @@
   </script>
 
   <style>
-    /* Custom styles for organic textures & animations */
+    /* Fondo con imagen personalizada repetida sin estirar */
     body {
-      background-color: #f5f2eb;
-      background-image: radial-gradient(#e2dcd0 1px, transparent 1px);
-      background-size: 24px 24px;
+      background-image: url('honeymoon/fondo.jpg');
+      background-repeat: repeat;
+      background-size: auto;
+      background-position: top left;
     }
 
-    /* Wood / Warm Surface subtle texture overlay */
-    .table-texture {
-      box-shadow: inset 0 0 100px rgba(120, 80, 40, 0.05);
+    .cork-texture {
+      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.45);
     }
 
     /* Polaroid Card Styling */
     .polaroid-card {
       background: #fdfbf7;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
       transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-      transform-origin: center center;
+      transform-origin: center top;
     }
 
     .polaroid-card:hover {
       transform: scale(1.04) rotate(0deg) !important;
-      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.2), 0 12px 15px -8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.4);
       z-index: 30;
+    }
+
+    /* Chincheta (Push Pin Effect) */
+    .pin {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 16px;
+      background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b);
+      border-radius: 50%;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset -1px -1px 2px rgba(0,0,0,0.5);
+      z-index: 20;
+    }
+
+    .pin::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
     }
 
     /* Soft Polaroid Photo Frame Inner Glow */
@@ -93,33 +118,33 @@
       width: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: #f1ebd9;
+      background: rgba(0, 0, 0, 0.2);
     }
     ::-webkit-scrollbar-thumb {
-      background: #d4c8b0;
+      background: rgba(0, 0, 0, 0.4);
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #b8a88c;
+      background: rgba(0, 0, 0, 0.6);
     }
   </style>
 </head>
-<body class="font-sans min-h-full flex flex-col text-stone-800 table-texture antialiased selection:bg-rose-200 selection:text-stone-900">
+<body class="font-sans min-h-full flex flex-col text-stone-800 cork-texture antialiased selection:bg-rose-200 selection:text-stone-900">
 
   <!-- Top Banner / Header -->
-  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-stone-200/80 shadow-sm transition-all duration-300">
+  <header class="sticky top-0 z-40 bg-stone-900/85 backdrop-blur-md border-b border-stone-700/50 shadow-lg text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
       
       <!-- Title & Subtitle -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shadow-inner">
+        <div class="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 shadow-inner">
           <i class="fa-solid font-bold text-xl fa-heart"></i>
         </div>
         <div>
-          <h1 class="text-2xl font-bold tracking-tight text-stone-900 flex items-center gap-2">
-            Nuestra Luna de Miel <span class="text-rose-500 font-handwriting text-3xl font-normal">📸✨</span>
+          <h1 class="text-2xl font-bold tracking-tight text-amber-100 flex items-center gap-2">
+            Nuestra Luna de Miel <span class="text-rose-400 font-handwriting text-3xl font-normal">📸✨</span>
           </h1>
-          <p class="text-xs text-stone-500 font-medium">Recuerdos inolvidables guardados estilo instantánea</p>
+          <p class="text-xs text-amber-200/70 font-medium">Recuerdos inolvidables guardados en el tablón</p>
         </div>
       </div>
 
@@ -129,22 +154,22 @@
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
     
     <!-- Controls Bar: Search Box & Counter -->
-    <section class="bg-white/60 backdrop-blur border border-stone-200/60 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+    <section class="bg-stone-900/60 backdrop-blur border border-stone-700/50 rounded-2xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
       
       <!-- Search Box -->
       <div class="relative w-full sm:w-80">
         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
-        <input type="text" id="input-search" placeholder="Buscar por lugar, nota o fecha..." class="w-full pl-10 pr-4 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition">
+        <input type="text" id="input-search" placeholder="Buscar por lugar, nota o fecha..." class="w-full pl-10 pr-4 py-2 text-sm bg-stone-950/70 text-amber-100 placeholder-stone-400 border border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 transition">
       </div>
 
       <!-- Counter -->
-      <div class="text-xs font-semibold text-stone-500 whitespace-nowrap bg-stone-100 px-3 py-1.5 rounded-lg">
+      <div class="text-xs font-semibold text-amber-100 whitespace-nowrap bg-stone-950/70 border border-stone-700 px-3 py-1.5 rounded-lg">
         <span id="photo-counter">0</span> Fotografías
       </div>
     </section>
 
-    <!-- Polaroid Gallery Grid (2 columnas en móvil) -->
-    <section id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-8 lg:gap-10 py-4 items-start min-h-[350px]">
+    <!-- Polaroid Gallery Grid -->
+    <section id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8 lg:gap-10 py-4 items-start min-h-[350px]">
       <!-- Polaroid Items dynamically rendered here -->
     </section>
 
@@ -167,10 +192,13 @@
     </button>
 
     <!-- Giant Polaroid Frame Card -->
-    <div class="relative bg-amber-50/95 max-w-3xl w-full rounded-lg shadow-2xl p-5 sm:p-8 flex flex-col items-center transform scale-95 transition-transform duration-300 modal-lightbox-card border border-stone-200">
+    <div class="relative bg-amber-50/95 max-w-3xl w-full rounded-lg shadow-2xl p-5 sm:p-8 pt-8 flex flex-col items-center transform scale-95 transition-transform duration-300 modal-lightbox-card border border-stone-200">
       
+      <!-- Chincheta para la vista ampliada -->
+      <div class="pin !w-6 !h-6 !-top-3"></div>
+
       <!-- Photo Holder -->
-      <div class="relative w-full aspect-[4/3] bg-stone-900 rounded shadow-inner overflow-hidden photo-wrapper flex items-center justify-center">
+      <div class="relative w-full aspect-[4/3] bg-stone-900 rounded shadow-inner overflow-hidden photo-wrapper flex items-center justify-center mt-2">
         <img id="lightbox-img" class="w-full h-full object-contain">
       </div>
 
@@ -189,7 +217,6 @@
   </div>
 
   <script>
-    // Configura aquí todas tus fotos
     const SAMPLE_PHOTOS = [
       {
         id: 'photo-1',
@@ -273,7 +300,7 @@
       },
       {
         id: 'photo-11',
-        url: 'honeymoon/foto11.jpg',
+        url: 'honeymoon/foto11.png',
         caption: 'Desayuno 🥐',
         location: 'Age 3, Tokyo',
         date: '2026-09-12',
@@ -314,13 +341,11 @@
       renderGallery();
     });
 
-    // Helper: Generate slight random rotation for natural polaroid look
     function getRandomRotation() {
       return (Math.random() * 6 - 3).toFixed(1);
     }
 
     function renderGallery() {
-      // Filter Photos strictly by Search Term
       filteredPhotos = SAMPLE_PHOTOS.filter(p => {
         const term = currentSearchTerm.toLowerCase();
         return !term || 
@@ -329,67 +354,57 @@
           (p.date && p.date.includes(term));
       });
 
-      // Ordenar por fecha: de más antiguas a más nuevas (ascendente)
       filteredPhotos.sort((a, b) => new Date(a.date || '9999-12-31') - new Date(b.date || '9999-12-31'));
 
-      // Update counter
       photoCounter.textContent = filteredPhotos.length;
-
-      // Clear Grid
       galleryGrid.innerHTML = '';
 
       if (filteredPhotos.length === 0) {
         galleryGrid.innerHTML = `
-          <div class="col-span-full flex flex-col items-center justify-center py-16 text-center text-stone-400">
-            <i class="fa-solid fa-images text-5xl mb-3 text-stone-300"></i>
-            <p class="text-lg font-semibold text-stone-600">No hay fotos en esta vista</p>
-            <p class="text-xs text-stone-400 mt-1">Prueba a cambiar los términos de búsqueda.</p>
+          <div class="col-span-full flex flex-col items-center justify-center py-16 text-center text-amber-100">
+            <i class="fa-solid fa-images text-5xl mb-3 text-amber-200/50"></i>
+            <p class="text-lg font-semibold text-amber-100">No hay fotos en esta vista</p>
+            <p class="text-xs text-amber-200/70 mt-1">Prueba a cambiar los términos de búsqueda.</p>
           </div>
         `;
         return;
       }
 
-      // Render Polaroid Cards
       filteredPhotos.forEach((photo) => {
         const card = document.createElement('div');
         const rotation = photo.rotation !== undefined ? photo.rotation : getRandomRotation();
         
-        card.className = 'polaroid-card group relative bg-[#fdfbf7] p-2.5 sm:p-4 pb-4 sm:pb-6 rounded-sm border border-stone-200/70 cursor-pointer select-none';
+        card.className = 'polaroid-card group relative bg-[#fdfbf7] p-2.5 sm:p-4 pt-6 sm:pt-7 pb-4 sm:pb-6 rounded-sm border border-stone-200/70 cursor-pointer select-none';
         card.style.transform = `rotate(${rotation}deg)`;
         card.dataset.id = photo.id;
 
         card.innerHTML = `
+          <!-- Chincheta superior -->
+          <div class="pin"></div>
+
           <!-- Photo Container -->
           <div class="relative aspect-square w-full bg-stone-900 rounded-sm overflow-hidden photo-wrapper mb-3 sm:mb-4">
             <img src="${photo.url}" alt="${photo.caption || 'Polaroid'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 developing-animation" loading="lazy">
           </div>
 
-          <!-- Handwritten Caption & Details in 3 lines -->
+          <!-- Handwritten Caption & Details -->
           <div class="px-1 text-center min-h-[65px] sm:min-h-[75px] flex flex-col justify-center items-center gap-0.5">
-            
-            <!-- Línea 1: Nota -->
             <div class="caption-text font-handwriting text-lg sm:text-2xl text-stone-800 font-semibold leading-tight break-words">
               ${escapeHtml(photo.caption || '')}
             </div>
-            
-            <!-- Línea 2: Ubicación -->
             ${photo.location ? `
               <div class="text-[10px] sm:text-[11px] font-medium text-stone-400 opacity-80 truncate max-w-full">
                 <i class="fa-solid fa-location-dot text-rose-400"></i> ${escapeHtml(photo.location)}
               </div>
             ` : ''}
-
-            <!-- Línea 3: Fecha -->
             ${photo.date ? `
               <div class="text-[10px] sm:text-[11px] font-medium text-stone-400 opacity-80">
                 <i class="fa-regular fa-calendar"></i> ${formatDate(photo.date)}
               </div>
             ` : ''}
-
           </div>
         `;
 
-        // Card Click opens Lightbox
         card.addEventListener('click', () => {
           openLightbox(photo.id);
         });
@@ -441,7 +456,6 @@
       modalLightbox.querySelector('.modal-lightbox-card').classList.add('scale-95');
     }
 
-    // Helper functions
     function escapeHtml(str) {
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
@@ -461,13 +475,11 @@
     }
 
     function setupEventListeners() {
-      // Search Input
       inputSearch.addEventListener('input', (e) => {
         currentSearchTerm = e.target.value.trim();
         renderGallery();
       });
 
-      // Lightbox Controls
       document.getElementById('btn-close-lightbox').addEventListener('click', closeLightbox);
       
       document.getElementById('btn-prev-lightbox').addEventListener('click', () => {
@@ -482,7 +494,6 @@
         updateLightboxContent();
       });
 
-      // Keyboard Controls for Lightbox
       window.addEventListener('keydown', (e) => {
         if (modalLightbox.classList.contains('opacity-0')) return;
 

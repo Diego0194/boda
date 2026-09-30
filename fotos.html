@@ -904,7 +904,7 @@ async function cargarPaginaCuadricula(signal) {
         const nuevosArchivos = archivosDrive.map(file => ({
             id: file.id,
             name: file.name,
-            url: `https://lh3.googleusercontent.com/d/${file.id}=w400`,
+            url: `https://lh3.googleusercontent.com/d/${file.id}=s0`,
             type: file.mimeType,
             status: 'done'
         }));
@@ -1052,9 +1052,11 @@ function mostrarElementoLightbox() {
         }
 
         const img = document.createElement('img');
-        img.src = item.url;
-        img.className = 'lightbox-media';
-        box.appendChild(img);
+        img.src = item.url.includes('googleusercontent.com') 
+    ? item.url.replace(/=w\d+$/, '=s0').replace(/=s\d+$/, '=s0') 
+    : item.url;
+img.className = 'lightbox-media';
+box.appendChild(img);
     }
 
     box.appendChild(btnDownload);
